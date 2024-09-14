@@ -1,0 +1,15 @@
+### VS Code ###
+.vscode/
+
+### electron destop app ###
+node_modules
+dist
+build
+out
+.DS_Store
+*.log*
+
+
+
+
+
