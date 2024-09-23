@@ -1,7 +1,6 @@
 import { atom, selector } from 'recoil'
 import { LoginRequest, LoginResponse } from './types/Auth/login'
 import { User } from './types/User/user'
-import { Patient } from './types/Patient/patient'
 
 export const LoginRequestState = atom<LoginRequest>({
   key: 'LoginRequestState',
@@ -35,7 +34,6 @@ export const LoggedStateSelector = selector<LoginResponse>({
   key: 'LoggedStateSelector',
   get: async ({ get }) => {
     const loginRequest = get(LoginRequestState)
-    // const response = await login(loginRequest)
     const response: LoginResponse = {
       token: 'token',
       user: {
@@ -45,16 +43,12 @@ export const LoggedStateSelector = selector<LoginResponse>({
     }
 
     if (response.user.userName === 'doctor') {
-      (window.api as any).send('start-listening')
+      ;(window.api as any).send('start-listening', 'heart_specialist')
     } else {
-      (window.api as any).send('stop-listening')
+      ;(window.api as any).send('stop-listening')
     }
     return response
   }
 })
 
-export const patientListState = atom<Patient[]>({
-  key: 'messageState',
-  default: []
-})
 

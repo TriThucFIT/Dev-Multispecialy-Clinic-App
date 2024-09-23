@@ -56,11 +56,10 @@ app.on('window-all-closed', () => {
   }
 })
 
-let stompClient: Client | null = null;
+let stompClient: Client | null = null
 
-ipcMain.on('start-listening', () => {
+ipcMain.on('start-listening', (_, queue_name) => {
   if (!stompClient) {
-    
     stompClient = new Client({
       brokerURL: 'ws://127.0.0.1:61614/stomp',
       webSocketFactory: () => {
@@ -69,25 +68,25 @@ ipcMain.on('start-listening', () => {
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000
-    });
+    })
 
     stompClient.onConnect = (frame) => {
-      console.log('Connected: ' + frame);
+      console.log('Connected: ' + frame)
 
-      stompClient?.subscribe('/queue/heart_patients', (message) => {
+      stompClient?.subscribe(`/queue/${queue_name}`, (message) => {
         if (mainWindow) {
-          mainWindow.webContents.send('received-patient', JSON.parse(message.body));
+          mainWindow.webContents.send('received-patient', JSON.parse(message.body))
         }
-      });
-    };
+      })
+    }
 
-    stompClient.activate();
+    stompClient.activate()
   }
-});
+})
 
 ipcMain.on('stop-listening', () => {
   if (stompClient && stompClient.active) {
-    stompClient.deactivate();
-    stompClient = null;
+    stompClient.deactivate()
+    stompClient = null
   }
-});
+})

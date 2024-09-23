@@ -1,5 +1,6 @@
-import { Doctor } from '@renderer/pages/Doctor'
-import { Receptionist } from '@renderer/pages/Receptionist'
+// import { Doctor } from '@renderer/pages/Doctor'
+import EnhancedDoctorScreen from '@renderer/pages/doctor-dashboard'
+import ReceptionistDashboard from '@renderer/pages/receptionist-dashboard'
 import { Welcome } from '@renderer/pages/welcome'
 import { LoggedStateSelector, UserState } from '@renderer/state'
 import { FC, useEffect } from 'react'
@@ -19,10 +20,10 @@ export const Layout: FC = () => {
       <Route
         path="/"
         element={
-          LoggedState.user.userName === 'receptionist' ? (
-            <Receptionist />
+          LoggedState.user.userName === 're' ? (
+            <ReceptionistDashboard />
           ) : LoggedState.user.userName === 'doctor' ? (
-            <Doctor />
+            <EnhancedDoctorScreen />
           ) : (
             <Welcome />
           )
