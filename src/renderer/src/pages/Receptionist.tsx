@@ -7,7 +7,7 @@ import { AddmissionForm } from '@renderer/components/Receptionits/AddmissionForm
 export const Receptionist: FC = () => {
   const user = useRecoilValue(UserState)
   return (
-    <div className="w-screen h-screen bg-[url('../assets/bg-receptionist.png')] bg-cover bg-center">
+    <div className="w-screen h-screen bg-[url('../assets/bg-receptionist-1.png')] bg-cover bg-center">
       <div className="flex lg:h-[12%] h-[20%]">
         <img
           src={LogoDMC}

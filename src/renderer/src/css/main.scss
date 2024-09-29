@@ -29,6 +29,13 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --blue-primary: #07b7f8;
+    --blue-secondary: #2d9cc0;
+    --success: #0bba74;
+    --error: #ff4761;
+    --warning: #f7b731;
+    --bg-hover: rgba(180, 191, 214, 0.14);
+    --bg-active: rgb(219 234 254 /0.5);
   }
 
   .dark {
@@ -65,5 +72,13 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+.ant-select-dropdown {
+  .ant-select-item-option-content {
+    overflow: visible;
+    white-space: inherit;
+    text-overflow: inherit;
+    color: black !important;
   }
 }

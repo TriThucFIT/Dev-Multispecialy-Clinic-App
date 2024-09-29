@@ -17,7 +17,7 @@ export const AddmissionForm: FC = () => {
       <div className="w-full h-full bg-opacity-0 flex justify-center mt-20">
         <form
           onSubmit={handleSubmit}
-          className="w-1/3 lg:h-[400px] bg-white bg-opacity-70 rounded-lg p-5"
+          className="w-1/3 lg:h-[400px] bg-white bg-opacity-90 rounded-lg p-5"
         >
           <div className="flex flex-col">
             <label className="text-lg font-semibold text-[#07b7f8]">Tên Đăng Nhập</label>

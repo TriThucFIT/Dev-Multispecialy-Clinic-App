@@ -5,7 +5,7 @@ import { CardInfo } from '@renderer/components/Doctors/CardInfo'
 
 export const Doctor: FC = () => {
   return (
-    <div className="relative w-screen h-screen bg-[url('../assets/bg-doctor.png')] bg-cover bg-center">
+    <div className="relative w-screen h-screen bg-[url('../assets/bg-doctor-1.png')] bg-cover bg-center">
       <div className="flex h-[20%]">
         <img
           src={LogoDMC}

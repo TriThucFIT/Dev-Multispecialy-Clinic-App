@@ -11,7 +11,7 @@ type QuickActionsProps = {
 
 export function QuickActions({ aiAssistEnabled, onAIAssistToggle }: QuickActionsProps) {
   return (
-    <Card className="md:col-span-3 bg-opacity-70 bg-white">
+    <Card className="md:col-span-3 bg-opacity-90 bg-white">
       <CardHeader>
         <CardTitle>Hành động nhanh</CardTitle>
       </CardHeader>

@@ -11,7 +11,7 @@ export const CardInfo: FC = () => {
 
   return (
     <div className="w-full h-full relative ">
-      <div className="flex bg-white border bg-opacity-70 rounded-xl">
+      <div className="flex bg-white border bg-opacity-90 rounded-xl">
         <figure>
           <img
             src="https://benhvientantao.com/wp-content/uploads/2022/11/BC_CHUONG-removebg-preview.png"

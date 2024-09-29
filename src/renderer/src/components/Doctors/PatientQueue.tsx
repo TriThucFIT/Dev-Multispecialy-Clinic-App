@@ -6,6 +6,7 @@ import { Patient } from '@renderer/types/Patient/patient'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { currentPatientState, patientListState } from '@renderer/states/doctor'
+import { Users } from 'lucide-react'
 const renderPriorityBadge = (priority: number, age: number) => {
   const color =
     priority < 1 ? 'bg-red-500' : priority <= 2 || age >= 80 ? 'bg-yellow-500' : 'bg-green-500'
@@ -37,9 +38,13 @@ export function PatientList() {
     return () => clearInterval(interval)
   }, [patients])
   return (
-    <Card className="md:col-span-1 bg-opacity-70 bg-white">
+    <Card className="md:col-span-1 bg-opacity-90 bg-white">
       <CardHeader>
         <CardTitle>Danh sách bệnh nhân ({patients.length})</CardTitle>
+        <div className="flex items-center">
+          <Users className="mr-2 h-4 w-4 text-hospital" />
+          <span>Số bệnh nhân đã khám: 15</span>
+        </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px]">

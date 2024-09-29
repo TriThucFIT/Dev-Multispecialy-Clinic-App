@@ -50,5 +50,3 @@ export const LoggedStateSelector = selector<LoginResponse>({
     return response
   }
 })
-
-

@@ -1,4 +1,4 @@
-import { Allergy, LabTest, Medication, VitalSigns } from '@renderer/types/doctor'
+import { Allergy, LabTest, Medication, VitalSigns } from '@renderer/types/Doctor'
 import { Patient } from '@renderer/types/Patient/patient'
 import { atom } from 'recoil'
 
@@ -51,36 +51,36 @@ export const vitalSignsState = atom<VitalSigns>({
 export const patientListState = atom<Patient[]>({
   key: 'messageState',
   default: [
-    // {
-    //   id: 1,
-    //   name: 'John Doe',
-    //   age: 85,
-    //   gender: 'Male',
-    //   priority: 3,
-    //   symptoms: 'Chest pain, shortness of breath',
-    //   waitingTime: 15,
-    //   arrivalOrder: 0
-    // },
-    // {
-    //   id: 2,
-    //   name: 'Jane Smith',
-    //   age: 45, 
-    //   gender: 'Female',
-    //   priority: 1,
-    //   symptoms: 'Headache, fever',
-    //   waitingTime: 30,
-    //   arrivalOrder: 0
-    // },
-    // {
-    //   id: 3,
-    //   name: 'Bob Johnson',
-    //   age: 60,
-    //   gender: 'Male',
-    //   priority: 3,
-    //   symptoms: 'Joint pain, fatigue',
-    //   waitingTime: 25,
-    //   arrivalOrder: 0
-    // }
+    {
+      id: 1,
+      name: 'John Doe',
+      age: 85,
+      gender: 'Male',
+      priority: 3,
+      symptoms: 'Chest pain, shortness of breath',
+      waitingTime: 15,
+      arrivalOrder: 0
+    },
+    {
+      id: 2,
+      name: 'Jane Smith',
+      age: 45,
+      gender: 'Female',
+      priority: 1,
+      symptoms: 'Headache, fever',
+      waitingTime: 30,
+      arrivalOrder: 0
+    },
+    {
+      id: 3,
+      name: 'Bob Johnson',
+      age: 60,
+      gender: 'Male',
+      priority: 3,
+      symptoms: 'Joint pain, fatigue',
+      waitingTime: 25,
+      arrivalOrder: 0
+    }
   ]
 })
 
@@ -113,5 +113,3 @@ export const additionalNotesState = atom<string>({
   key: 'additionalNotesState',
   default: ''
 })
-
-

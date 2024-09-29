@@ -10,7 +10,7 @@ export function PatientRegistration() {
   const [isNewPatient, setIsNewPatient] = useState('new')
 
   return (
-    <Card className="bg-white bg-opacity-70">
+    <Card className="bg-white bg-opacity-90">
       <CardHeader>
         <CardTitle>Đăng Ký Bệnh Nhân</CardTitle>
       </CardHeader>

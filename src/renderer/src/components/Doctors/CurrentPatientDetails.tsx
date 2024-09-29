@@ -29,7 +29,7 @@ export function CurrentPatientDetails({
   vitalSigns
 }: CurrentPatientDetailsProps) {
   return (
-    <Card className="md:col-span-2 bg-opacity-70 bg-white">
+    <Card className="md:col-span-2 bg-opacity-90 bg-white">
       <CardHeader>
         <CardTitle>Bệnh nhân hiện tại: {patient?.name}</CardTitle>
       </CardHeader>

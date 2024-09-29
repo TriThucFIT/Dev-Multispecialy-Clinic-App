@@ -50,7 +50,13 @@ module.exports = {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
-        }
+        },
+        bluePrimary: 'var(--blue-primary)',
+        blueSecondary: 'var(--blue-secondary)',
+        success: 'var(--success)',
+        error: 'var(--error)',
+        bgHover: 'var(--bg-hover)',
+        bgActive: 'var(--bg-active)',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -74,12 +80,11 @@ module.exports = {
       backgroundColor: {
         primary: '#07b7f8'
       },
-      textColor:{
+      textColor: {
         primary: {
           DEFAULT: '#07b7f8',
           foreground: '#ffffff'
         }
-        
       }
     }
   },

@@ -1,6 +1,6 @@
 import { FC, useEffect } from 'react'
 import { useRecoilState } from 'recoil'
-import { patientListState } from '@renderer/state'
+import { patientListState } from '@renderer/states/doctor'
 import { Patient } from '@renderer/types/Patient/patient'
 import { createPatient, PatientQueue } from '@renderer/utils/PriorityQueueCustomize'
 
@@ -19,13 +19,13 @@ export const PatientList: FC = () => {
   }, [])
 
   return (
-    <div className="mx-5 overflow-hidden">
+    <div className="mx-5 overflow-hidden bg-red-300">
       <div className="flex justify-center mb-3">
         <h1 className="text-2xl font-bold text-[#07b7f8] md:mt-16 md:text-3xl sm:mt-20 lg:mt-10 lg:text-4xl ">
           Danh Sách Bệnh Nhân
         </h1>
       </div>
-      <div className="overflow-hidden bg-white bg-opacity-70 border-x-2 rounded-lg lg:h-[70vh] sm:h-[50vh] h-[20vh]">
+      <div className="overflow-hidden bg-white bg-opacity-90 border-x-2 rounded-lg lg:h-[70vh] sm:h-[50vh] h-[20vh]">
         <div className="overflow-y-auto h-full">
           <table className="table w-full h-full">
             <thead className="text-center block w-full">

@@ -8,7 +8,7 @@ import { QuickActions } from '../components/Doctors/QuickActions'
 import { Patient } from '@renderer/types/Patient/patient'
 import { useRecoilState, useResetRecoilState } from 'recoil'
 import { createPatient, PatientQueue } from '@renderer/utils/PriorityQueueCustomize'
-import { Allergy, LabTest, Medication, VitalSigns } from '@renderer/types/doctor'
+import { Allergy, LabTest, Medication, VitalSigns } from '@renderer/types/Doctor'
 import {
   aiAssistEnabledState,
   allergiesState,
@@ -24,8 +24,9 @@ import {
   prescriptionState,
   selectedLabTestsState
 } from '@renderer/states/doctor'
-import { CardInfo } from '@renderer/components/CardInfo'
+import { CardInfo, eUserType } from '@renderer/components/CardInfo'
 import { LoginRequestState } from '@renderer/state'
+
 const DoctorData = {
   name: 'Trần Văn Tý',
   email: 'vanty@hospital.com',
@@ -101,20 +102,18 @@ export default function EnhancedDoctorScreen() {
     console.log('Thông tin khám bệnh đã được gửi', examinationData)
   }
   return (
-    <div className="h-screen w-screen bg-[url('../assets/bg-doctor.png')] bg-cover bg-center overflow-auto">
+    <div className="h-screen w-screen bg-[url('../assets/bg-doctor-2.svg')] bg-cover bg-center overflow-auto">
       <h1 className="w-full text-3xl lg:text-5xl font-extrabold text-center my-5 text-[#07b7f8]">
         Phòng Khám Đa Khoa DMC - Khoa Tim Mạch
       </h1>
+      <CardInfo
+        userType={eUserType.doctor}
+        name={DoctorData.name}
+        email={DoctorData.email}
+        avatarUrl={DoctorData.avatarUrl}
+        onLogout={handleLogout}
+      />
       <div className="flex flex-col lg:flex-row">
-        <div className="w-full lg:w-fit p-4">
-          <CardInfo
-            userType="doctor"
-            name={DoctorData.name}
-            email={DoctorData.email}
-            avatarUrl={DoctorData.avatarUrl}
-            onLogout={handleLogout}
-          />
-        </div>
         <div className=" w-full p-4 ">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <PatientList />
