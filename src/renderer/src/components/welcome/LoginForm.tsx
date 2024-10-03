@@ -4,12 +4,12 @@ import { useSetRecoilState } from 'recoil'
 
 export const LoginForm: FC = () => {
   const setLoginRequest = useSetRecoilState(LoginRequestState)
-  const [userName, setUserName] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setLoginRequest({ userName, password })
+    setLoginRequest({ username, password })
   }
 
   return (
@@ -22,8 +22,8 @@ export const LoginForm: FC = () => {
           <div className="flex flex-col">
             <label className="text-lg font-semibold text-[#07b7f8]">Tên Đăng Nhập</label>
             <input
-              onChange={(e) => setUserName(e.target.value)}
-              value={userName}
+              onChange={(e) => setUsername(e.target.value)}
+              value={username}
               type="text"
               className="border-2 border-[#07b7f8] rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#07b7f8] focus:border-transparent"
             />

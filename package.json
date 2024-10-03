@@ -67,7 +67,7 @@
     "@types/stompjs": "^2.3.9",
     "@types/ws": "^8.5.12",
     "@vitejs/plugin-react": "^4.3.1",
-    "daisyui": "^4.12.10",
+    "daisyui": "^4.12.11",
     "electron": "^31.0.2",
     "electron-builder": "^24.13.3",
     "electron-vite": "^2.3.0",

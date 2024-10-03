@@ -56,7 +56,7 @@ module.exports = {
         success: 'var(--success)',
         error: 'var(--error)',
         bgHover: 'var(--bg-hover)',
-        bgActive: 'var(--bg-active)',
+        bgActive: 'var(--bg-active)'
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -88,5 +88,5 @@ module.exports = {
       }
     }
   },
-  plugins: [require('tailwindcss-animate')]
+  plugins: [require('tailwindcss-animate'), require('daisyui')]
 }

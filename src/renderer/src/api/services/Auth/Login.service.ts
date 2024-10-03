@@ -1,14 +1,15 @@
 import AxiosInstance from '@renderer/api/config/axios.config'
 import { LoginRequest, LoginResponse } from '@renderer/types/Auth/login'
+import { User } from '@renderer/types/User/user'
 
-export const login = async (user: LoginRequest): Promise<LoginResponse> => {
-  try {
-    const response = await AxiosInstance.post('/auth/login', {
-      user
-    })
+export class AuthService {
+  static async login(loginRequest: LoginRequest): Promise<LoginResponse> {
+    const response = await AxiosInstance.post<LoginResponse>('/auth/login', loginRequest)
     return response.data
-  } catch (error) {
-    console.error('Error on login', error)
-    throw error
+  }
+
+  static async getProfile(): Promise<User> {
+    const response = await AxiosInstance.get<User>('/auth/profile')
+    return response.data
   }
 }

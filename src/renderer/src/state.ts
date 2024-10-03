@@ -1,52 +1,43 @@
 import { atom, selector } from 'recoil'
 import { LoginRequest, LoginResponse } from './types/Auth/login'
 import { User } from './types/User/user'
+import { AuthService } from './api/services/Auth/Login.service'
 
-export const LoginRequestState = atom<LoginRequest>({
+export const LoginRequestState = atom<LoginRequest | null>({
   key: 'LoginRequestState',
-  default: {
-    userName: '',
-    password: ''
-  }
-})
-
-export const IsLoggedState = atom<boolean>({
-  key: 'IsLoggedState',
-  default: false
+  default: null
 })
 
 export const TokenState = atom<string>({
   key: 'TokenState',
-  default: ''
+  default: localStorage.getItem('access_token') || ''
 })
 
-export const UserState = atom<User>({
+export const UserState = atom<User | null>({
   key: 'UserState',
-  default: {
-    id: 0,
-    userName: '',
-    email: '',
-    roles: []
-  }
+  default: null
 })
 
-export const LoggedStateSelector = selector<LoginResponse>({
+export const LoggedStateSelector = selector<LoginResponse | null>({
   key: 'LoggedStateSelector',
   get: async ({ get }) => {
     const loginRequest = get(LoginRequestState)
-    const response: LoginResponse = {
-      token: 'token',
-      user: {
-        id: 1,
-        userName: loginRequest.userName
-      }
+    if (!loginRequest) {
+      return null
     }
-
-    if (response.user.userName === 'doctor') {
-      ;(window.api as any).send('start-listening', 'heart_specialist')
-    } else {
-      ;(window.api as any).send('stop-listening')
+    const response: LoginResponse = await AuthService.login(loginRequest)
+    localStorage.setItem('access_token', response.access_token)
+    return response
+  }
+})
+export const ProfileSelector = selector<User | null>({
+  key: 'ProfileSelector',
+  get: async ({ get }) => {
+    const login = get(LoggedStateSelector)
+    if (!login) {
+      return null
     }
+    const response: User = await AuthService.getProfile()
     return response
   }
 })

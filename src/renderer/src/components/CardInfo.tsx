@@ -13,14 +13,8 @@ import { Card } from './ui/card'
 import { Clock, Calendar } from 'lucide-react'
 import { IoLogOutOutline, IoSettingsOutline } from 'react-icons/io5'
 import { FaRegCircleUser } from 'react-icons/fa6'
-
-type ReceptionistInfoProps = {
-  name: string
-  email: string
-  avatarUrl?: string
-  userType: eUserType
-  onLogout: () => void
-}
+import { useRecoilValue, useResetRecoilState } from 'recoil'
+import { LoginRequestState, UserState } from '@renderer/state'
 
 export enum eUserType {
   doctor = 'doctor',
@@ -29,12 +23,19 @@ export enum eUserType {
   pharmacist = 'pharmacist'
 }
 
-export function CardInfo({ name, email, avatarUrl, onLogout }: ReceptionistInfoProps) {
+export function CardInfo() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const userState = useRecoilValue(UserState)
+  const clearLogin = useResetRecoilState(LoginRequestState)
+
+  const handleLogout = () => {
+    clearLogin()
+    console.log('Đăng xuất')
+  }
 
   const getAvatarFallback = () => {
-    if (name && name.length > 0) {
-      return name.charAt(0).toUpperCase()
+    if (userState?.fullName) {
+      return userState.fullName.charAt(0).toUpperCase()
     }
     return 'R'
   }
@@ -44,12 +45,12 @@ export function CardInfo({ name, email, avatarUrl, onLogout }: ReceptionistInfoP
       <Card className="mr-3">
         <div className="flex items-center px-3 py-2">
           <Avatar>
-            <AvatarImage src={avatarUrl} alt={name || 'Receptionist'} />
+            <AvatarImage src={userState?.avatar} alt={userState?.fullName || 'Receptionist'} />
             <AvatarFallback>{getAvatarFallback()}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium">{name || 'Chưa có tên'}</p>
-            <p className="text-sm opacity-75">{email || 'Chưa có email'}</p>
+            <p className="text-sm font-medium">{userState?.fullName || 'Chưa có tên'}</p>
+            <p className="text-sm opacity-75">{userState?.email || 'Chưa có email'}</p>
           </div>
           <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <DropdownMenuTrigger asChild>
@@ -69,7 +70,7 @@ export function CardInfo({ name, email, avatarUrl, onLogout }: ReceptionistInfoP
                 Cài đặt
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-500" onClick={onLogout}>
+              <DropdownMenuItem className="text-red-500" onClick={handleLogout}>
                 <IoLogOutOutline className="mr-2" />
                 Đăng xuất
               </DropdownMenuItem>
