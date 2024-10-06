@@ -61,7 +61,7 @@ export const PatientList: FC = () => {
                           </div>
                         </div>
                         <div>
-                          <div className="font-bold">{message.name}</div>
+                          <div className="font-bold">{message.fullName}</div>
                           <div className="text-sm opacity-50">Trạng thái: {message.status}</div>
                         </div>
                       </div>

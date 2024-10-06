@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import { RoleName } from '@renderer/types/User/user'
 import ReceptionistDashboard from '@renderer/pages/receptionist-dashboard'
 import EnhancedDoctorScreen from '@renderer/pages/doctor-dashboard'
@@ -12,13 +12,18 @@ import { LoggedStateSelector, ProfileSelector, UserState } from '@renderer/state
 export const Layout: FC = () => {
   const LoggedState = useRecoilValueLoadable(LoggedStateSelector)
   const loginUser = useRecoilValueLoadable(ProfileSelector)
-  const setUserState = useSetRecoilState(UserState)
+  const [userState, setUserState] = useRecoilState(UserState)
 
   const getDashboardComponent = (roleName: RoleName) => {
     switch (roleName) {
       case RoleName.Receptionist:
         return <ReceptionistDashboard />
       case RoleName.Doctor:
+        if (userState?.specialization) {
+          ;(window.api as any).send('start-listening', userState.specialization + "_specialization")
+        } else {
+          ;(window.api as any).send('stop-listening')
+        }
         return <EnhancedDoctorScreen />
       case RoleName.Casher:
         return <CashierDashboard />
@@ -29,6 +34,14 @@ export const Layout: FC = () => {
     }
   }
 
+  if (userState) {
+    return (
+      <Routes>
+        <Route path="/" element={getDashboardComponent(userState.roles[0].name)} />
+      </Routes>
+    )
+  }
+
   if (LoggedState.state === 'hasValue' && loginUser.state === 'hasValue') {
     const userContents = loginUser.contents
     if (userContents) {
@@ -37,22 +50,17 @@ export const Layout: FC = () => {
         avatar: userContents.avatar ? userContents.avatar : '/placeholder.svg?height=40&width=40',
         isActive: userContents.isActive !== undefined ? userContents.isActive : false
       })
-    }
-    if (userContents && userContents.roles && userContents.roles.length > 0) {
-      const roleName = userContents.roles[0].name
-      return (
-        <Routes>
-          <Route path="/" element={getDashboardComponent(roleName)} />
-        </Routes>
-      )
     } else {
-      console.warn('No role found for user')
       return <Welcome />
     }
   }
-  return (
-    <div className="h-screen w-screen justify-center items-center">
-      <span className="loading loading-lg loading-infinity text-primary"></span>
-    </div>
-  )
+  if (LoggedState.state === 'loading' || loginUser.state === 'loading') {
+    return (
+      <div className="h-screen w-screen justify-center items-center">
+        <span className="border loading loading-infinity loading-lg text-primary"></span>
+      </div>
+    )
+  }
+
+  return <Welcome />
 }

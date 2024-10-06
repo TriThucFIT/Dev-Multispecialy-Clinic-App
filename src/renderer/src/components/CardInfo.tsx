@@ -14,7 +14,7 @@ import { Clock, Calendar } from 'lucide-react'
 import { IoLogOutOutline, IoSettingsOutline } from 'react-icons/io5'
 import { FaRegCircleUser } from 'react-icons/fa6'
 import { useRecoilValue, useResetRecoilState } from 'recoil'
-import { LoginRequestState, UserState } from '@renderer/state'
+import { LoginRequestState, TokenState, UserState } from '@renderer/state'
 
 export enum eUserType {
   doctor = 'doctor',
@@ -27,10 +27,15 @@ export function CardInfo() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const userState = useRecoilValue(UserState)
   const clearLogin = useResetRecoilState(LoginRequestState)
+  const clearUser = useResetRecoilState(UserState)
+  const clearToken = useResetRecoilState(TokenState)
 
   const handleLogout = () => {
+    localStorage.removeItem('user_login')
+    localStorage.removeItem('access_token')
     clearLogin()
-    console.log('Đăng xuất')
+    clearUser()
+    clearToken()
   }
 
   const getAvatarFallback = () => {

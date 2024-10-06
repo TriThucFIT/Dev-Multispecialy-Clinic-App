@@ -31,7 +31,7 @@ export function CurrentPatientDetails({
   return (
     <Card className="md:col-span-2 bg-opacity-90 bg-white">
       <CardHeader>
-        <CardTitle>Bệnh nhân hiện tại: {patient?.name}</CardTitle>
+        <CardTitle>Bệnh nhân hiện tại: {patient?.fullName}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">

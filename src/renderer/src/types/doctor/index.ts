@@ -1,3 +1,17 @@
+export type Doctor = {
+  id: number
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+  fullName: string
+  address: string
+  phone: string
+  gender: boolean
+  dob: Date
+  employeeId: string
+  specialization: Specializations
+}
+
 export type LabTest = {
   id: number
   name: string
@@ -21,4 +35,17 @@ export type VitalSigns = {
   heartRate: number
   temperature: number
   oxygenSaturation: number
+}
+
+export enum Specializations {
+  CARDIOLOGY = 'Cardiology', // Tim mạch
+  DERMATOLOGY = 'Dermatology', // Da liễu
+  GASTROENTEROLOGY = 'Gastroenterology', // Tiêu hóa
+  NEUROLOGY = 'Neurology', // Thần kinh
+  ORTHOPEDICS = 'Orthopedics', // Chỉnh hình
+  PEDIATRICS = 'Pediatrics', // Nhi khoa
+  PSYCHIATRY = 'Psychiatry', // Tâm thần
+  RADIOLOGY = 'Radiology', // Chẩn đoán hình ảnh
+  SURGERY = 'Surgery', // Phẫu thuật
+  UROLOGY = 'Urology' // Tiết niệu
 }

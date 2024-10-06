@@ -26,7 +26,7 @@ export function PatientList() {
   useEffect(() => {
     const calculateInitialWaitingTimes = () => {
       return patients.map((patient) => {
-        return Math.floor((new Date().getTime() - patient.arrivalOrder) / 1000) // tính bằng giây
+        return Math.floor((new Date().getTime() - (patient.arrivalOrder ?? 0)) / 1000)
       })
     }
 
@@ -60,10 +60,10 @@ export function PatientList() {
             <TableBody>
               {currentPatient && (
                 <TableRow key={currentPatient.id} className="bg-primary bg-opacity-15">
-                  <TableCell>{currentPatient.name}</TableCell>
+                  <TableCell>{currentPatient.fullName}</TableCell>
                   <TableCell>{currentPatient.age}</TableCell>
                   <TableCell>
-                    {renderPriorityBadge(currentPatient.priority, currentPatient.age)}
+                    {renderPriorityBadge(currentPatient?.priority ?? 0, currentPatient.age ?? 0)}
                   </TableCell>
                   <TableCell>Đang khám</TableCell>
                 </TableRow>
@@ -72,9 +72,9 @@ export function PatientList() {
                 (patient, index) =>
                   patient.id !== currentPatient?.id && (
                     <TableRow key={patient.id}>
-                      <TableCell>{patient.name}</TableCell>
+                      <TableCell>{patient.fullName}</TableCell>
                       <TableCell>{patient.age}</TableCell>
-                      <TableCell>{renderPriorityBadge(patient.priority, patient.age)}</TableCell>
+                      <TableCell>{renderPriorityBadge(patient.priority ?? 0, patient.age ?? 0)}</TableCell>
                       <TableCell>
                         {currentPatient?.id === patient.id
                           ? 'Đang khám'

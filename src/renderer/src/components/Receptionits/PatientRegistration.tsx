@@ -14,6 +14,7 @@ export function PatientRegistration() {
   const [phoneInput, setPhoneInput] = useRecoilState(phoneInputState)
   const [appointment, setAppointment] = useRecoilState(appointmentByPatient)
   const [loading, setLoading] = useState(false)
+  const thisUser = JSON.parse(localStorage.getItem('user_login') || 'null')
 
   useEffect(() => {
     if (phoneInput && isNewPatient === 'appointment') {
@@ -33,14 +34,22 @@ export function PatientRegistration() {
 
   const handleRegisterPatient = () => {
     AppointmentService.registrationPatient({
-      name: appointment?.patient?.fullName,
-      dob: appointment?.patient?.dob,
-      gender: appointment?.patient?.gender ? 'nữ' : 'name',
-      phone: appointment?.patient?.phone,
-      serviceType: appointment?.service?.description,
-      serviceLeval: 'Normal',
-      specialist: appointment?.doctor?.specialization,
-      symptoms: appointment?.symptoms
+      status: 'pending',
+      isWalkIn: true,
+      patient: {
+        fullName: appointment?.patient?.fullName,
+        email: appointment?.patient?.email,
+        phone: appointment?.patient?.phone,
+        address: appointment?.patient.address,
+        gender: appointment?.patient.gender,
+        dob: appointment?.patient.dob
+      },
+      doctor_id: appointment?.doctor.id,
+      appointment_id: appointment?.id,
+      receptionist_phone: thisUser.phone,
+      service: appointment?.service.id,
+      symptoms: appointment.symptoms,
+      specialization: appointment?.doctor.specialization
     })
   }
 

@@ -15,7 +15,7 @@ export const TokenState = atom<string>({
 
 export const UserState = atom<User | null>({
   key: 'UserState',
-  default: null
+  default: JSON.parse(localStorage.getItem('user_login') || 'null')
 })
 
 export const LoggedStateSelector = selector<LoginResponse | null>({
@@ -38,6 +38,14 @@ export const ProfileSelector = selector<User | null>({
       return null
     }
     const response: User = await AuthService.getProfile()
+    localStorage.setItem(
+      'user_login',
+      JSON.stringify({
+        ...response,
+        avatar: response.avatar ? response.avatar : '/placeholder.svg?height=40&width=40',
+        isActive: response.isActive !== undefined ? response.isActive : false
+      })
+    )
     return response
   }
 })

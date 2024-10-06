@@ -21,6 +21,7 @@ export type User = {
   dob: string
   avatar?: string
   roles: Role[]
+  specialization?: string
 }
 export enum RoleName {
   Admin = 'ADMIN',

@@ -25,6 +25,7 @@ export const LoginForm: FC = () => {
               onChange={(e) => setUsername(e.target.value)}
               value={username}
               type="text"
+              required
               className="border-2 border-[#07b7f8] rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#07b7f8] focus:border-transparent"
             />
           </div>
@@ -34,6 +35,7 @@ export const LoginForm: FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               value={password}
               type="password"
+              required
               className="border-2 border-[#07b7f8] rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#07b7f8] focus:border-transparent"
             />
           </div>

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Textarea } from '../ui/textarea'
@@ -236,7 +235,7 @@ export function PatientExamination({
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Chẩn đoán của bệnh nhân {patient?.name}</DialogTitle>
+                    <DialogTitle>Chẩn đoán của bệnh nhân {patient?.fullName}</DialogTitle>
                   </DialogHeader>
                   <div className="mt-4">
                     <p className="font-semibold">Lịch sử y tế:</p>

@@ -1,6 +1,9 @@
-import { Allergy, LabTest, Medication, VitalSigns } from '@renderer/types/Doctor'
+import { DoctorService } from '@renderer/api/services/Doctor/doctor.service'
+import { Allergy, Doctor, LabTest, Medication, VitalSigns } from '@renderer/types/doctor'
 import { Patient } from '@renderer/types/Patient/patient'
-import { atom } from 'recoil'
+import { atom, selector } from 'recoil'
+
+const doctorService = new DoctorService()
 
 export const currentPatientState = atom<Patient | null>({
   key: 'currentPatientState',
@@ -51,36 +54,7 @@ export const vitalSignsState = atom<VitalSigns>({
 export const patientListState = atom<Patient[]>({
   key: 'messageState',
   default: [
-    {
-      id: 1,
-      name: 'John Doe',
-      age: 85,
-      gender: 'Male',
-      priority: 3,
-      symptoms: 'Chest pain, shortness of breath',
-      waitingTime: 15,
-      arrivalOrder: 0
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      age: 45,
-      gender: 'Female',
-      priority: 1,
-      symptoms: 'Headache, fever',
-      waitingTime: 30,
-      arrivalOrder: 0
-    },
-    {
-      id: 3,
-      name: 'Bob Johnson',
-      age: 60,
-      gender: 'Male',
-      priority: 3,
-      symptoms: 'Joint pain, fatigue',
-      waitingTime: 25,
-      arrivalOrder: 0
-    }
+    
   ]
 })
 
@@ -112,4 +86,62 @@ export const followUpDateState = atom<string>({
 export const additionalNotesState = atom<string>({
   key: 'additionalNotesState',
   default: ''
+})
+export const DoctorListState = atom<Doctor[] | []>({
+  key: 'DoctorListState',
+  default: []
+})
+
+export const specializationsState = atom<string[]>({
+  key: 'specializationsState',
+  default: []
+})
+
+export const doctorSelectedState = atom<Doctor | null>({
+  key: 'doctorSelectedState',
+  default: null
+})
+export const specializationSelectedState = atom<string | null>({
+  key: 'specializationSelectedState',
+  default: null
+})
+
+export const doctorSelector = selector<Doctor[]>({
+  key: 'doctorSelector',
+  get: ({ get }) => {
+    const doctors = get(DoctorListState)
+    const doctorSelected = get(doctorSelectedState)
+    const specializationSelected = get(specializationSelectedState)
+    if (doctors.length === 0) {
+      return doctorService.getDoctors()
+    }
+    if (doctorSelected) {
+      return [doctorSelected]
+    }
+    if (specializationSelected) {
+      const filteredDoctors = doctors.filter(
+        (doctor) => doctor.specialization === specializationSelected
+      )
+      return filteredDoctors.length ? filteredDoctors : []
+    }
+
+    return doctors
+  }
+})
+
+export const specializationSelector = selector<string[]>({
+  key: 'specializationSelector',
+  get: ({ get }) => {
+    const specializations = get(specializationsState)
+    if (specializations.length === 0) {
+      return doctorService.getSpecializations()
+    }
+    return specializations ?? []
+  }
+})
+
+// Patient Appointment State
+export const patientByPhone = atom<Patient | null>({
+  key: 'patientByPhone',
+  default: {} as Patient
 })

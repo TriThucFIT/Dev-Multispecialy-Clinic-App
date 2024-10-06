@@ -1,13 +1,25 @@
 export type Patient = {
   id?: number
-  name: string
+  fullName?: string
+  email?: string
+  phone?: string
   dob?: string
-  age: number
+  age?: number
   condition?: string
-  priority: number
+  priority?: number
   status?: string
-  arrivalOrder: number
-  gender?: string
+  arrivalOrder?: number
+  gender?: boolean
   symptoms?: string
   waitingTime?: number
+  address?: string
+}
+
+export type PatientCreationDTO = {
+  fullName?: string
+  email?: string
+  phone?: string
+  address?: string
+  gender?: boolean
+  dob?: string
 }

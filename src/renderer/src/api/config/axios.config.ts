@@ -23,6 +23,8 @@ AxiosInstance.interceptors.request.use(
 
 AxiosInstance.interceptors.response.use(
   (response) => {
+    console.log(`response for url : ${response.config.url} : `, response)
+
     return response
   },
   (error) => {
