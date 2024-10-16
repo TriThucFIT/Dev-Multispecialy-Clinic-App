@@ -9,7 +9,7 @@ export type Doctor = {
   gender: boolean
   dob: Date
   employeeId: string
-  specialization: Specializations
+  specialization: Specialization
 }
 
 export type LabTest = {
@@ -48,4 +48,9 @@ export enum Specializations {
   RADIOLOGY = 'Radiology', // Chẩn đoán hình ảnh
   SURGERY = 'Surgery', // Phẫu thuật
   UROLOGY = 'Urology' // Tiết niệu
+}
+
+export type Specialization ={
+  specialization_id: string,
+  name: string
 }

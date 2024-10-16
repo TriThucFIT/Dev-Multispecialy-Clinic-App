@@ -13,18 +13,25 @@ import {
 import { CardContent } from '../ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { useAddress } from '@renderer/hooks/useAddress'
-import { useEffect } from 'react'
-import { patientByPhone } from '@renderer/states/doctor'
+import { useEffect, useState } from 'react'
+import { Patient } from '@renderer/types/Patient/patient'
+import { usePopup } from '@renderer/hooks/usePopup'
 
 export const UserForm = () => {
   const { city, fetchAddressData } = useAddress()
   const setStep = useSetRecoilState(appointmentStep)
   const phonePatient = useRecoilValue(phoneInputPatientState)
-  const [patient, setpatient] = useRecoilState(patientByPhone)
-  const setAppointmentSubmit = useSetRecoilState(appointmentSubmitState)
-  const setCreateAppointment = useSetRecoilState(createAppointmentState)
-  useRecoilValue(appointmentSubmitSelector)
+  const [appointmentSubmit, setAppointmentSubmit] = useRecoilState(appointmentSubmitState)
+  const [createAppointment, setCreateAppointment] = useRecoilState(createAppointmentState)
+  const [patient, setPatient] = useState<Patient | null>(createAppointment?.patient || null)
+  const createValue = useRecoilValue(appointmentSubmitSelector)
   const handleCreateAppointment = () => {
+    const checkform = patient && Object.values(patient).every((item) => item !== '')
+
+    if (!checkform) {
+      usePopup('Vui lòng điền đầy đủ thông tin', 'error')
+      return
+    }
     setCreateAppointment((prev) => {
       return {
         ...prev,
@@ -40,6 +47,11 @@ export const UserForm = () => {
     })
 
     setAppointmentSubmit(true)
+
+    if (createValue && appointmentSubmit) {
+      setStep(1)
+      setAppointmentSubmit(false)
+    }
   }
 
   useEffect(() => {
@@ -53,7 +65,7 @@ export const UserForm = () => {
           <Label>Họ và tên</Label>
           <Input
             value={patient?.fullName}
-            onChange={(e) => setpatient({ ...patient, fullName: e.target.value })}
+            onChange={(e) => setPatient({ ...patient, fullName: e.target.value })}
             placeholder="Nhập họ và tên"
           />
         </CardContent>
@@ -61,7 +73,7 @@ export const UserForm = () => {
           <Label>Ngày sinh</Label>
           <DatePicker
             value={patient?.dob ? moment(new Date(patient.dob)) : undefined}
-            onChange={(date) => setpatient({ ...patient, dob: date?.format('YYYY-MM-DD') })}
+            onChange={(date) => setPatient({ ...patient, dob: date?.format('YYYY-MM-DD') })}
             format={'YYYY-MM-DD'}
             className="w-full"
           />
@@ -72,7 +84,7 @@ export const UserForm = () => {
           <Label>Email</Label>
           <Input
             value={patient?.email}
-            onChange={(e) => setpatient({ ...patient, email: e.target.value })}
+            onChange={(e) => setPatient({ ...patient, email: e.target.value })}
             placeholder="Nhập email"
           />
         </CardContent>
@@ -80,8 +92,9 @@ export const UserForm = () => {
           <Label className="mr-2">Giới tính</Label>
           <Radio.Group
             value={patient?.gender ? 'female' : 'male'}
+            defaultValue={true}
             onChange={(e) =>
-              setpatient({
+              setPatient({
                 ...patient,
                 gender: e.target.value === 'female'
               })
@@ -124,7 +137,7 @@ export const UserForm = () => {
         <Label>Địa chỉ</Label>
         <Input
           value={patient?.address}
-          onChange={(e) => setpatient({ ...patient, address: e.target.value })}
+          onChange={(e) => setPatient({ ...patient, address: e.target.value })}
           placeholder="Nhập địa chỉ"
         />
       </CardContent>

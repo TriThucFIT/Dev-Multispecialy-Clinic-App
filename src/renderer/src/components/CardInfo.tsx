@@ -36,6 +36,7 @@ export function CardInfo() {
     clearLogin()
     clearUser()
     clearToken()
+    window.location.reload()
   }
 
   const getAvatarFallback = () => {

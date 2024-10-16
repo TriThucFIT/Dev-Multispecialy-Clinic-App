@@ -20,7 +20,7 @@ export const Layout: FC = () => {
         return <ReceptionistDashboard />
       case RoleName.Doctor:
         if (userState?.specialization) {
-          ;(window.api as any).send('start-listening', userState.specialization + "_specialization")
+          ;(window.api as any).send('start-listening', userState.specialization + '_specialization')
         } else {
           ;(window.api as any).send('stop-listening')
         }

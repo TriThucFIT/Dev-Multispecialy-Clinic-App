@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Radio } from 'antd'
-import { CardContent } from '../ui/card'
+import { CardContent, Card } from '../ui/card'
 import { FaUserDoctor } from 'react-icons/fa6'
 import { GrCertificate } from 'react-icons/gr'
 import { Label } from '../ui/label'
@@ -10,7 +10,11 @@ import { Textarea } from '../ui/textarea'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-import { appointmentStep, createAppointmentState, phoneInputPatientState } from './states/appointmentStep'
+import {
+  appointmentStep,
+  createAppointmentState,
+  phoneInputPatientState
+} from './states/appointmentStep'
 import {
   DoctorListState,
   doctorSelectedState,
@@ -23,6 +27,9 @@ import {
 import { Doctor } from '@renderer/types/doctor'
 import { useDebounce } from '@uidotdev/usehooks'
 import { PatientService } from '@renderer/api/services/Patient/patient.service'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { ScrollArea } from '../ui/scroll-area'
+import { PatientCreationDTO } from '@renderer/types/Patient/patient'
 
 export const ScheduleForm = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -43,7 +50,7 @@ export const ScheduleForm = () => {
   const formatDate = (date: Date) => {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
   }
-  const handleNestStep = () => {
+  const handleNextStep = (patient?: PatientCreationDTO) => {
     setCreateAppointment({
       service: type,
       date: formatDate(date!),
@@ -52,15 +59,16 @@ export const ScheduleForm = () => {
       doctor: doctorSelected
         ? {
             name: doctorSelected?.fullName || '',
-            specialization: doctorSelected?.specialization || ''
+            specialization: doctorSelected?.specialization.specialization_id || ''
           }
-        : undefined
+        : undefined,
+      patient: patient || {}
     })
     setStep(2)
   }
 
   return (
-    <CardContent>
+    <CardContent className="overflow-auto">
       <div className="space-y-4">
         <div>
           <div className="grid grid-cols-2 mb-6">
@@ -132,9 +140,9 @@ export const ScheduleForm = () => {
           onChange={(e) => setPhoneNumber(e.target.value)}
           placeholder="Số điện thoại hoặc Tên"
         />
-        {phoneNumber && <PatientSearch phoneNumber={phoneNumber} onClickPatient={handleNestStep} />}
+        {phoneNumber && <PatientSearch phoneNumber={phoneNumber} onClickPatient={handleNextStep} />}
 
-        <Button className="w-full" onClick={handleNestStep}>
+        <Button className="w-full" onClick={() => handleNextStep()}>
           Tiếp Tục
         </Button>
       </div>
@@ -142,18 +150,16 @@ export const ScheduleForm = () => {
   )
 }
 
-const PatientSearch = ({ phoneNumber, onClickPatient }) => {
+export const PatientSearch = ({ phoneNumber, onClickPatient }) => {
   const patientService = new PatientService()
-  const [patient, setPatients] = useRecoilState(patientByPhone)
+  const [patients, setPatients] = useRecoilState(patientByPhone)
   const [isSearching, setIsSearching] = useState(false)
   const debouncedSearchTerm = useDebounce(phoneNumber, 300)
 
   useEffect(() => {
     if (debouncedSearchTerm.length > 5) {
       setIsSearching(true)
-      if (debouncedSearchTerm.length >= 10) {
-        console.log('debouncedSearchTerm', debouncedSearchTerm)
-
+      if (debouncedSearchTerm.length >= 5) {
         patientService
           .getPatientByPhone(debouncedSearchTerm)
           .then((res) => {
@@ -161,7 +167,8 @@ const PatientSearch = ({ phoneNumber, onClickPatient }) => {
             setIsSearching(false)
           })
           .catch((err) => {
-            console.log(err)
+            console.error(err)
+            setPatients(null)
             setIsSearching(false)
           })
       }
@@ -171,37 +178,52 @@ const PatientSearch = ({ phoneNumber, onClickPatient }) => {
   }, [debouncedSearchTerm])
 
   return (
-    <div className="flex">
-      <h1>
-        {isSearching ? (
-          <div className="loading loading-bars text-primary"></div>
-        ) : (
-          <>
-            {patient && patient.fullName ? (
-              <>
-                <Label>Thông tin bệnh nhân</Label>
-                <div
-                  onClick={onClickPatient}
-                  className="mt-3 grid grid-cols-2 gap-5 w-96 border rounded-xl p-5 cursor-pointer"
-                >
-                  <div className="flex">
-                    <FaUserDoctor color="#07b7f8" size={18} />
-                    <span className="ml-2">{patient.fullName}</span>
+    <div className="relative w-full">
+      {isSearching ? (
+        <div className="mb-5 loading loading-spinner text-primary"></div>
+      ) : (
+        <>
+          {patients && patients.length > 0 && (
+            <Card className="absolute z-10 w-full mt-2 shadow-lg">
+              <CardContent className="p-0">
+                <ScrollArea className="h-[300px]">
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold mb-2">Thông tin bệnh nhân</h3>
+                    <div className="space-y-2">
+                      {patients.map((patient) => (
+                        <div
+                          key={patient.id}
+                          className="flex items-center space-x-4 p-2 hover:bg-accent rounded-lg cursor-pointer"
+                          onClick={() => onClickPatient(patient)}
+                        >
+                          <Avatar>
+                            <AvatarImage
+                              src={`https://picsum.photos/seed/${patient.id}/150/150`}
+                              alt={patient.fullName}
+                            />
+                            <AvatarFallback>{patient.fullName?.charAt(0) || 'P'}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{patient.fullName}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Ngày sinh: {patient.dob}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex">
-                    <GrCertificate color="#07b7f8" size={18} />
-                    <span className="ml-2">{patient.dob}</span>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <Label className="text-gray-500 italic">
-                Không tìm thấy bệnh nhân - mặc định sẽ đăng ký như một bệnh nhân mới
-              </Label>
-            )}
-          </>
-        )}
-      </h1>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+      {!isSearching && (!patients || patients.length === 0) && phoneNumber.length >= 10 && (
+        <div className="text-muted-foreground italic">
+          Không tìm thấy bệnh nhân - mặc định sẽ đăng ký như một bệnh nhân mới
+        </div>
+      )}
     </div>
   )
 }
@@ -211,13 +233,14 @@ const DoctorSelect = ({ setDoctorSelected }) => {
   const doctorSelected = useRecoilValue(doctorSelectedState)
   const [doctorRender, setDoctorRender] = useState<Doctor[]>([])
   const setDoctorList = useSetRecoilState(DoctorListState)
-  const setSpecializationSelected = useSetRecoilState(specializationSelectedState)
   const specializationSelected = useRecoilValue(specializationSelectedState)
 
   useEffect(() => {
     if (specializationSelected) {
       setDoctorRender(
-        doctorList?.filter((doctor) => doctor.specialization == specializationSelected) || []
+        doctorList?.filter(
+          (doctor) => doctor.specialization.specialization_id == specializationSelected
+        ) || []
       )
     } else {
       setDoctorRender(doctorList)
@@ -233,10 +256,6 @@ const DoctorSelect = ({ setDoctorSelected }) => {
         setDoctorSelected(
           doctorRender?.find((doctor) => doctor.employeeId.toString() === value) || null
         )
-        setSpecializationSelected(
-          doctorRender?.find((doctor) => doctor.employeeId.toString() === value)?.specialization ||
-            ''
-        )
       }}
       value={doctorSelected?.employeeId.toString()}
     >
@@ -246,18 +265,18 @@ const DoctorSelect = ({ setDoctorSelected }) => {
       <SelectContent>
         {doctorRender?.map((doctor) => (
           <SelectItem
-            className="hover:bg-primary hover:text-white hover:text-lg"
+            className="hover:bg-primary hover:text-white w-full"
             key={doctor.id}
             value={doctor.employeeId.toString()}
           >
-            <div className="grid grid-cols-2 gap-5 w-96">
-              <div className="flex">
+            <div className="grid grid-cols-5 w-96">
+              <div className="flex items-center col-span-2">
                 <FaUserDoctor color="#07b7f8" size={18} />
                 <span className="ml-2">{doctor.fullName}</span>
               </div>
-              <div className="flex">
+              <div className="flex items-center w-52 col-span-3">
                 <GrCertificate color="#07b7f8" size={18} />
-                <span className="ml-2">{doctor.specialization}</span>
+                <span className="ml-2">Khoa {doctor.specialization?.name}</span>
               </div>
             </div>
           </SelectItem>
@@ -267,7 +286,7 @@ const DoctorSelect = ({ setDoctorSelected }) => {
   )
 }
 
-const SpecializationSelect = ({ setSpecializationSelected }) => {
+export const SpecializationSelect = ({ setSpecializationSelected }) => {
   const specializations = useRecoilValue(specializationSelector)
   const setSpecializationsState = useSetRecoilState(specializationsState)
   const [doctorSelected, setDoctorSelected] = useRecoilState(doctorSelectedState)
@@ -284,17 +303,23 @@ const SpecializationSelect = ({ setSpecializationSelected }) => {
         setSpecializationSelected(value)
         setDoctorSelected(null)
       }}
-      value={doctorSelected?.specialization}
+      value={doctorSelected?.specialization.specialization_id}
     >
       <SelectTrigger>
         <SelectValue placeholder="Chọn Chuyên Khoa" />
       </SelectTrigger>
       <SelectContent>
         {specializations?.map((specialization) => (
-          <SelectItem key={specialization} value={specialization}>
-            <div className="flex">
-              <GrCertificate color="#07b7f8" size={18} />
-              <span className="ml-2">{specialization}</span>
+          <SelectItem
+            key={specialization.specialization_id}
+            value={specialization.specialization_id}
+          >
+            <div className="grid grid-cols-5 w-96">
+              <div className="text-start col-span-2 flex">
+                <GrCertificate color="#07b7f8" size={18} className="col-span-1 mr-3" />
+                {specialization.specialization_id}
+              </div>
+              <div className="text-start col-span-3"> - Khoa {specialization?.name}</div>
             </div>
           </SelectItem>
         ))}

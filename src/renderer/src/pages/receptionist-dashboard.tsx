@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { Tabs, TabsContent, TabsListCol, TabsTriggerCol } from '../components/ui/tabs'
 import { PatientRegistration } from '../components/Receptionits/PatientRegistration'
-import { AppointmentScheduling } from '../components/Receptionits/AppointmentScheduling'
 import { EmergencyRegistration } from '../components/Receptionits/EmergencyRegistration'
 import { PatientLookup } from '../components/Receptionits/PatientLookup'
 import { QueueManagement } from '../components/Receptionits/QueueManagement'
 import { CardInfo } from '@renderer/components/CardInfo'
 import { BiPencil, BiCalendar, BiSearchAlt, BiListOl } from 'react-icons/bi'
 import { TbUrgent } from 'react-icons/tb'
+import Appointment from '@renderer/components/Receptionits/Appointment'
 
 export default function ReceptionistDashboard() {
   const [activeTab, setActiveTab] = useState('registration')
@@ -42,12 +42,12 @@ export default function ReceptionistDashboard() {
                   <TabsTrigger value="lookup" title="Tra Cứu" icon={<BiSearchAlt />} />
                   <TabsTrigger value="queue" title="Quản Lý Hàng Đợi" icon={<BiListOl />} />
                 </TabsListCol>
-                <div className="col-span-6">
+                <div className="col-span-6 overflow-hidden">
                   <TabsContent value="registration">
                     <PatientRegistration />
                   </TabsContent>
                   <TabsContent value="appointments">
-                    <AppointmentScheduling />
+                    <Appointment />
                   </TabsContent>
                   <TabsContent value="emergency">
                     <EmergencyRegistration />

@@ -1,5 +1,12 @@
 import { DoctorService } from '@renderer/api/services/Doctor/doctor.service'
-import { Allergy, Doctor, LabTest, Medication, VitalSigns } from '@renderer/types/doctor'
+import {
+  Allergy,
+  Doctor,
+  LabTest,
+  Medication,
+  Specialization,
+  VitalSigns
+} from '@renderer/types/doctor'
 import { Patient } from '@renderer/types/Patient/patient'
 import { atom, selector } from 'recoil'
 
@@ -53,9 +60,7 @@ export const vitalSignsState = atom<VitalSigns>({
 
 export const patientListState = atom<Patient[]>({
   key: 'messageState',
-  default: [
-    
-  ]
+  default: []
 })
 
 export const medicalHistoryState = atom<string>({
@@ -92,9 +97,9 @@ export const DoctorListState = atom<Doctor[] | []>({
   default: []
 })
 
-export const specializationsState = atom<string[]>({
+export const specializationsState = atom<Specialization[]>({
   key: 'specializationsState',
-  default: []
+  default: [] as Specialization[]
 })
 
 export const doctorSelectedState = atom<Doctor | null>({
@@ -110,26 +115,21 @@ export const doctorSelector = selector<Doctor[]>({
   key: 'doctorSelector',
   get: ({ get }) => {
     const doctors = get(DoctorListState)
-    const doctorSelected = get(doctorSelectedState)
     const specializationSelected = get(specializationSelectedState)
     if (doctors.length === 0) {
       return doctorService.getDoctors()
     }
-    if (doctorSelected) {
-      return [doctorSelected]
-    }
     if (specializationSelected) {
       const filteredDoctors = doctors.filter(
-        (doctor) => doctor.specialization === specializationSelected
+        (doctor) => doctor.specialization.specialization_id === specializationSelected
       )
       return filteredDoctors.length ? filteredDoctors : []
     }
-
     return doctors
   }
 })
 
-export const specializationSelector = selector<string[]>({
+export const specializationSelector = selector<Specialization[]>({
   key: 'specializationSelector',
   get: ({ get }) => {
     const specializations = get(specializationsState)
@@ -141,7 +141,7 @@ export const specializationSelector = selector<string[]>({
 })
 
 // Patient Appointment State
-export const patientByPhone = atom<Patient | null>({
+export const patientByPhone = atom<Patient[] | null>({
   key: 'patientByPhone',
-  default: {} as Patient
+  default: []
 })

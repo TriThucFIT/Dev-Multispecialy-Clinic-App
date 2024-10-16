@@ -76,9 +76,25 @@
 }
 .ant-select-dropdown {
   .ant-select-item-option-content {
+    background-color: white !important;
     overflow: visible;
     white-space: inherit;
     text-overflow: inherit;
     color: black !important;
   }
+}
+
+.ant-select-selection {
+  background-color: white !important;
+  color: black !important;
+}
+
+.ant-select-item-option-content {
+  background-color: white !important;
+  color: black !important;
+}
+
+.ant-select-item-option-content {
+  background-color: white !important;
+  color: black !important;
 }

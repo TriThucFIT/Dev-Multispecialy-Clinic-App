@@ -14,8 +14,6 @@ export const AppointmentService = {
   },
 
   async createAppointment(data: any): Promise<any> {
-    console.log('Create Appointment', data)
-
     return await AxiosInstance.post('/appointment', data)
   }
 }

@@ -28,9 +28,9 @@ export class PatientService {
     }
   }
 
-  async getPatientByPhone(phone: number): Promise<Patient | null> {
+  async getPatientByPhone(phone: number): Promise<Patient[] | null> {
     try {
-      const response = await AxiosInstance.get(`/patient/phone/${phone}`)
+      const response = await AxiosInstance.get(`/patient?phone=${phone}`)
       if (response.status === 200) {
         return response.data
       }

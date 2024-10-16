@@ -1,13 +1,11 @@
 import toast, { ToastOptions } from 'react-hot-toast'
 
-export const usePopup = (message: string, props?: ToastOptions) => {
+export const usePopup = (message: string, type?: string, props?: ToastOptions) => {
   const defaultOptions: ToastOptions = {
-    duration: 5000,
-    position: 'top-right',
-    style: {
-      background: '#07b7f8',
-      color: '#ffffff'
-    }
+    duration: 3000,
+    position: 'top-right'
   }
-  return toast.custom(message, { ...defaultOptions, ...props })
+  return type
+    ? toast[type](message, { ...defaultOptions, ...props })
+    : toast(message, { ...defaultOptions, ...props })
 }

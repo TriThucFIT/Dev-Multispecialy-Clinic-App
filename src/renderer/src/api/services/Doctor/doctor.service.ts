@@ -1,6 +1,6 @@
 import AxiosInstance from '@renderer/api/config/axios.config'
 import { usePopup } from '@renderer/hooks/usePopup'
-import { Doctor } from '@renderer/types/doctor'
+import { Doctor, Specialization } from '@renderer/types/doctor'
 
 export class DoctorService {
   async getDoctors(): Promise<Doctor[]> {
@@ -39,7 +39,7 @@ export class DoctorService {
     }
   }
 
-  async getSpecializations(): Promise<string[]> {
+  async getSpecializations(): Promise<Specialization[]> {
     try {
       const response = await AxiosInstance.get('/doctor/specializations')
       if (response.status === 200) {
