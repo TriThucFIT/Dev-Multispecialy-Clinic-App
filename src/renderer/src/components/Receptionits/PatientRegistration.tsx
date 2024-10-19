@@ -9,7 +9,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import {
   phoneInputState,
   appointmentByPatient,
-} from './states/appointmentStep'
+} from './Appointment/stores'
 import { AppointmentService } from '@renderer/api/services/Appointment/appointment.service'
 import {
   specializationSelector,
@@ -64,7 +64,6 @@ export function PatientRegistration() {
         },
         doctor_id: appointment?.doctor.id,
         appointment_id: appointment?.id,
-        receptionist_phone: thisUser.phone,
         service: appointment?.service.id,
         symptoms: appointment.symptoms,
         specialization: appointment?.doctor.specialization
@@ -84,7 +83,6 @@ export function PatientRegistration() {
         },
         doctor_id: appointment?.doctor.id,
         appointment_id: appointment?.id,
-        receptionist_phone: thisUser.phone,
         service: appointment?.service.id,
         symptoms: appointment.symptoms,
         specialization: appointment?.doctor.specialization
@@ -304,7 +302,7 @@ export const SpecializationSelect = ({ setSpecializationSelected, value }) => {
         {specializations?.map((specialization) => (
           <SelectItem key={specialization.specialization_id} value={specialization.specialization_id}>
             <div className="flex">
-              <GrCertificate color="#07b7f8" size={18} />
+              <GrCertificate color="#299ec4" size={18} />
               <span className="ml-2">{specialization.specialization_id}</span>
               <span className="ml-2">{specialization.name}</span>
             </div>

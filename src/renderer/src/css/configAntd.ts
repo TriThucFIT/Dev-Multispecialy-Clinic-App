@@ -1,15 +1,15 @@
 export const configAntd = {
   components: {
     Select: {
-      colorBgContainer: 'var(--blue-secondary)',
-      colorBorder: 'var(--blue-secondary)',
-      activeBorderColor: 'white',
-      hoverBorderColor: 'white',
-      colorText: 'white',
-      colorTextPlaceholder: 'white'
+      colorBgContainer: 'white',
+      colorBorder: 'var(--blue-primary)',
+      activeBorderColor: 'var(--blue-secondary)',
+      hoverBorderColor: 'var(--blue-primary)',
+      colorText: 'black',
+      colorTextPlaceholder: 'black'
     },
     Button: {
-      colorPrimary: 'var(--blue-secondary)',
+      colorPrimary: 'var(--blue-primary)',
       colorPrimaryHover: 'var(--blue-primary)'
     },
     Radio: {

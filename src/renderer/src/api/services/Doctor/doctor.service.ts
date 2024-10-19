@@ -1,5 +1,4 @@
 import AxiosInstance from '@renderer/api/config/axios.config'
-import { usePopup } from '@renderer/hooks/usePopup'
 import { Doctor, Specialization } from '@renderer/types/doctor'
 
 export class DoctorService {
@@ -7,18 +6,11 @@ export class DoctorService {
     try {
       const response = await AxiosInstance.get('/doctor')
       if (response.status === 200) {
-        usePopup('Doctor List Is getted')
         return response.data
       }
-      usePopup('Doctor List Is Empty', {
-        icon: 'error'
-      })
       return []
     } catch (error) {
       console.error('Error on get doctors', error)
-      usePopup('error', {
-        icon: 'error'
-      })
       return []
     }
   }
@@ -32,9 +24,6 @@ export class DoctorService {
       return []
     } catch (error) {
       console.error('Error on get doctors by specialty', error)
-      usePopup('error', {
-        icon: 'error'
-      })
       return []
     }
   }
@@ -48,9 +37,6 @@ export class DoctorService {
       return []
     } catch (error) {
       console.error('Error on get specializations', error)
-      usePopup('error', {
-        icon: '🚑'
-      })
       return []
     }
   }

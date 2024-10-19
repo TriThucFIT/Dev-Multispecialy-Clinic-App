@@ -1,93 +1,134 @@
+import { Button, DatePicker, DatePickerProps, Form, FormInstance, Input, Radio, Select } from 'antd'
+import { useRecoilState, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { useEffect, useState } from 'react'
+import { useAddress } from '../../hooks/useAddress'
+import dayjs, { Dayjs } from 'dayjs'
+import { formatDate } from '@renderer/utils/formatDate'
 import {
-  Button,
-  DatePicker,
-  DatePickerProps,
-  Form,
-  Input,
-  Radio,
-  Select,
-} from "antd";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { formValuesState, stepState } from "../../stores/states";
-import { useEffect, useState } from "react";
-import { useAddress } from "../../hooks/useAddress";
-import toast from "react-hot-toast";
-import { Dayjs } from "dayjs";
-import { formatDate } from "@renderer/utils/formatDate";
-import { useAppointment } from "../../hooks/Appointment/useAppointment";
+  appointmentSubmitSelector,
+  appointmentSubmitState,
+  createAppointmentState,
+  formValuesState,
+  stepState
+} from '@renderer/components/Receptionits/Appointment/stores'
+import { CreateAppointment } from '@renderer/types/apointment'
 
-export const Step2 = ({ form }: { form: any }) => {
-  const setStep = useSetRecoilState(stepState);
-  const { citys, fetchAddressData, fetchDistrictData } = useAddress();
-  const [districts, setDistricts] = useState([]);
-  const { appointment } = useAppointment();
-  const [formValues, setFormValues] = useRecoilState(formValuesState);
-  const [isLoading, setIsLoading] = useState(false);
+export const Step2 = ({ form }: { form: FormInstance }) => {
+  const setStep = useSetRecoilState(stepState)
+  const [districts, setDistricts] = useState([])
+  const { citys, fetchAddressData, fetchDistrictData } = useAddress()
+  const [formValues, setFormValues] = useRecoilState(formValuesState)
+
+  // Submit appointment form
+  const createValue = useRecoilValueLoadable(appointmentSubmitSelector)
+  const [appointmentSubmit, setAppointmentSubmit] = useRecoilState(appointmentSubmitState)
+  const setCreateAppointment = useSetRecoilState(createAppointmentState)
 
   useEffect(() => {
-    fetchAddressData();
-  }, []);
+    fetchAddressData()
+  }, [])
+
+  useEffect(() => {
+    if (formValues.patient) {
+      form.setFieldsValue({
+        name: formValues.patient?.fullName,
+        email: formValues.patient?.email,
+        gender: formValues.patient?.gender,
+        address: formValues.patient?.address?.address,
+        city: formValues.patient?.address?.city,
+        district: formValues.patient?.address?.state,
+        date: formValues.patient?.dob ? dayjs(formValues.patient.dob) : undefined
+      })
+    }
+  }, [formValues])
 
   const handleSelectCity = async (value: string, option: any) => {
-    const data = await fetchDistrictData(value);
+    const data = await fetchDistrictData(value)
     if (data) {
-      setDistricts(data);
-      setFormValues((prev) => ({ ...prev, city: option.label }));
-      form.setFieldsValue({ district: undefined });
+      setDistricts(data)
+      setFormValues((prev) => ({
+        ...prev,
+        patient: { ...prev.patient, address: { ...prev.patient.address, city: option.label } }
+      }))
+      form.setFieldsValue({ district: undefined })
     }
-  };
+  }
 
   const handleDistrictChange = (value: string, option: any) => {
-    setFormValues((prev) => ({ ...prev, district: option.label }));
-    form.setFieldsValue({ district: value });
-  };
-
-  const handleSelectDob: DatePickerProps<Dayjs[]>["onChange"] = (
-    date,
-    dateString
-  ) => {
     setFormValues((prev) => ({
       ...prev,
-      dob: formatDate(dateString as string),
-    }));
-  };
-  const handleSubmit = async () => {
-    setIsLoading(true);
-    const response = await appointment(formValues);
-    if (response) {
-      toast.success("Đặt lịch thành công");
+      patient: { ...prev.patient, address: { ...prev.patient.address, state: option.label } }
+    }))
+
+    form.setFieldsValue({ district: value })
+  }
+
+  const handleSelectDob: DatePickerProps<Dayjs[]>['onChange'] = (_date, dateString) => {
+    setFormValues((prev) => ({
+      ...prev,
+      patient: { ...prev.patient, dob: formatDate(dateString as string) }
+    }))
+  }
+  const handleSubmit = () => {
+    if (!(createValue && appointmentSubmit)) {
+      setCreateAppointment({ ...formValues, isWalkIn: true } as CreateAppointment)
+      setAppointmentSubmit(true)
     }
-    setIsLoading(false);
-  };
+  }
+
+  useEffect(() => {
+    if (createValue.state === 'hasValue' && appointmentSubmit) {
+      setStep(1)
+      setAppointmentSubmit(false)
+      setCreateAppointment(null)
+      form.resetFields()
+    }
+  }, [createValue])
 
   return (
-    <>
-      <Form.Item label="Họ và tên" name="name" required>
+    <div className="bg-white bg-opacity-65 shadow-2xl rounded-2xl p-3">
+      <Form.Item
+        label="Họ và tên"
+        name="name"
+        rules={[
+          {
+            required: true,
+            message: 'Họ và tên không được để trống'
+          }
+        ]}
+      >
         <Input
           placeholder="Nhập họ và tên"
           onChange={(e) => {
-            setFormValues((prev) => ({ ...prev, name: e.target.value }));
+            setFormValues((prev) => ({
+              ...prev,
+              patient: { ...prev.patient, fullName: e.target.value }
+            }))
           }}
         />
       </Form.Item>
       <div className="grid grid-cols-2 gap-5">
         <Form.Item label="Ngày sinh" name="date" required>
           <DatePicker
-            format={"DD/MM/YYYY"}
+            format={'DD/MM/YYYY'}
             className="w-full"
             onChange={handleSelectDob}
+            allowClear={false}
           />
         </Form.Item>
         <Form.Item
           label="Email"
           name="email"
           tooltip="Nhập email để nhận được các thông báo về lịch hẹn, tái khám,..."
-          rules={[{ type: "email", message: "Email không hợp lệ" }]}
+          rules={[{ type: 'email', message: 'Email không hợp lệ' }]}
         >
           <Input
             placeholder="Nhập email"
             onChange={(e) => {
-              setFormValues((prev) => ({ ...prev, email: e.target.value }));
+              setFormValues((prev) => ({
+                ...prev,
+                patient: { ...prev.patient, email: e.target.value }
+              }))
             }}
           />
         </Form.Item>
@@ -96,11 +137,14 @@ export const Step2 = ({ form }: { form: any }) => {
         <Form.Item label="Giới tính" name="gender" required layout="horizontal">
           <Radio.Group
             onChange={(e) => {
-              setFormValues((prev) => ({ ...prev, gender: e.target.value }));
+              setFormValues((prev) => ({
+                ...prev,
+                patient: { ...prev.patient, gender: e.target.value }
+              }))
             }}
           >
-            <Radio value={1}>Nữ</Radio>
-            <Radio value={0}>Nam</Radio>
+            <Radio value={false}>Nữ</Radio>
+            <Radio value={true}>Nam</Radio>
           </Radio.Group>
         </Form.Item>
       </div>
@@ -127,11 +171,29 @@ export const Step2 = ({ form }: { form: any }) => {
           ></Select>
         </Form.Item>
       </div>
-      <Form.Item label="Địa chỉ" name="address" required>
+      <Form.Item
+        label="Địa chỉ"
+        name="address"
+        rules={[
+          {
+            required: true,
+            message: 'Địa chỉ không được để trống'
+          }
+        ]}
+      >
         <Input
-          placeholder="Nhập địa chỉ"
+          placeholder="Nhập địa chỉ cụ thể. Ví dụ: 123/4 Lê Lợi, P. Bến Thành, Q.1"
           onChange={(e) => {
-            setFormValues((prev) => ({ ...prev, address: e.target.value }));
+            setFormValues((prev) => ({
+              ...prev,
+              patient: {
+                ...prev.patient,
+                address: {
+                  ...prev.patient?.address,
+                  address: e.target.value
+                }
+              }
+            }))
           }}
         />
       </Form.Item>
@@ -143,11 +205,11 @@ export const Step2 = ({ form }: { form: any }) => {
           type="primary"
           className="w-full"
           onClick={handleSubmit}
-          loading={isLoading}
+          loading={createValue.state === 'loading'}
         >
           Đăng ký
         </Button>
       </div>
-    </>
-  );
-};
+    </div>
+  )
+}

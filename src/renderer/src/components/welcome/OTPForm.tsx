@@ -71,25 +71,25 @@ export const OTPForm: FC = () => {
         >
           {confirmationResult ? (
             <div className="flex flex-col lg:mt-10 mt-5">
-              <label className="text-lg font-semibold text-[#07b7f8]">OTP</label>
+              <label className="text-lg font-semibold text-[#299ec4]">OTP</label>
               <OTP inputMode="numeric" length={6} onChange={(value) => setOtp(value)} value={otp} />
             </div>
           ) : (
             <div className="flex flex-col">
-              <label className="text-lg font-semibold text-[#07b7f8]">Nhập số điện thoại</label>
+              <label className="text-lg font-semibold text-[#299ec4]">Nhập số điện thoại</label>
               <input
                 onChange={(e) => setPhone(e.target.value)}
                 value={phone}
                 type="text"
                 required
-                className="border-2 border-[#07b7f8] rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#07b7f8] focus:border-transparent"
+                className="border-2 border-[#299ec4] rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#299ec4] focus:border-transparent"
               />
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full border border-[#07b7f8] hover:text-white text-[#07b7f8] font-semibold rounded-lg p-2 lg:mt-10 mt-5 hover:bg-[#07b7f8] focus:outline-none focus:ring-2 focus:ring-[#07b7f8] focus:border-transparent"
+            className="w-full border border-[#299ec4] hover:text-white text-[#299ec4] font-semibold rounded-lg p-2 lg:mt-10 mt-5 hover:bg-[#299ec4] focus:outline-none focus:ring-2 focus:ring-[#299ec4] focus:border-transparent"
           >
             {!confirmationResult ? 'Gửi OTP' : 'Xác nhận'}
           </button>

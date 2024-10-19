@@ -20,7 +20,10 @@ export const Layout: FC = () => {
         return <ReceptionistDashboard />
       case RoleName.Doctor:
         if (userState?.specialization) {
-          ;(window.api as any).send('start-listening', userState.specialization + '_specialization')
+          ;(window.api as any).send('start-listening', {
+            queue_name: userState.specialization.specialization_id + '_specialization',
+            doctor_id: userState.employeeId
+          })
         } else {
           ;(window.api as any).send('stop-listening')
         }
@@ -56,8 +59,8 @@ export const Layout: FC = () => {
   }
   if (LoggedState.state === 'loading' || loginUser.state === 'loading') {
     return (
-      <div className="h-screen w-screen justify-center items-center">
-        <span className="border loading loading-infinity loading-lg text-primary"></span>
+      <div className="h-screen w-screen flex justify-center items-center">
+        <div className="loading loading-bars loading-lg text-primary" />
       </div>
     )
   }

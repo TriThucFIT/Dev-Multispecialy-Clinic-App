@@ -1,3 +1,5 @@
+import { Address } from "@renderer/components/Receptionits/Admission/stores"
+
 export type Patient = {
   id?: number
   fullName?: string
@@ -12,14 +14,15 @@ export type Patient = {
   gender?: boolean
   symptoms?: string
   waitingTime?: number
-  address?: string
+  address?: Address
 }
 
 export type PatientCreationDTO = {
   fullName?: string
   email?: string
   phone?: string
-  address?: string
+  address?: Address
   gender?: boolean
   dob?: string
+  priority?: number
 }

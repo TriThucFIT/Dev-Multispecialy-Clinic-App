@@ -2,6 +2,7 @@ import {
   Button,
   DatePicker,
   Form,
+  FormInstance,
   Input,
   Radio,
   RadioChangeEvent,
@@ -12,22 +13,17 @@ import {
 import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker'
 import TextArea from 'antd/es/input/TextArea'
 import dayjs, { Dayjs } from 'dayjs'
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-import { formValuesState, stepState } from '../../stores/states'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { Suspense, useEffect, useState } from 'react'
 import { formatDate } from '@renderer/utils/formatDate'
-import {
-  doctorSelectedState,
-  doctorSelector,
-  specializationSelector
-} from '@renderer/states/doctor'
-import { PatientSearch } from '@renderer/components/Receptionits/ScheduleForm'
+import { doctorSelector, specializationSelector } from '@renderer/states/doctor'
+import { Patient } from '@renderer/types/Patient/patient'
+import { PatientSearch } from '@renderer/components/PatientSearch'
+import { formValuesState, stepState } from '../../stores'
 
-export const Step1 = ({ form }: { form: any }) => {
+export const Step1 = ({ form }: { form: FormInstance }) => {
   const setStep = useSetRecoilState(stepState)
   const setForm = useSetRecoilState(formValuesState)
-  const [doctorSelected, setDoctorSelected] = useRecoilState(doctorSelectedState)
-
   const specializations = useRecoilValue(specializationSelector)
   const doctorList = useRecoilValue(doctorSelector)
 
@@ -39,6 +35,7 @@ export const Step1 = ({ form }: { form: any }) => {
   >([])
 
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [isShowSearch, setIsShowSearch] = useState(false)
 
   const gridClasses = 'grid grid-cols-2 gap-5'
   const disableHours: number[] = [0, 1, 2, 3, 4, 5, 6, 19, 20, 21, 22, 23]
@@ -64,10 +61,6 @@ export const Step1 = ({ form }: { form: any }) => {
         specialization: doctor.specialization.specialization_id
       }))
       setDoctorData(doctorFilter)
-      setForm((prev) => ({
-        ...prev,
-        doctor: { ...prev.doctor, specialization: doctorFilter[0].specialization }
-      }))
     }
   }, [doctorList])
 
@@ -90,12 +83,12 @@ export const Step1 = ({ form }: { form: any }) => {
       }))
     setDoctorData(doctorFilter)
     setForm((prev) => ({ ...prev, specialty: value }))
+    form.setFieldsValue({ specialty: value })
   }
 
   const handleSelectDoctor = (value: string) => {
     const doctor = doctorList.find((doctor) => doctor.employeeId === value)
     if (doctor) {
-      setDoctorSelected(doctor)
       setForm((prev) => ({
         ...prev,
         doctor: {
@@ -107,19 +100,35 @@ export const Step1 = ({ form }: { form: any }) => {
     }
   }
 
-  const handleDateAppointment: DatePickerProps<Dayjs[]>['onChange'] = (date, dateString) => {
+  const handleDateAppointment: DatePickerProps<Dayjs[]>['onChange'] = (_date, dateString) => {
     setForm((prev) => ({
       ...prev,
       date: formatDate(dateString as string)
     }))
   }
 
-  const handleTimeAppointment: TimePickerProps['onChange'] = (time, timeString) => {
+  const handleTimeAppointment: TimePickerProps['onChange'] = (_time, timeString) => {
     setForm((prev) => ({ ...prev, time: timeString as string }))
   }
 
+  const selectPatient = (patient: Patient) => {
+    form.setFieldsValue({ phone: patient.phone })
+    setIsShowSearch(false)
+    setForm((prev) => ({ ...prev, patient }))
+  }
+  const handleCheckNextStep = () => {
+    form.validateFields().then((value) => {
+      if (!formValues.patient) {
+        setForm((prev) => ({ ...prev, patient: { phone: value.phone } }))
+      }
+      if (!formValues.service) {
+        setForm((prev) => ({ ...prev, service: value.serviceType }))
+      }
+      setStep(2)
+    })
+  }
   return (
-    <div className="bg-white bg-opacity-85">
+    <div className="bg-white bg-opacity-65 shadow-2xl rounded-2xl p-3">
       <div className={gridClasses}>
         <Form.Item
           label="Chọn loại dịch vụ khám"
@@ -135,50 +144,57 @@ export const Step1 = ({ form }: { form: any }) => {
           >
             <Radio.Button value="InHour">Khám Thường</Radio.Button>
             <Radio.Button value="OutHour">Khám Ngoài Giờ</Radio.Button>
-            <Radio.Button value="Emergency">Cấp Cứu</Radio.Button>
           </Radio.Group>
         </Form.Item>
-        <Form.Item
-          label="Số điện thoại"
-          name="phone"
-          rules={[
-            {
-              required: true,
-              message: 'Vui lòng nhập số điện thoại'
-            },
-            {
-              pattern: new RegExp(/(84|0[3|5|7|8|9])+([0-9]{8})\b/),
-              message: 'Số điện thoại không hợp lệ'
-            }
-          ]}
-        >
-          <Input
-            placeholder="Nhập số điện thoại"
-            onChange={(e) => {
-              setPhoneNumber(e.target.value)
-            }}
-          />
-          {phoneNumber && (
+        <div className="">
+          <Form.Item
+            label="Số điện thoại"
+            name="phone"
+            rules={[
+              {
+                required: true,
+                message: 'Vui lòng nhập số điện thoại'
+              },
+              {
+                pattern: new RegExp(/(84|0[3|5|7|8|9])+([0-9]{8})\b/),
+                message: 'Số điện thoại không hợp lệ'
+              }
+            ]}
+          >
+            <Input
+              placeholder="Nhập số điện thoại"
+              value={phoneNumber}
+              onChange={(e) => {
+                setPhoneNumber(e.target.value)
+                setIsShowSearch(true)
+              }}
+            />
+          </Form.Item>
+          {phoneNumber.length > 5 && isShowSearch && (
             <PatientSearch
+              phoneOnly={true}
               key={phoneNumber}
-              phoneNumber={phoneNumber}
-              onClickPatient={() => null}
+              searchValue={phoneNumber}
+              onClickPatient={selectPatient}
             />
           )}
-        </Form.Item>
+        </div>
       </div>
 
       <div className={gridClasses}>
-        <Form.Item label="Chọn chuyên khoa" name="specialty" required>
+        <Form.Item
+          label="Chọn chuyên khoa"
+          name="specialty"
+          rules={[{ required: true, message: 'Vui lòng chọn chuyên khoa' }]}
+        >
           <Suspense fallback={<Select loading />}>
             <Select
               showSearch
               placeholder="Chọn chuyên khoa"
               optionFilterProp="label"
-              value={doctorSelected?.specialization.specialization_id}
+              value={form.getFieldValue('specialty')}
               options={specializationList}
               onChange={handleSelectSpecialty}
-              style={{ backgroundColor: 'white' }}
             />
           </Suspense>
         </Form.Item>
@@ -188,6 +204,7 @@ export const Step1 = ({ form }: { form: any }) => {
               showSearch
               placeholder="Chọn bác sĩ"
               optionFilterProp="label"
+              value={form.getFieldValue('doctor')}
               options={doctorData}
               onChange={handleSelectDoctor}
             />
@@ -196,15 +213,23 @@ export const Step1 = ({ form }: { form: any }) => {
       </div>
 
       <div className={gridClasses}>
-        <Form.Item label="Chọn ngày muốn khám" name="dateAppointment" required>
+        <Form.Item
+          label="Chọn ngày muốn khám"
+          name="dateAppointment"
+          rules={[{ required: true, message: 'Vui lòng chọn ngày khám' }]}
+        >
           <DatePicker
-            format={'YYYY-MM-DD'}
+            format={'DD/MM/YYYY'}
             disabledDate={disabledDate}
             className="w-full"
             onChange={handleDateAppointment}
           />
         </Form.Item>
-        <Form.Item label="Chọn giờ muốn khám" name="timeAppointment" required>
+        <Form.Item
+          label="Chọn giờ muốn khám"
+          name="timeAppointment"
+          rules={[{ required: true, message: 'Vui lòng chọn giờ khám' }]}
+        >
           <TimePicker
             format={'HH:mm'}
             minuteStep={15}
@@ -218,7 +243,11 @@ export const Step1 = ({ form }: { form: any }) => {
         </Form.Item>
       </div>
 
-      <Form.Item label="Nhập vấn đề sức khỏe cần khám" name="description" required>
+      <Form.Item
+        label="Nhập vấn đề sức khỏe cần khám"
+        name="description"
+        rules={[{ required: true, message: 'Vui lòng mô tả tình trạng bệnh nhân' }]}
+      >
         <TextArea
           showCount
           maxLength={200}
@@ -228,7 +257,7 @@ export const Step1 = ({ form }: { form: any }) => {
       </Form.Item>
 
       <div className="flex justify-end mt-3">
-        <Button className="w-full my-5" onClick={() => setStep(2)}>
+        <Button type="primary" className="w-full my-5" onClick={handleCheckNextStep}>
           Tiếp tục
         </Button>
       </div>

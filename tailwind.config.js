@@ -18,8 +18,8 @@ module.exports = {
     },
     extend: {
       colors: {
-        border: '#07b7f8',
-        input: '#07b7f8',
+        border: '#299ec4',
+        input: '#299ec4',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
@@ -74,19 +74,38 @@ module.exports = {
         }
       },
       animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out'
+        'accordion-down': 'accordion-down 1s ease-out',
+        'accordion-up': 'accordion-up 1s ease-out'
       },
       backgroundColor: {
-        primary: '#07b7f8'
+        primary: '#299ec4'
       },
       textColor: {
         primary: {
-          DEFAULT: '#07b7f8',
+          DEFAULT: '#299ec4',
+          hover: '#ffffff',
           foreground: '#ffffff'
         }
       }
     }
   },
+  daisyui: {
+    themes: [
+      {
+        mytheme: {
+          primary: '#299ec4',
+          'primary-content': '#ffffff',
+          '--btn-text-hover': '#ffffff',
+          '--btn-primary-hover': '#299ec4',
+
+          error: '#ff0000',
+          'error-content': '#ffffff',
+          '--btn-text-error': '#ffffff',
+          '--btn-error-hover': '#ff0000'
+        }
+      }
+    ]
+  },
+
   plugins: [require('tailwindcss-animate'), require('daisyui')]
 }

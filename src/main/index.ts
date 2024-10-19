@@ -58,12 +58,14 @@ app.on('window-all-closed', () => {
 
 let stompClient: Client | null = null
 
-ipcMain.on('start-listening', (_, queue_name) => {
+ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
+  console.log('start-listening', queue_name, doctor_id)
+
   if (!stompClient) {
     stompClient = new Client({
-      brokerURL: 'ws://127.0.0.1:61614/stomp',
+      brokerURL: 'ws://192.168.56.1:61614/stomp',
       webSocketFactory: () => {
-        return new WebSocket('ws://127.0.0.1:61614/stomp', 'stomp')
+        return new WebSocket('ws://192.168.56.1:61614/stomp', 'stomp')
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
@@ -72,12 +74,18 @@ ipcMain.on('start-listening', (_, queue_name) => {
 
     stompClient.onConnect = (frame) => {
       console.log('Connected: ' + frame)
-
-      stompClient?.subscribe(`/queue/${queue_name}`, (message) => {
-        if (mainWindow) {
-          mainWindow.webContents.send('received-patient', JSON.parse(message.body))
+      const selector = `processor = 'general' OR processor = '${doctor_id}'`
+      stompClient?.subscribe(
+        `/queue/${queue_name}`,
+        (message) => {
+          if (mainWindow) {
+            mainWindow.webContents.send('received-patient', JSON.parse(message.body))
+          }
+        },
+        {
+          selector
         }
-      })
+      )
     }
 
     stompClient.activate()
@@ -86,6 +94,7 @@ ipcMain.on('start-listening', (_, queue_name) => {
 
 ipcMain.on('stop-listening', () => {
   if (stompClient && stompClient.active) {
+    console.log('stop-listening');
     stompClient.deactivate()
     stompClient = null
   }

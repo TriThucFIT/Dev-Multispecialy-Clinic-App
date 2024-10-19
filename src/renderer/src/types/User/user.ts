@@ -1,3 +1,5 @@
+import { Specialization } from "../doctor"
+
 export type Permission = {
   isActive: boolean
   resource: Resource
@@ -11,6 +13,7 @@ export type Role = {
 }
 
 export type User = {
+  employeeId?: string
   isActive: boolean
   email: string
   phone: string
@@ -21,7 +24,7 @@ export type User = {
   dob: string
   avatar?: string
   roles: Role[]
-  specialization?: string
+  specialization?: Specialization
 }
 export enum RoleName {
   Admin = 'ADMIN',

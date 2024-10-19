@@ -72,7 +72,7 @@ export default function EnhancedDoctorScreen() {
   }
   return (
     <div className="h-screen w-screen bg-[url('../assets/bg-doctor-2.svg')] bg-cover bg-center overflow-auto">
-      <h1 className="w-full text-3xl lg:text-5xl font-extrabold text-center my-5 text-[#07b7f8]">
+      <h1 className="w-full text-3xl lg:text-5xl font-extrabold text-center my-5 text-[#299ec4]">
         Phòng Khám Đa Khoa DMC - Khoa Tim Mạch
       </h1>
       <CardInfo />

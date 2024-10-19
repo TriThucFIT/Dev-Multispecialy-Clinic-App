@@ -1,5 +1,6 @@
 import AxiosInstance from '@renderer/api/config/axios.config'
 import { Patient } from '@renderer/types/Patient/patient'
+import { detectQueryType } from '../utils'
 
 export class PatientService {
   async getPatients(): Promise<Patient[]> {
@@ -28,15 +29,18 @@ export class PatientService {
     }
   }
 
-  async getPatientByPhone(phone: number): Promise<Patient[] | null> {
+  async getPatientsByInfo(searchValue: string, phoneOnly?: boolean): Promise<Patient[] | null> {
     try {
-      const response = await AxiosInstance.get(`/patient?phone=${phone}`)
+      const queryType = detectQueryType(searchValue)
+      const params = phoneOnly ? { phone: searchValue } : { [queryType]: searchValue }
+
+      const response = await AxiosInstance.get(`/patient`, { params })
       if (response.status === 200) {
         return response.data
       }
       return null
     } catch (error) {
-      console.error('Error on get patient by id', error)
+      console.error('Error on get patient by info', error)
       return null
     }
   }

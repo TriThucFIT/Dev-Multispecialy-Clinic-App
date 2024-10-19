@@ -1,8 +1,8 @@
 import { Form } from 'antd'
 import { Step1, Step2 } from './components'
 import { useRecoilValue } from 'recoil'
-import { stepState } from './stores/states'
 import { Suspense } from 'react'
+import { stepState } from './stores'
 
 export default function Appointment() {
   const step = useRecoilValue(stepState)
@@ -17,7 +17,7 @@ export default function Appointment() {
       >
         <h1 className="text-2xl font-bold mb-4">
           Đặt lịch thăm khám tại&nbsp;
-          <span className="text-blue1">DMC</span>
+          <span className="text-primary">DMC</span>
         </h1>
         <Suspense fallback={<div className="loading loading-bars text-primary"></div>}>
           {

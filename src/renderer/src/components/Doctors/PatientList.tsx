@@ -21,7 +21,7 @@ export const PatientList: FC = () => {
   return (
     <div className="mx-5 overflow-hidden bg-red-300">
       <div className="flex justify-center mb-3">
-        <h1 className="text-2xl font-bold text-[#07b7f8] md:mt-16 md:text-3xl sm:mt-20 lg:mt-10 lg:text-4xl ">
+        <h1 className="text-2xl font-bold text-[#299ec4] md:mt-16 md:text-3xl sm:mt-20 lg:mt-10 lg:text-4xl ">
           Danh Sách Bệnh Nhân
         </h1>
       </div>
@@ -76,7 +76,7 @@ export const PatientList: FC = () => {
                     </td>
                     <td className="w-[30%]">{message.priority}</td>
                     <th className="w-[30%]">
-                      <button className="btn btn-outline hover:bg-[#07b7f8] hover:text-white hover:scale-125 hover:border-none">
+                      <button className="btn btn-outline hover:bg-[#299ec4] hover:text-white hover:scale-125 hover:border-none">
                         {patientQueue.toArray()[0].id === message.id ? 'Khám' : 'Xem Trước'}
                       </button>
                     </th>

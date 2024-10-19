@@ -17,7 +17,7 @@ const Clock = () => {
   }
 
   return (
-    <div className="btn btn-outline px-5 hover:bg-[#07b7f8] hover:text-white hover:border-none">
+    <div className="btn btn-outline px-5 hover:bg-[#299ec4] hover:text-white hover:border-none">
       {formatTime(time)}
     </div>
   )

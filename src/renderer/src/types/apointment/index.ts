@@ -1,12 +1,11 @@
 import { PatientCreationDTO } from '../Patient/patient'
 
 export type CreateAppointment = {
-  service?: string
-  doctor?: DoctorAppointment
-  date?: string
-  time?: string
-  symptoms?: string
-  patient?: PatientCreationDTO
+  isWalkIn: boolean
+  service: string
+  doctor: DoctorAppointment
+  symptoms: string
+  patient: PatientCreationDTO
 }
 
 export type DoctorAppointment = {
@@ -19,10 +18,8 @@ export type CreateRegistrationDto = {
   isWalkIn: boolean
   patient: PatientCreationDTO
   doctor_id?: number
-  receptionist_phone: string
   appointment_id?: number
   service: string
-  date?: Date
   symptoms?: string
-  specialization?: string
+  specialization: string
 }

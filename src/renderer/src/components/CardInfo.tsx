@@ -36,7 +36,8 @@ export function CardInfo() {
     clearLogin()
     clearUser()
     clearToken()
-    window.location.reload()
+    ;(window.api as any).send('stop-listening')
+    window.location.href = '/'
   }
 
   const getAvatarFallback = () => {
