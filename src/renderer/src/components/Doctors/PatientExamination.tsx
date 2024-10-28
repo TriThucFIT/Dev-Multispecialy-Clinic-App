@@ -98,7 +98,7 @@ export function PatientExamination({
   }
 
   return (
-    <Card className="md:col-span-3 bg-opacity-90 bg-white">
+    <Card className="md:col-span-3 bg-opacity-50 bg-white">
       <CardHeader>
         <CardTitle>Khám Bệnh</CardTitle>
       </CardHeader>
@@ -187,26 +187,6 @@ export function PatientExamination({
                       >
                         Xóa
                       </Button>
-
-                      {/* <input
-                        value={med?.quantity}
-                        onChange={(e) =>
-                          setPrescription((prev) => {
-                            const updatedPrescription = prev.map((medication) => {
-                              if (medication?.id === med.id) {
-                                return {
-                                  ...medication,
-                                  dosage: e.target.value
-                                }
-                              }
-                              return medication
-                            })
-                            return updatedPrescription
-                          })
-                        }
-                        inputMode="numeric"
-                        placeholder="Số lượng"
-                      /> */}
                     </li>
                   ))}
                 </ul>

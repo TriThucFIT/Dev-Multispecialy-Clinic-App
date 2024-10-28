@@ -29,7 +29,7 @@ export function CurrentPatientDetails({
   vitalSigns
 }: CurrentPatientDetailsProps) {
   return (
-    <Card className="md:col-span-2 bg-opacity-90 bg-white">
+    <Card className="md:col-span-2 bg-opacity-50 bg-white">
       <CardHeader>
         <CardTitle>Bệnh nhân hiện tại: {patient?.fullName}</CardTitle>
       </CardHeader>
@@ -47,7 +47,7 @@ export function CurrentPatientDetails({
             <Label>Giới tính</Label>
             <Input
               disabled={patient === null}
-              value={patient?.gender || 'Chưa có bệnh nhân'}
+              value={typeof patient?.gender === 'string' ? patient.gender : 'Chưa có bệnh nhân'}
               readOnly
             />
           </div>

@@ -1,7 +1,7 @@
 import { AppointmentService } from '@renderer/api/services/Appointment/appointment.service'
 import { DoctorService } from '@renderer/api/services/Doctor/doctor.service'
 import { CreateRegistrationDto } from '@renderer/types/apointment'
-import { Doctor, Specialization } from '@renderer/types/doctor'
+import { Doctor, Specialization } from '@renderer/types/Doctor'
 import { Patient } from '@renderer/types/Patient/patient'
 import { atom, selector } from 'recoil'
 import { Appointment } from './types'

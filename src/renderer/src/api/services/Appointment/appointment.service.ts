@@ -2,6 +2,7 @@ import AxiosInstance from '@renderer/api/config/axios.config'
 import { CreateRegistrationDto } from '@renderer/types/apointment'
 import { detectQueryType } from '../utils'
 import { Appointment } from '@renderer/components/Receptionits/Admission/stores'
+import { EmergencyInfo } from '@renderer/types/Doctor'
 
 export class AppointmentService {
   async getAppointmentByPatient(searchValue: string): Promise<Appointment[]> {
@@ -9,7 +10,7 @@ export class AppointmentService {
       const queryType = detectQueryType(searchValue)
       const params = {
         phone: queryType === 'phone' ? searchValue : undefined,
-        id: queryType === 'id' ? searchValue : undefined,
+        id: queryType === 'patient_id' ? searchValue : undefined,
         email: queryType === 'email' ? searchValue : undefined,
         fullName: queryType === 'fullName' ? searchValue : undefined
       }
@@ -40,10 +41,11 @@ export class AppointmentService {
   async registrationPatient(data: CreateRegistrationDto): Promise<any> {
     return await AxiosInstance.post('admission/patient-registration', data)
   }
+  async registrationEmergency(data: EmergencyInfo): Promise<any> {
+    return await AxiosInstance.post('admission/emergency', data)
+  }
 
   async createAppointment(data: any): Promise<any> {
-    console.log('data:', data)
-
     return await AxiosInstance.post('/appointment', data)
   }
   async cancelAppointment(id: number): Promise<any> {

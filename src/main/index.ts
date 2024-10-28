@@ -57,10 +57,10 @@ app.on('window-all-closed', () => {
 })
 
 let stompClient: Client | null = null
+let emergencySubscriptionId: string | null = null
+let specialityId: string | null = null
 
 ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
-  console.log('start-listening', queue_name, doctor_id)
-
   if (!stompClient) {
     stompClient = new Client({
       brokerURL: 'ws://192.168.56.1:61614/stomp',
@@ -75,6 +75,46 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
     stompClient.onConnect = (frame) => {
       console.log('Connected: ' + frame)
       const selector = `processor = 'general' OR processor = '${doctor_id}'`
+
+      specialityId =
+        stompClient?.subscribe(
+          `/queue/${queue_name}`,
+          (message) => {
+            if (mainWindow) {
+              mainWindow.webContents.send('received-patient', JSON.parse(message.body))
+            }
+          },
+          {
+            selector
+          }
+        ).id ?? null
+
+      emergencySubscriptionId =
+        stompClient?.subscribe('/topic/emergency', (message) => {
+          if (mainWindow) {
+            console.log('subscribe-emergency')
+            mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
+          }
+        }).id ?? null
+    }
+
+    stompClient.activate()
+  }
+})
+
+ipcMain.on('subscribe-emergency', (_, { queue_name, doctor_id }) => {
+  if (stompClient && stompClient.active && !emergencySubscriptionId && !specialityId) {
+    console.log('resubscribe-emergency')
+    emergencySubscriptionId = stompClient.subscribe('/topic/emergency', (message) => {
+      if (mainWindow) {
+        console.log('resubscribe to emergency')
+        mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
+      }
+    }).id
+
+    const selector = `processor = 'general' OR processor = '${doctor_id}'`
+
+    specialityId =
       stompClient?.subscribe(
         `/queue/${queue_name}`,
         (message) => {
@@ -85,16 +125,23 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
         {
           selector
         }
-      )
-    }
+      ).id ?? null
+  }
+})
 
-    stompClient.activate()
+ipcMain.on('stop-emergency', () => {
+  if (stompClient && stompClient.active && emergencySubscriptionId && specialityId) {
+    console.log('stop-emergency')
+    stompClient.unsubscribe(emergencySubscriptionId)
+    stompClient.unsubscribe(specialityId)
+    emergencySubscriptionId = null
+    specialityId = null
   }
 })
 
 ipcMain.on('stop-listening', () => {
   if (stompClient && stompClient.active) {
-    console.log('stop-listening');
+    console.log('stop-listening')
     stompClient.deactivate()
     stompClient = null
   }

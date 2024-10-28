@@ -1,3 +1,5 @@
+import { AdmissionSattus } from "@renderer/components/Receptionits/Admission/enums"
+
 export type Doctor = {
   id: number
   isActive: boolean
@@ -53,4 +55,14 @@ export enum Specializations {
 export type Specialization ={
   specialization_id: string,
   name: string
+}
+
+export type EmergencyInfo = {
+  id: number
+  fullName: string
+  age: number
+  gender: boolean
+  symptoms: string
+  status : AdmissionSattus
+  doctor_id?: string
 }

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Tabs, TabsContent, TabsListCol, TabsTriggerCol } from '../components/ui/tabs'
-import { EmergencyRegistration } from '../components/Receptionits/EmergencyRegistration'
 import { PatientLookup } from '../components/Receptionits/PatientLookup'
 import { QueueManagement } from '../components/Receptionits/QueueManagement'
 import { CardInfo } from '@renderer/components/CardInfo'
@@ -10,6 +9,7 @@ import { BiPencil, BiCalendar, BiSearchAlt, BiListOl } from 'react-icons/bi'
 import { TbUrgent } from 'react-icons/tb'
 import Appointment from '@renderer/components/Receptionits/Appointment'
 import { Adsmission } from '@renderer/components/Receptionits/Admission'
+import Emergency from '@renderer/components/Receptionits/Emergency'
 
 export default function ReceptionistDashboard() {
   const [activeTab, setActiveTab] = useState('registration')
@@ -51,7 +51,8 @@ export default function ReceptionistDashboard() {
                     <Appointment />
                   </TabsContent>
                   <TabsContent value="emergency" className="h-full overflow-y-auto">
-                    <EmergencyRegistration />
+                    {/* <EmergencyRegistration /> */}
+                    <Emergency />
                   </TabsContent>
                   <TabsContent value="lookup" className="h-full overflow-y-auto">
                     <PatientLookup />

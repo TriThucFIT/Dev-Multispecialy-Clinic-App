@@ -1,5 +1,6 @@
 import AxiosInstance from '@renderer/api/config/axios.config'
-import { Doctor, Specialization } from '@renderer/types/doctor'
+import { AcceptEmergency } from '@renderer/components/Receptionits/Admission/enums'
+import { Doctor, Specialization } from '@renderer/types/Doctor'
 
 export class DoctorService {
   async getDoctors(): Promise<Doctor[]> {
@@ -38,6 +39,19 @@ export class DoctorService {
     } catch (error) {
       console.error('Error on get specializations', error)
       return []
+    }
+  }
+
+  async acceptEmergency(acceptEmergency: AcceptEmergency): Promise<any> {
+    try {
+      const res = await AxiosInstance.post('admission/accept-emergency', acceptEmergency)
+      if (res.data) {
+        return res.data
+      }
+      return null
+    } catch (error) {
+      console.error('Error on accept emergency', error)
+      return null
     }
   }
 }

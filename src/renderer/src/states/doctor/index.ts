@@ -2,11 +2,12 @@ import { DoctorService } from '@renderer/api/services/Doctor/doctor.service'
 import {
   Allergy,
   Doctor,
+  EmergencyInfo,
   LabTest,
   Medication,
   Specialization,
   VitalSigns
-} from '@renderer/types/doctor'
+} from '@renderer/types/Doctor'
 import { Patient } from '@renderer/types/Patient/patient'
 import { atom, selector } from 'recoil'
 
@@ -143,5 +144,21 @@ export const specializationSelector = selector<Specialization[]>({
 // Patient Appointment State
 export const patientByPhone = atom<Patient[] | null>({
   key: 'patientByPhone',
+  default: []
+})
+
+//Emergency Patient State
+export const emergencyPatient = atom<EmergencyInfo | null>({
+  key: 'emergencyPatient',
+  default: null
+})
+
+export const isProcessingEmergencyState = atom<boolean>({
+  key: 'isProcessingEmergency',
+  default: false
+})
+
+export const emergencyPatientList = atom<EmergencyInfo[]>({
+  key: 'emergencyPatientList',
   default: []
 })

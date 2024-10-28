@@ -1,4 +1,4 @@
-import { Specialization } from "../doctor"
+import { Specialization } from "../Doctor"
 
 export type Permission = {
   isActive: boolean

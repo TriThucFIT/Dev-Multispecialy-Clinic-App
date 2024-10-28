@@ -16,6 +16,7 @@ import { IoMdCheckboxOutline } from 'react-icons/io'
 import { MdOutlineCancel } from 'react-icons/md'
 import { AppointmentService } from '@renderer/api/services/Appointment/appointment.service'
 import { usePopup } from '@renderer/hooks/usePopup'
+import { checkDate } from '@renderer/utils/formatDate'
 
 interface AppointmentPatientProps {
   onSelected: (appointment: Appointment) => void
@@ -32,7 +33,8 @@ export const AppointmentPatient: FC<AppointmentPatientProps> = ({ onSelected }) 
 
   useEffect(() => {
     refreshAppointments()
-  }, [date])
+    setDate(dayjs().startOf('day').format())
+  }, [])
 
   const handleCancel = (id: number) => {
     const appointmentService = new AppointmentService()
@@ -152,26 +154,59 @@ export const AppointmentPatient: FC<AppointmentPatientProps> = ({ onSelected }) 
                               </div>
                             </div>
                           </div>
-                          <div className="col-span-2 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full">
-                            <div className="flex justify-center items-center w-full sm:w-full flex-grow">
-                              <button
-                                className="btn btn-primary btn-outline rounded-xl w-full"
-                                onClick={() => onSelected(appointment)}
-                              >
-                                <IoMdCheckboxOutline size={18} />{' '}
-                                <span className="hidden lg:flex">Check-in</span>
-                              </button>
+                          {checkDate(appointment.date) ? (
+                            <div className="col-span-2 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full">
+                              <div className="flex justify-center items-center w-full sm:w-full flex-grow">
+                                <button
+                                  disabled={
+                                    appointment.status === AppointmentStatus.COMPLETED ||
+                                    appointment.status === AppointmentStatus.CHECKED_IN ||
+                                    appointment.status === AppointmentStatus.CANCELLED
+                                  }
+                                  className={`btn ${
+                                    appointment.status === AppointmentStatus.COMPLETED ||
+                                    appointment.status === AppointmentStatus.CHECKED_IN
+                                      ? 'disabled:btn-success disabled:cursor-not-allowed disabled:text-white'
+                                      : appointment.status === AppointmentStatus.CANCELLED
+                                        ? 'disabled:btn-error '
+                                        : 'btn-primary '
+                                  } btn-outline rounded-xl w-full`}
+                                  onClick={() => onSelected(appointment)}
+                                >
+                                  <IoMdCheckboxOutline size={18} />{' '}
+                                  <span className="hidden lg:flex">
+                                    {appointment.status === AppointmentStatus.COMPLETED
+                                      ? 'Hoàn thành'
+                                      : 'Check-in'}
+                                  </span>
+                                </button>
+                              </div>
+                              <div className="flex justify-center items-center w-full sm:w-full flex-grow">
+                                <button
+                                  disabled={
+                                    appointment.status === AppointmentStatus.CANCELLED ||
+                                    appointment.status === AppointmentStatus.COMPLETED ||
+                                    appointment.status === AppointmentStatus.CHECKED_IN
+                                  }
+                                  onClick={() => handleCancel(appointment.id)}
+                                  className="btn btn-outline btn-error rounded-xl w-full"
+                                >
+                                  <MdOutlineCancel size={18} />
+                                  <span className="hidden lg:flex">
+                                    {appointment.status === AppointmentStatus.CANCELLED
+                                      ? 'Đã hủy'
+                                      : 'Hủy'}
+                                  </span>
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex justify-center items-center w-full sm:w-full flex-grow">
-                              <button
-                                onClick={() => handleCancel(appointment.id)}
-                                className="btn btn-outline btn-error rounded-xl w-full"
-                              >
-                                <MdOutlineCancel size={18} />
-                                <span className="hidden lg:flex">Hủy</span>
-                              </button>
+                          ) : (
+                            <div className="flex-1">
+                              <span className="text-muted-foreground italic w-full">
+                                Lịch hẹn đã quá hạn, đã tự động hủy
+                              </span>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     ))}

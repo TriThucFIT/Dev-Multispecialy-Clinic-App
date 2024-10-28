@@ -1,5 +1,5 @@
 import { FC, Suspense, useState } from 'react'
-import { Appointment, formValuesAdmisionState, patientTypeState } from './stores'
+import { Appointment, AppointmentStatus, formValuesAdmisionState, patientTypeState } from './stores'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { Form, Input, Radio, RadioChangeEvent, Select } from 'antd'
 
@@ -9,6 +9,8 @@ import { AppointmentPatient } from './components/AppointmentPatient'
 import { PatientSearch } from '@renderer/components/PatientSearch'
 import { Patient } from '@renderer/types/Patient/patient'
 import { AppointmentSearch } from '@renderer/components/AppointmentSearch'
+import { usePopup } from '@renderer/hooks/usePopup'
+import { checkDate } from '@renderer/utils/formatDate'
 
 export const Adsmission: FC = () => {
   const [patientType, setPatientType] = useRecoilState(patientTypeState)
@@ -27,6 +29,7 @@ export const Adsmission: FC = () => {
 
   const handlePatientTypeChange = (value: 'new' | 'old' | 'appointment') => {
     setPatientType(value)
+    setForm((prev) => ({ ...prev, patient: {} }))
     form.setFieldsValue({ patientType: value })
   }
 
@@ -38,6 +41,24 @@ export const Adsmission: FC = () => {
   }
 
   const selectAppointment = (appointment: Appointment) => {
+    switch (appointment.status) {
+      case AppointmentStatus.COMPLETED:
+        usePopup('Lịch hẹn đã hoàn thành', 'error')
+        return
+      case AppointmentStatus.CHECKED_IN:
+        usePopup('Lịch hẹn đã check-in', 'error')
+        return
+      case AppointmentStatus.CANCELLED:
+        usePopup('Lịch hẹn đã hủy', 'error')
+        return
+    }
+
+    console.log("Check Date",checkDate(appointment.date))
+
+    if (!checkDate(appointment.date)) {
+      usePopup('Lịch hẹn đã quá hạn, đã tự động hủy', 'error')
+      return
+    }
     setIsShowSearch(false)
     setPatientType('new')
     setSearchTerm('')
