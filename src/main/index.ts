@@ -17,7 +17,8 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
-    }
+    },
+    fullscreenable: false
   })
 
   mainWindow.on('ready-to-show', () => {
@@ -144,5 +145,16 @@ ipcMain.on('stop-listening', () => {
     console.log('stop-listening')
     stompClient.deactivate()
     stompClient = null
+  }
+})
+
+ipcMain.on('maximize-window', () => {
+  if (mainWindow) {
+    mainWindow.fullScreenable = true
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize()
+    } else {
+      mainWindow.maximize()
+    }
   }
 })

@@ -30,6 +30,7 @@ export const LoggedStateSelector = selector<LoginResponse | null>({
       }
       const response: LoginResponse = await AuthService.login(loginRequest)
       localStorage.setItem('access_token', response.access_token)
+      ;(window.api as any).maximizeWindow()
       return response
     } catch (error: any) {
       usePopup(`Đăng nhập thất bại : ${error.message}`, 'error')

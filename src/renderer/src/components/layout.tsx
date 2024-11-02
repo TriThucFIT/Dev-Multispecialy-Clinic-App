@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import { RoleName } from '@renderer/types/User/user'
@@ -13,6 +13,9 @@ export const Layout: FC = () => {
   const LoggedState = useRecoilValueLoadable(LoggedStateSelector)
   const loginUser = useRecoilValueLoadable(ProfileSelector)
   const [userState, setUserState] = useRecoilState(UserState)
+  useEffect(() => {
+    userState && (window.api as any).maximizeWindow()
+  }, [])
 
   const getDashboardComponent = (roleName: RoleName) => {
     switch (roleName) {

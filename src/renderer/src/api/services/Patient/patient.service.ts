@@ -32,8 +32,6 @@ export class PatientService {
   async getPatientsByInfo(searchValue: string, phoneOnly?: boolean): Promise<Patient[] | null> {
     try {
       const queryType = detectQueryType(searchValue)
-      console.log('queryType', queryType);
-      
       const params = phoneOnly ? { phone: searchValue } : { [queryType]: searchValue }
 
       const response = await AxiosInstance.get(`/patient`, { params })

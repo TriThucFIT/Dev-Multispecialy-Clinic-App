@@ -1,5 +1,7 @@
+
 export const configAntd = {
   components: {
+    
     Select: {
       colorBgContainer: 'white',
       colorBorder: 'var(--blue-primary)',
@@ -21,6 +23,7 @@ export const configAntd = {
   token: {
     colorBorder: 'var(--blue-primary)',
     colorPrimaryActive: 'var(--blue-primary)',
-    colorPrimaryHover: 'var(--blue-primary)'
+    colorPrimaryHover: 'var(--blue-primary)',
+    fontFamily: "'Arima', system-ui"
   }
 }

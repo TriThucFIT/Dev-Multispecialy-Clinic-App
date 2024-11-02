@@ -5,7 +5,7 @@ interface API {
   onMessage: (callback: (message: JSON) => void) => void
   onEmergency: (callback: (message: JSON) => void) => void
   send: (channel: string, data: { queue_name: string; doctor_id: string }) => void
-
+  maximizeWindow: () => void
   subscribeEmergency: (data: { queue_name: string; doctor_id: string }) => void
   unSubscribeEmergency: () => void
 }
@@ -17,6 +17,7 @@ const api: API = {
   send: (channel, data) => {
     ipcRenderer.send(channel, data)
   },
+  maximizeWindow: () => ipcRenderer.send('maximize-window'),
   unSubscribeEmergency: () => ipcRenderer.send('stop-emergency'),
   subscribeEmergency: (data) => ipcRenderer.send('subscribe-emergency', data)
 }

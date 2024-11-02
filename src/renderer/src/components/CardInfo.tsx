@@ -37,6 +37,7 @@ export function CardInfo() {
     clearUser()
     clearToken()
     ;(window.api as any).send('stop-listening')
+    ;(window.api as any).maximizeWindow()
     window.location.href = '/'
   }
 

@@ -157,13 +157,11 @@ export const NewPatient: FC<NewPatientProps> = ({ form }) => {
       } else {
         usePopup('Đăng ký thất bại', 'error')
       }
-      console.log('createValue', createValue.contents)
       setAdmissionSubmit(false)
     }
 
     if (createValue.state === 'hasValue' && admissionSubmit) {
       usePopup('Đăng ký thành công', 'success')
-      console.log('createValue', createValue.contents)
       setAdmissionSubmit(false)
       form.resetFields()
       setFormValues({} as any)

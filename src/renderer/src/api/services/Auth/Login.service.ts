@@ -4,6 +4,8 @@ import { User } from '@renderer/types/User/user'
 
 export class AuthService {
   static async login(loginRequest: LoginRequest): Promise<LoginResponse> {
+    console.log('AxiosInstance', AxiosInstance.defaults.baseURL)
+
     const response = await AxiosInstance.post<LoginResponse>('/auth/login', loginRequest)
     return response.data
   }

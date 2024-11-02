@@ -26,7 +26,7 @@ export const OTPForm: FC = () => {
 
   const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null)
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
-  const [isPeding, startTransaction] = useTransition()
+  const [_isPeding, startTransaction] = useTransition()
 
   useEffect(() => {
     const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {

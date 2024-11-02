@@ -4,7 +4,6 @@ import { BillingAndPayment } from '@renderer/components/Cashier/BillingAndPaymen
 import { BillingList } from '@renderer/components/Cashier/BillingList'
 
 export default function CashierDashboard() {
-  // const [activeTab, setActiveTab] = useState('billing')
 
   return (
     <div className="w-screen h-screen bg-[url('../assets/bg-cashier.png')] bg-cover bg-center overflow-auto">
