@@ -67,16 +67,16 @@ export const Adsmission: FC = () => {
       status: 'In-Progress',
       isWalkIn: appointment.isWalkIn,
       patient: appointment.patient,
-      doctor_id: appointment.doctor.id,
+      doctor_id: appointment.doctor?.id,
       appointment_id: appointment.id,
       service: appointment.service.name,
       symptoms: appointment.symptoms,
-      specialization: appointment.doctor.specialization.specialization_id
+      specialization: appointment.doctor?.specialization.specialization_id
     }))
 
     form.setFieldsValue({
       serviceType: appointment.service.name,
-      specialty: appointment.doctor.specialization.specialization_id,
+      specialty: appointment.doctor?.specialization.specialization_id,
       description: appointment.symptoms,
       doctor: appointment.doctor.employeeId,
       email: appointment.patient.email
