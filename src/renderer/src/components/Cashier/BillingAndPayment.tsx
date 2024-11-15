@@ -1,26 +1,19 @@
 import { Button } from '../ui/button'
 import { Label } from '../ui/label'
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '../ui/table'
 import { IoPrintSharp } from 'react-icons/io5'
 import { useState } from 'react'
 import { Input, Select } from 'antd'
-import { TfiMarkerAlt } from 'react-icons/tfi'
+import { Edit2 } from 'iconsax-react'
+import { Table } from 'antd'
+import type { TableColumnsType, TableProps } from 'antd'
+
+type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection']
 
 const billInfo = {
   invoiceId: 1,
   time: '13:24 12/12/2024',
   statusPayment: false,
-  totalPayment: '800,000',
   patient: {
     patientId: 1,
     fullName: 'Trần Thị Yến Nhi',
@@ -39,19 +32,80 @@ const billInfo = {
   },
   service: [
     {
+      key: 1,
       serviceName: 'Khám Bệnh',
-      price: '500,000',
-      quantity: '1',
+      price: 500000,
+      // quantity: '1',
+      statusPayment: true
+    },
+    {
+      key: 2,
+      serviceName: 'Xét Nghiệm',
+      price: 300000,
+      // quantity: '1',
       statusPayment: false
     },
     {
-      serviceName: 'Xét Nghiệm',
-      price: '300,000',
-      quantity: '1',
+      key: 3,
+      serviceName: 'Acetylcystein (uống)',
+      unit: 100000,
+      price: 200000,
+      quantity: '2',
+      dvt: 'Lọ',
       statusPayment: false
     }
   ]
 }
+
+interface IPayer {
+  fullName?: string
+  phone?: string
+}
+
+interface ServiceType {
+  key: React.Key
+  serviceName: string
+  unit?: number
+  price: number
+  quantity?: string
+  dvt?: string
+  statusPayment: boolean
+}
+
+const columns: TableColumnsType<ServiceType> = [
+  { title: 'STT', dataIndex: 'key' },
+  {
+    title: 'Dịch Vụ',
+    dataIndex: 'serviceName'
+  },
+  {
+    title: 'Trạng Thái',
+    dataIndex: 'statusPayment',
+    render: (statusPayment: boolean) => (statusPayment ? 'Đã Thanh Toán' : 'Chưa Thanh Toán')
+  },
+  {
+    title: 'ĐVT',
+    dataIndex: 'dvt'
+  },
+  {
+    title: 'Số lượng',
+    dataIndex: 'quantity'
+  },
+  {
+    title: 'Đơn Giá',
+    dataIndex: 'unit',
+    render: (unit: string) => <div>{unit?.toLocaleString()}</div>
+  },
+  {
+    title: <div className="flex items-center justify-end">Thành Tiền</div>,
+    dataIndex: 'price',
+    render: (price: string) => (
+      <div className="flex items-center justify-end gap-1">
+        <span>{price.toLocaleString()}</span>
+      </div>
+    )
+  }
+]
 
 const GridRowInfo = ({ data }) => (
   <div className={`grid grid-cols-3`}>
@@ -63,17 +117,34 @@ const GridRowInfo = ({ data }) => (
     ))}
   </div>
 )
-interface IPayer {
-  fullName?: string
-  phone?: string
-}
+
 export function BillingAndPayment() {
   const [payer, setPayer] = useState<IPayer>()
   const [inputPayer, setInputPayer] = useState<IPayer>()
   const [selectedUserPayment, setSelectedUserPayment] = useState<string>('paitent')
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
+  const [totalPayment, setTotalPayment] = useState<number>(0)
+
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(newSelectedRowKeys)
+    const totalPrice = newSelectedRowKeys.reduce((acc: number, cur) => {
+      const service = billInfo.service.find((item) => item.key === cur)
+      return acc + (service?.price ?? 0)
+    }, 0)
+    setTotalPayment(totalPrice)
+  }
 
   const handleChangeSelectUserPayment = (value: string) => {
     setSelectedUserPayment(value)
+  }
+
+  const rowSelection: TableRowSelection<ServiceType> = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    getCheckboxProps: (record) => ({
+      disabled: record.statusPayment,
+      style: record.statusPayment ? { display: 'none' } : {}
+    })
   }
 
   return (
@@ -144,7 +215,15 @@ export function BillingAndPayment() {
                     <div className="font-semibold mr-1">Họ Tên Người Thanh Toán:</div>
                     <div>
                       {payer?.fullName ? (
-                        <span>{payer.fullName}</span>
+                        <div className="flex items-center gap-4">
+                          <div className="flex flex-1">{payer.fullName}</div>
+                          <div
+                            className="bg-secondary-100 rounded-full size-8 flex items-center justify-center"
+                            onClick={() => setPayer((prev) => ({ ...prev, fullName: '' }))}
+                          >
+                            <Edit2 size="18" variant="Bold" className="text-secondary-600" />
+                          </div>
+                        </div>
                       ) : (
                         <Input
                           value={inputPayer?.fullName}
@@ -160,7 +239,15 @@ export function BillingAndPayment() {
                     <div className="font-semibold mr-1">Số Điện Thoại Người Thanh Toán:</div>
                     <div>
                       {payer?.phone ? (
-                        <span>{payer.phone}</span>
+                        <div className="flex items-center gap-4">
+                          <div className="flex flex-1">{payer.phone}</div>
+                          <div
+                            className="bg-secondary-100 rounded-full size-8 flex items-center justify-center"
+                            onClick={() => setPayer((prev) => ({ ...prev, phone: '' }))}
+                          >
+                            <Edit2 size="18" variant="Bold" className="text-secondary-600" />
+                          </div>
+                        </div>
                       ) : (
                         <Input
                           value={inputPayer?.phone}
@@ -180,38 +267,18 @@ export function BillingAndPayment() {
       </CardContent>
       <CardContent>
         <div className="space-y-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>STT</TableHead>
-                <TableHead>Dịch Vụ</TableHead>
-                <TableHead>Số lượng</TableHead>
-                <TableHead>Trạng Thái</TableHead>
-                <TableHead>Đơn giá</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {billInfo.service.map((service, index) => (
-                <TableRow key={index}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{service.serviceName}</TableCell>
-                  <TableCell>{service.quantity}</TableCell>
-                  <TableCell>
-                    {service.statusPayment ? 'Đã Thanh Toán' : 'Chưa Thanh Toán'}
-                  </TableCell>
-                  <TableCell>{service.price} VNĐ</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={4} className="text-right font-semibold">
-                  Tổng Tiền
-                </TableCell>
-                <TableCell>{billInfo.totalPayment} VNĐ</TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
+          <Table<ServiceType>
+            rowSelection={rowSelection}
+            columns={columns}
+            dataSource={billInfo.service}
+            pagination={false}
+            footer={() => (
+              <div className="flex justify-end gap-4">
+                <div className="font-semibold">Tổng Tiền</div>
+                <div>{totalPayment.toLocaleString()} VNĐ</div>
+              </div>
+            )}
+          />
           <div className="flex gap-2 items-center">
             <Label>Phương Thức Thanh Toán</Label>
             <div className="flex-1 w-full">
