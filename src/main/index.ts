@@ -75,28 +75,38 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
 
     stompClient.onConnect = (frame) => {
       console.log('Connected: ' + frame)
-      const selector = `processor = 'general' OR processor = '${doctor_id}'`
 
-      specialityId =
+      if (doctor_id) {
+        const selector = `processor = 'general' OR processor = '${doctor_id}'`
+        specialityId =
+          stompClient?.subscribe(
+            `/queue/${queue_name}`,
+            (message) => {
+              if (mainWindow) {
+                mainWindow.webContents.send('received-patient', JSON.parse(message.body))
+              }
+            },
+            {
+              selector
+            }
+          ).id ?? null
+
+        emergencySubscriptionId =
+          stompClient?.subscribe('/topic/emergency', (message) => {
+            if (mainWindow) {
+              console.log('subscribe-emergency')
+              mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
+            }
+          }).id ?? null
+      }else{
         stompClient?.subscribe(
           `/queue/${queue_name}`,
           (message) => {
             if (mainWindow) {
-              mainWindow.webContents.send('received-patient', JSON.parse(message.body))
+              mainWindow.webContents.send('received-invoice', JSON.parse(message.body))
             }
-          },
-          {
-            selector
-          }
-        ).id ?? null
-
-      emergencySubscriptionId =
-        stompClient?.subscribe('/topic/emergency', (message) => {
-          if (mainWindow) {
-            console.log('subscribe-emergency')
-            mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
-          }
-        }).id ?? null
+          })
+      }
     }
 
     stompClient.activate()

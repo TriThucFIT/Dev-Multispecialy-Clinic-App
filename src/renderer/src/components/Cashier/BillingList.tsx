@@ -3,56 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { FaCircleCheck } from 'react-icons/fa6'
 import { IoIosCloseCircle } from 'react-icons/io'
 import { TbFilterSearch } from 'react-icons/tb'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import clsx from 'clsx'
 import Search from 'antd/es/input/Search'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
+import { useRecoilState } from 'recoil'
+import { billingListState } from './stores'
+import { InvoiceStatus } from './enums'
 
 type SearchProps = GetProps<typeof Input.Search>
-
-const billList = [
-  {
-    invoiceId: "IV0125",
-    patient: {
-      patientId: "PA0185",
-      fullName: 'Trần Thị Ngọc Yến Nhi ',
-      dob: '12/12/1999'
-    },
-    time: '13:24 12/12/2024',
-    statusPayment: false
-  },
-  {
-    invoiceId: "IV0126",
-    patient: {
-      patientId: 2,
-      fullName: 'Võ Thị Hồng Nhung',
-      dob: '12/12/1999'
-    },
-    time: '13:24 12/12/2024',
-    statusPayment: false
-  },
-
-  {
-    invoiceId: "IV0127",
-    patient: {
-      patientId: 3,
-      fullName: 'Nguyễn Văn C',
-      dob: '12/12/1999'
-    },
-    time: '13:24 12/12/2024',
-    statusPayment: false
-  },
-  {
-    invoiceId: "IV0128",
-    patient: {
-      patientId: 4,
-      fullName: 'Nguyễn Văn D',
-      dob: '12/12/1999'
-    },
-    time: '13:24 12/12/2024',
-    statusPayment: true
-  }
-]
 
 const filterStatus = [
   { value: 'all', label: 'Tất cả' },
@@ -61,11 +20,18 @@ const filterStatus = [
 ]
 
 export function BillingList() {
-  const [billActive, setBillActive] = useState<string | null>("IV0125")
+  const [billList, setBillList] = useRecoilState(billingListState)
+  const [billActive, setBillActive] = useState<number | null>(billList[0]?.id || null)
   const onSearch: SearchProps['onSearch'] = (value, _e, info) => console.log(info?.source, value)
 
+  useEffect(() => {
+    ;(window.api as any).onInvoice((message: any) => {
+      console.log('received-invoice', JSON.parse(message))
+      setBillList((oldList) => [...oldList, JSON.parse(message)])
+    })
+  }, [])
   return (
-    <Card className="bg-opacity-90 bg-white">
+    <Card className="bg-opacity-90 bg-white overflow-auto">
       <CardHeader>
         <CardTitle>Danh sách Hóa Đơn</CardTitle>
       </CardHeader>
@@ -103,21 +69,21 @@ export function BillingList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {billList.map((bill, index) => (
+            {billList.map((invoice, index) => (
               <TableRow
-                key={bill.invoiceId}
-                className={clsx({ 'bg-bgActive': billActive === bill.invoiceId })}
-                onClick={() => setBillActive(bill.invoiceId)}
+                key={invoice.id}
+                className={clsx({ 'bg-bgActive': billActive === invoice.id })}
+                onClick={() => setBillActive(invoice.id)}
               >
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{bill.invoiceId}</TableCell>
-                <TableCell>{bill.patient.patientId}</TableCell>
-                <TableCell>{bill.patient.fullName}</TableCell>
-                <TableCell>{bill.patient.dob}</TableCell>
-                <TableCell>{bill.time}</TableCell>
+                <TableCell>{`INV-${invoice.id.toString().padStart(4, '0')}`}</TableCell>
+                <TableCell>{invoice.patient.id}</TableCell>
+                <TableCell>{invoice.patient.fullName}</TableCell>
+                <TableCell>{invoice.patient.dob}</TableCell>
+                <TableCell>{invoice.date.toLocaleString('vi-VN')}</TableCell>
                 <TableCell>
                   <div className="col-span-1 flex items-center justify-center">
-                    {bill.statusPayment ? (
+                    {invoice.status === InvoiceStatus.PAID ? (
                       <FaCircleCheck color="var(--success)" />
                     ) : (
                       <IoIosCloseCircle color="var(--error)" />

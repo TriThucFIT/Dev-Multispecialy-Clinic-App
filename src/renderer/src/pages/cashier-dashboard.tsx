@@ -2,7 +2,9 @@ import { CardInfo } from '@renderer/components/CardInfo'
 import { BillingAndPayment } from '@renderer/components/Cashier/BillingAndPayment'
 import { BillingList } from '@renderer/components/Cashier/BillingList'
 
+
 export default function CashierDashboard() {
+  
 
   return (
     <div className="w-screen h-screen bg-[url('../assets/bg-cashier.png')] bg-cover bg-center overflow-auto">
