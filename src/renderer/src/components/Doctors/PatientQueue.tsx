@@ -81,9 +81,9 @@ export function PatientList() {
     }
   }
   return (
-    <Card className="md:col-span-1 bg-opacity-50 bg-white">
+    <Card className="md:col-span-1 bg-opacity-50 bg-white h-full">
       <CardHeader>
-        <div className="xl:grid xl:grid-cols-2">
+        <div className="xl:grid xl:grid-cols-1">
           <CardTitle className="lg:col-span-1">Danh sách bệnh nhân ({patients.length})</CardTitle>
         </div>
         <div className="flex items-center">

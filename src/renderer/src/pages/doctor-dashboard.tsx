@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { PatientList } from '../components/Doctors/PatientQueue'
 import { CurrentPatientDetails } from '../components/Doctors/CurrentPatientDetails'
 import { PatientExamination } from '../components/Doctors/PatientExamination'
@@ -28,8 +28,11 @@ import {
 import { CardInfo } from '@renderer/components/CardInfo'
 import { UserState } from '@renderer/state'
 import { AdmissionSattus } from '@renderer/components/Receptionits/Admission/enums'
+import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft } from 'react-icons/md'
 
 export default function EnhancedDoctorScreen() {
+  const [isScreenPatients, setIsScreenPatients] = useState<boolean>(true)
+
   const [currentPatient, setCurrentPatient] = useRecoilState<Patient | null>(currentPatientState)
   const [labTests, _setLabTests] = useRecoilState<LabTest[]>(labTestsState)
   const [medications, _setMedications] = useRecoilState<Medication[]>(medicationsState)
@@ -127,9 +130,24 @@ export default function EnhancedDoctorScreen() {
         </h1>
         <CardInfo />
         <div className="flex flex-col lg:flex-row">
-          <div className=" w-full p-4 ">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <PatientList />
+          <div className="flex gap-6 w-full p-4">
+            <div className="relative" onClick={() => setIsScreenPatients(!isScreenPatients)}>
+              {isScreenPatients ? (
+                <div className="absolute flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-10 text-xl -right-4 -top-2">
+                  <MdKeyboardDoubleArrowLeft />
+                </div>
+              ) : (
+                <div className="absolute left-6 -top-16 flex items-center justify-center gap-2 bg-white w-[220px] rounded-lg py-2">
+                  <div>Danh sách bệnh nhân</div>
+                  <div className="flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-8 text-xl">
+                    <MdKeyboardDoubleArrowRight />
+                  </div>
+                </div>
+              )}
+
+              {isScreenPatients && <PatientList />}
+            </div>
+            <div className="w-full">
               <CurrentPatientDetails
                 patient={currentPatient}
                 allergies={allergies}

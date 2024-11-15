@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Label } from '../ui/label'
-import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Patient } from '@renderer/types/Patient/patient'
 
@@ -15,6 +14,8 @@ type VitalSigns = {
   heartRate: number
   temperature: number
   oxygenSaturation: number
+  height: number
+  weight: number
 }
 
 type CurrentPatientDetailsProps = {
@@ -23,34 +24,48 @@ type CurrentPatientDetailsProps = {
   vitalSigns: VitalSigns
 }
 
+const RowGrid = ({ label, value }: { label: string; value: string | number }) => (
+  <div className="col-span-1">
+    <div className="flex gap-2">
+      <div className="font-semibold">{label}</div>
+      <div>{value}</div>
+    </div>
+  </div>
+)
+
 export function CurrentPatientDetails({
   patient,
   allergies,
   vitalSigns
 }: CurrentPatientDetailsProps) {
+  const RowHealthIndicator = (props: { label: string; value: any; unit?: string }) => (
+    <div>
+      <span>{props.label}: </span>
+      {props.value ? (
+        <span>
+          {props.value}
+          {props.unit}
+        </span>
+      ) : (
+        <span className="italic text-gray-500">Chưa khám</span>
+      )}
+    </div>
+  )
+
   return (
-    <Card className="md:col-span-2 bg-opacity-50 bg-white">
+    <Card className="bg-opacity-50 bg-white">
       <CardHeader>
-        <CardTitle>Bệnh nhân hiện tại: {patient?.fullName}</CardTitle>
+        <div className="grid grid-cols-3">
+          <CardTitle>Bệnh nhân hiện tại: {patient?.fullName}</CardTitle>
+          <RowGrid label="Tuổi" value={patient?.age?.toString() || 'Chưa có bệnh nhân'} />
+          <RowGrid
+            label="Giới tính"
+            value={typeof patient?.gender === 'string' ? patient.gender : 'Chưa có bệnh nhân'}
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Tuổi</Label>
-            <Input
-              disabled={patient === null}
-              value={patient?.age?.toString() || 'Chưa có bệnh nhân'}
-              readOnly
-            />
-          </div>
-          <div>
-            <Label>Giới tính</Label>
-            <Input
-              disabled={patient === null}
-              value={typeof patient?.gender === 'string' ? patient.gender : 'Chưa có bệnh nhân'}
-              readOnly
-            />
-          </div>
           <div className="col-span-2">
             <Label>Triệu chứng</Label>
             <Textarea
@@ -62,7 +77,7 @@ export function CurrentPatientDetails({
           <div className="col-span-2 ">
             <Label>Dị ứng : </Label>
             <div className="border rounded-md p-5">
-              {patient ? (
+              {/* {patient ? ( */}
                 <ul className="list-none">
                   {allergies.length > 0 ? (
                     allergies.map((allergy) => (
@@ -74,52 +89,30 @@ export function CurrentPatientDetails({
                     <span className="italic text-gray-500">Không có dị ứng</span>
                   )}
                 </ul>
-              ) : (
+              {/* ) : (
                 <span className="italic text-gray-500">Chưa có bệnh nhân</span>
-              )}
+              )} */}
             </div>
           </div>
           <div className="col-span-2 ">
             <Label>Chỉ số sức khỏe :</Label>
             <div className="border rounded-md p-5">
-              {patient ? (
-                <div className="grid grid-cols-2 gap-2 ">
-                  <div>
-                    <span>Huyết áp: </span>
-                    {vitalSigns.bloodPressure ? (
-                      <span>{vitalSigns.bloodPressure}</span>
-                    ) : (
-                      <span className="italic text-gray-500">Chưa khám</span>
-                    )}
-                  </div>
-                  <div>
-                    <span>Nhịp tim: </span>
-                    {vitalSigns.heartRate ? (
-                      <span>{vitalSigns.heartRate}</span>
-                    ) : (
-                      <span className="italic text-gray-500">Chưa khám</span>
-                    )}
-                  </div>
-                  <div>
-                    <span>Nhiệt độ: </span>
-                    {vitalSigns.temperature ? (
-                      <span>{vitalSigns.temperature}°C</span>
-                    ) : (
-                      <span className="italic text-gray-500">Chưa khám</span>
-                    )}
-                  </div>
-                  <div>
-                    <span>Độ bão hòa O2: </span>
-                    {vitalSigns.oxygenSaturation ? (
-                      <span>{vitalSigns.oxygenSaturation}%</span>
-                    ) : (
-                      <span className="italic text-gray-500">Chưa khám</span>
-                    )}
-                  </div>
-                </div>
-              ) : (
+              {/* {patient ? ( */}
+              <div className="grid grid-cols-3 gap-2 ">
+                <RowHealthIndicator label="Huyết áp" value={vitalSigns.bloodPressure} />
+                <RowHealthIndicator label="Nhịp tim" value={vitalSigns.heartRate} />
+                <RowHealthIndicator label="Chiều cao" value={vitalSigns.height} unit="m" />
+                <RowHealthIndicator
+                  label="Độ bão hòa O2"
+                  value={vitalSigns.oxygenSaturation}
+                  unit="%"
+                />
+                <RowHealthIndicator label="Nhiệt độ" value={vitalSigns.temperature} unit="°C" />
+                <RowHealthIndicator label="Cân nặng" value={vitalSigns.weight} unit="kg" />
+              </div>
+              {/* ) : (
                 <span className="italic text-gray-500">Chưa có bệnh nhân</span>
-              )}
+              )} */}
             </div>
           </div>
         </div>

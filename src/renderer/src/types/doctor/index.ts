@@ -37,6 +37,8 @@ export type VitalSigns = {
   heartRate: number
   temperature: number
   oxygenSaturation: number
+  height: number
+  weight: number
 }
 
 export enum Specializations {

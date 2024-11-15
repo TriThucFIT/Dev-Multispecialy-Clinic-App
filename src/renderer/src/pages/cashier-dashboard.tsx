@@ -1,5 +1,4 @@
 import { CardInfo } from '@renderer/components/CardInfo'
-// import { useState } from 'react'
 import { BillingAndPayment } from '@renderer/components/Cashier/BillingAndPayment'
 import { BillingList } from '@renderer/components/Cashier/BillingList'
 

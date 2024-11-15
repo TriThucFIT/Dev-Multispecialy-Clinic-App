@@ -55,7 +55,9 @@ export const vitalSignsState = atom<VitalSigns>({
     bloodPressure: '120/80',
     heartRate: 72,
     temperature: 98.6,
-    oxygenSaturation: 98
+    oxygenSaturation: 98,
+    height: 1.7,
+    weight: 65
   } as VitalSigns
 })
 

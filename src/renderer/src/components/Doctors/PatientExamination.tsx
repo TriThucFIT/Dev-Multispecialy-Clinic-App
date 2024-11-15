@@ -98,7 +98,7 @@ export function PatientExamination({
   }
 
   return (
-    <Card className="md:col-span-3 bg-opacity-50 bg-white">
+    <Card className="bg-opacity-50 bg-white">
       <CardHeader>
         <CardTitle>Khám Bệnh</CardTitle>
       </CardHeader>
