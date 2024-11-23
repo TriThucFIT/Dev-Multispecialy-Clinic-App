@@ -152,8 +152,8 @@ export const NewPatient: FC<NewPatientProps> = ({ form }) => {
       usePopup('Đang xử lý', 'loading')
     }
     if (createValue.state === 'hasError') {
-      if (createValue.contents?.response?.data?.message_VN) {
-        usePopup(createValue.contents.response.data.message_VN, 'error')
+      if (createValue.contents?.response?.data?.message) {
+        usePopup(createValue.contents.response.data.message, 'error')
       } else {
         usePopup('Đăng ký thất bại', 'error')
       }

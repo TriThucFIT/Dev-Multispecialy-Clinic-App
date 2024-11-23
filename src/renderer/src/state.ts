@@ -24,14 +24,14 @@ export const LoggedStateSelector = selector<LoginResponse | null>({
   get: async ({ get }) => {
     try {
       const loginRequest = get(LoginRequestState)
-      if (!loginRequest) {
-        usePopup('Vui lòng nhập thông tin đăng nhập', 'error')
-        return null
+      if (loginRequest) {
+        const response: LoginResponse = await AuthService.login(loginRequest)
+        localStorage.setItem('access_token', response.access_token)
+        ;(window.api as any).maximizeWindow()
+        return response
       }
-      const response: LoginResponse = await AuthService.login(loginRequest)
-      localStorage.setItem('access_token', response.access_token)
-      ;(window.api as any).maximizeWindow()
-      return response
+      usePopup('Vui lòng nhập thông tin đăng nhập', 'error')
+      return null
     } catch (error: any) {
       usePopup(`Đăng nhập thất bại : ${error.message}`, 'error')
       throw error

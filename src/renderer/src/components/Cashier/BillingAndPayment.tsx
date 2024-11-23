@@ -2,75 +2,26 @@ import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { IoPrintSharp } from 'react-icons/io5'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Input, Select } from 'antd'
 import { Edit2 } from 'iconsax-react'
 import { Table } from 'antd'
-import type { TableColumnsType, TableProps } from 'antd'
-
-type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection']
-
-const billInfo = {
-  invoiceId: 1,
-  time: '13:24 12/12/2024',
-  statusPayment: false,
-  patient: {
-    patientId: 1,
-    fullName: 'Trần Thị Yến Nhi',
-    dob: '12/12/1999',
-    gender: false,
-    address: '123 Đường 123, Quận 1, TP.HCM',
-    phone: '0123456789'
-  },
-  casher: {
-    cashierId: 1,
-    fullName: 'Nguyễn Văn A'
-  },
-  payer: {
-    fullName: 'Nguyễn Văn B',
-    phone: '0123456789'
-  },
-  service: [
-    {
-      key: 1,
-      serviceName: 'Khám Bệnh',
-      price: 500000,
-      // quantity: '1',
-      statusPayment: true
-    },
-    {
-      key: 2,
-      serviceName: 'Xét Nghiệm',
-      price: 300000,
-      // quantity: '1',
-      statusPayment: false
-    },
-    {
-      key: 3,
-      serviceName: 'Acetylcystein (uống)',
-      unit: 100000,
-      price: 200000,
-      quantity: '2',
-      dvt: 'Lọ',
-      statusPayment: false
-    }
-  ]
-}
-
-interface IPayer {
-  fullName?: string
-  phone?: string
-}
-
-interface ServiceType {
-  key: React.Key
-  serviceName: string
-  unit?: number
-  price: number
-  quantity?: string
-  dvt?: string
-  statusPayment: boolean
-}
+import type { TableColumnsType } from 'antd'
+import { useRecoilState, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import {
+  activeBillState,
+  billingListState,
+  invoiceToPayState,
+  IPayer,
+  isPayingState,
+  payerState,
+  payingProcessState,
+  PaymentMethodMapper,
+  ServiceType,
+  TableRowSelection
+} from './stores'
+import { InvoiceStatuMappper, InvoiceStatus } from './enums'
+import dayjs from 'dayjs'
 
 const columns: TableColumnsType<ServiceType> = [
   { title: 'STT', dataIndex: 'key' },
@@ -81,7 +32,7 @@ const columns: TableColumnsType<ServiceType> = [
   {
     title: 'Trạng Thái',
     dataIndex: 'statusPayment',
-    render: (statusPayment: boolean) => (statusPayment ? 'Đã Thanh Toán' : 'Chưa Thanh Toán')
+    render: (statusPayment: InvoiceStatus) => InvoiceStatuMappper[statusPayment]
   },
   {
     title: 'ĐVT',
@@ -119,19 +70,84 @@ const GridRowInfo = ({ data }) => (
 )
 
 export function BillingAndPayment() {
-  const [payer, setPayer] = useState<IPayer>()
+  const [billInfo, setBillInfo] = useRecoilState(activeBillState)
+  const [billList, setBillList] = useRecoilState(billingListState)
+  const [payer, setPayer] = useRecoilState(payerState)
   const [inputPayer, setInputPayer] = useState<IPayer>()
   const [selectedUserPayment, setSelectedUserPayment] = useState<string>('paitent')
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
-  const [totalPayment, setTotalPayment] = useState<number>(0)
 
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+  const [invoiceToPay, setInvoiceToPay] = useRecoilState(invoiceToPayState)
+  const payResult = useRecoilValueLoadable(payingProcessState)
+  const setIsPaying = useSetRecoilState(isPayingState)
+
+  useEffect(() => {
+    if (payer) {
+      setInvoiceToPay({
+        ...invoiceToPay,
+        payment_person_name: payer.fullName,
+        payment_person_phone: payer.phone
+      })
+    }
+    return () => {
+      setInputPayer(undefined)
+    }
+  }, [payer])
+
+  useEffect(() => {
+    if (selectedUserPayment === 'patient') {
+      setPayer({
+        fullName: billInfo?.patient?.fullName,
+        phone: billInfo?.patient?.phone
+      })
+    }
+    return () => {
+      setPayer(null)
+    }
+  }, [selectedUserPayment])
+
+  useEffect(() => {
+    if (payResult.state === 'hasValue' && payResult.contents?.statusCode === 200) {
+      console.log('Success: ', payResult.contents)
+      const billIndex = billList.findIndex((item) => item.id === billInfo?.id)
+      setBillList((oldList) =>
+        oldList.map((item, index) =>
+          index === billIndex
+            ? {
+                ...item,
+                status: InvoiceStatus.PAID,
+                items: item.items.map((service) =>
+                  invoiceToPay?.items_to_pay?.includes(service.id)
+                    ? { ...service, status: InvoiceStatus.PAID }
+                    : service
+                )
+              }
+            : item
+        )
+      )
+      setBillInfo(billList[billIndex + 1] || null)
+      setIsPaying(false)
+      setSelectedRowKeys([])
+      setInvoiceToPay(null)
+      setPayer(null)
+    } else if (payResult.state === 'hasError') {
+      console.log('Error: ', payResult.contents)
+    } else {
+      console.log('Loading')
+    }
+  }, [payResult.state])
+
+  const onSelectChange = (newSelectedRowKeys: React.Key[], records: ServiceType[]) => {
     setSelectedRowKeys(newSelectedRowKeys)
     const totalPrice = newSelectedRowKeys.reduce((acc: number, cur) => {
-      const service = billInfo.service.find((item) => item.key === cur)
+      const service = billInfo?.items.find((item) => item.key === cur)
       return acc + (service?.price ?? 0)
     }, 0)
-    setTotalPayment(totalPrice)
+    setInvoiceToPay({
+      ...invoiceToPay,
+      items_to_pay: records.map((record) => record.id),
+      total_paid: totalPrice
+    })
   }
 
   const handleChangeSelectUserPayment = (value: string) => {
@@ -140,15 +156,22 @@ export function BillingAndPayment() {
 
   const rowSelection: TableRowSelection<ServiceType> = {
     selectedRowKeys,
-    onChange: onSelectChange,
+    onChange: (selectedRowKeys, selectedRows) => onSelectChange(selectedRowKeys, selectedRows),
     getCheckboxProps: (record) => ({
-      disabled: record.statusPayment,
-      style: record.statusPayment ? { display: 'none' } : {}
-    })
+      disabled: record.statusPayment !== InvoiceStatus.PENDING,
+      style: record.statusPayment !== InvoiceStatus.PENDING ? { display: 'none' } : {}
+    }),
+    defaultSelectedRowKeys: billInfo?.items?.map((item) => item.key)
+  }
+
+  const handlePay = async () => {
+    if (invoiceToPay && invoiceToPay.items_to_pay && invoiceToPay.payment_method) {
+      setIsPaying(true)
+    }
   }
 
   return (
-    <Card className="col-span-2 bg-opacity-90 bg-white">
+    <Card className="col-span-2 bg-opacity-50 bg-white h-full">
       <CardHeader>
         <div className="flex justify-between">
           <CardTitle>Thanh Toán Hóa Đơn</CardTitle>
@@ -166,32 +189,47 @@ export function BillingAndPayment() {
         <div className="space-y-4">
           <GridRowInfo
             data={[
-              { label: 'Mã Hóa Đơn', value: billInfo.invoiceId },
-              { label: 'Ngày khám', value: billInfo.time },
+              { label: 'Mã Hóa Đơn', value: billInfo?.id || 'Chưa có thông tin' },
+              {
+                label: 'Ngày khám',
+                value: billInfo?.date
+                  ? dayjs(billInfo?.date).format('DD/MM/YYYY')
+                  : 'Chưa có thông tin'
+              },
               {
                 label: 'Trạng Thái Thanh Toán',
-                value: billInfo.statusPayment ? 'Đã Thanh Toán' : 'Chưa Thanh Toán'
+                value: billInfo
+                  ? billInfo?.status === InvoiceStatus.PAID
+                    ? 'Đã Thanh Toán'
+                    : 'Chưa Thanh Toán'
+                  : 'Chưa có thông tin'
               }
             ]}
           />
           <GridRowInfo
             data={[
-              { label: 'Mã Thu Ngân', value: billInfo.casher.cashierId },
-              { label: 'Thu Ngân', value: billInfo.casher.fullName }
+              { label: 'Mã Bệnh Nhân', value: billInfo?.patient?.id || 'Chưa có thông tin' },
+              { label: 'Bệnh Nhân', value: billInfo?.patient?.fullName || 'Chưa có thông tin' },
+              { label: 'Ngày Sinh', value: billInfo?.patient.dob || 'Chưa có thông tin' }
             ]}
           />
           <GridRowInfo
             data={[
-              { label: 'Mã Bệnh Nhân', value: billInfo.patient.patientId },
-              { label: 'Bệnh Nhân', value: billInfo.patient.fullName },
-              { label: 'Ngày Sinh', value: billInfo.patient.dob }
-            ]}
-          />
-          <GridRowInfo
-            data={[
-              { label: 'Địa Chỉ', value: billInfo.patient.address },
-              { label: 'Số Điện Thoại', value: billInfo.patient.phone },
-              { label: 'Giới Tính', value: billInfo.patient.gender ? 'Nam' : 'Nữ' }
+              {
+                label: 'Địa Chỉ',
+                value: billInfo?.patient?.address
+                  ? Object.values(billInfo.patient.address).join(', ')
+                  : 'Chưa có thông tin'
+              },
+              { label: 'Số Điện Thoại', value: billInfo?.patient.phone || 'Chưa có thông tin' },
+              {
+                label: 'Giới Tính',
+                value: billInfo?.patient
+                  ? billInfo?.patient.gender
+                    ? 'Nam'
+                    : 'Nữ'
+                  : 'Chưa có thông tin'
+              }
             ]}
           />
           <div className="grid grid-cols-3 items-center gap-2">
@@ -227,10 +265,15 @@ export function BillingAndPayment() {
                       ) : (
                         <Input
                           value={inputPayer?.fullName}
+                          required
                           onChange={(e) =>
                             setInputPayer((prev) => ({ ...prev, fullName: e.target.value }))
                           }
-                          onKeyDown={(e) => e.key === 'Enter' && setPayer(inputPayer)}
+                          onKeyDown={(e) =>
+                            e.key === 'Enter' &&
+                            inputPayer &&
+                            setPayer((prev) => ({ ...prev, fullName: inputPayer.fullName }))
+                          }
                         />
                       )}
                     </div>
@@ -251,10 +294,15 @@ export function BillingAndPayment() {
                       ) : (
                         <Input
                           value={inputPayer?.phone}
+                          required
                           onChange={(e) =>
                             setInputPayer((prev) => ({ ...prev, phone: e.target.value }) as IPayer)
                           }
-                          onKeyDown={(e) => e.key === 'Enter' && setPayer(inputPayer)}
+                          onKeyDown={(e) =>
+                            e.key === 'Enter' &&
+                            inputPayer &&
+                            setPayer((prev) => ({ ...prev, phone: inputPayer.phone }))
+                          }
                         />
                       )}
                     </div>
@@ -270,12 +318,20 @@ export function BillingAndPayment() {
           <Table<ServiceType>
             rowSelection={rowSelection}
             columns={columns}
-            dataSource={billInfo.service}
+            dataSource={billInfo?.items?.map((item) => ({
+              key: item.key,
+              id: item.id,
+              statusPayment: item.status,
+              serviceName: item.name,
+              price: item.price * (item.quantity || 1),
+              unit: item.price,
+              quantity: item.quantity || 1
+            }))}
             pagination={false}
             footer={() => (
               <div className="flex justify-end gap-4">
                 <div className="font-semibold">Tổng Tiền</div>
-                <div>{totalPayment.toLocaleString()} VNĐ</div>
+                <div>{invoiceToPay?.total_paid?.toLocaleString() || 0} VNĐ</div>
               </div>
             )}
           />
@@ -286,15 +342,26 @@ export function BillingAndPayment() {
                 defaultValue="cash"
                 className="w-full"
                 onChange={handleChangeSelectUserPayment}
-                options={[
-                  { label: 'Tiền Mặt', value: 'cash' },
-                  { label: 'Thẻ Tín Dụng/Ghi Nợ', value: 'card' },
-                  { label: 'Bảo Hiểm', value: 'insurance' }
-                ]}
+                options={Object.entries(PaymentMethodMapper).map(([key, value]) => ({
+                  label: value,
+                  value: key
+                }))}
               />
             </div>
           </div>
-          <Button className="w-full">Thanh Toán</Button>
+          <Button
+            disabled={billInfo?.status !== InvoiceStatus.PENDING}
+            onClick={handlePay}
+            className="w-full"
+          >
+            {billInfo?.status === InvoiceStatus.PAID ? (
+              'Các dịch vụ đã được thanh toán'
+            ) : payResult.state === 'loading' ? (
+              <span className="loading loading-spinner text-white" />
+            ) : (
+              'Thanh Toán'
+            )}
+          </Button>
         </div>
       </CardContent>
     </Card>

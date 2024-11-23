@@ -42,14 +42,14 @@ export const AppointmentPatient: FC<AppointmentPatientProps> = ({ onSelected }) 
       .cancelAppointment(id)
       .then((res) => {
         if (res.data) {
-          usePopup(res.data.message_VN, 'success')
+          usePopup(res.data.message, 'success')
           refreshAppointments()
         }
       })
       .catch((err) => {
         console.log(err)
         if (err.response) {
-          usePopup(err.response.data?.message_VN, 'error')
+          usePopup(err.response.data?.message, 'error')
         } else usePopup(err.message, 'error')
       })
   }

@@ -3,56 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { FaCircleCheck } from 'react-icons/fa6'
 import { IoIosCloseCircle } from 'react-icons/io'
 import { TbFilterSearch } from 'react-icons/tb'
-import { useState } from 'react'
+import { useEffect } from 'react'
 import clsx from 'clsx'
 import Search from 'antd/es/input/Search'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import {
+  activeBillState,
+  billingListState,
+  InvoiceFormQueue,
+  invoiceToPayState,
+  PaymentMethod
+} from './stores'
+import { InvoiceStatus } from './enums'
+import dayjs from 'dayjs'
+import { UserState } from '@renderer/state'
 
 type SearchProps = GetProps<typeof Input.Search>
-
-const billList = [
-  {
-    invoiceId: "IV0125",
-    patient: {
-      patientId: "PA0185",
-      fullName: 'Trần Thị Ngọc Yến Nhi ',
-      dob: '12/12/1999'
-    },
-    time: '13:24 12/12/2024',
-    statusPayment: false
-  },
-  {
-    invoiceId: "IV0126",
-    patient: {
-      patientId: 2,
-      fullName: 'Võ Thị Hồng Nhung',
-      dob: '12/12/1999'
-    },
-    time: '13:24 12/12/2024',
-    statusPayment: false
-  },
-
-  {
-    invoiceId: "IV0127",
-    patient: {
-      patientId: 3,
-      fullName: 'Nguyễn Văn C',
-      dob: '12/12/1999'
-    },
-    time: '13:24 12/12/2024',
-    statusPayment: false
-  },
-  {
-    invoiceId: "IV0128",
-    patient: {
-      patientId: 4,
-      fullName: 'Nguyễn Văn D',
-      dob: '12/12/1999'
-    },
-    time: '13:24 12/12/2024',
-    statusPayment: true
-  }
-]
 
 const filterStatus = [
   { value: 'all', label: 'Tất cả' },
@@ -61,11 +28,39 @@ const filterStatus = [
 ]
 
 export function BillingList() {
-  const [billActive, setBillActive] = useState<string | null>("IV0125")
+  const [billList, setBillList] = useRecoilState(billingListState)
+  const userCurrent = useRecoilValue(UserState)
+  const [billActive, setBillActive] = useRecoilState(activeBillState)
+  const setInvoiceToPayState = useSetRecoilState(invoiceToPayState)
   const onSearch: SearchProps['onSearch'] = (value, _e, info) => console.log(info?.source, value)
 
+  useEffect(() => {
+    ;(window.api as any).onInvoice((message: any) => {
+      console.log('received-invoice', JSON.parse(message))
+      setBillList((oldList) => [...oldList, JSON.parse(message)])
+    })
+  }, [])
+
+  useEffect(() => {
+    if (billList.length > 0 && !billActive) {
+      setBillActive(billList[0])
+    }
+  }, [billList])
+
+  const handleInvoiceClick = (invoice: InvoiceFormQueue) => {
+    setBillActive(invoice)
+    setInvoiceToPayState({
+      invoice_id: invoice.id,
+      payment_date: invoice.date,
+      payment_person_name: invoice.patient.fullName,
+      payment_person_phone: invoice.patient.phone,
+      items_to_pay: invoice.items.map((item) => item.id),
+      payment_method: PaymentMethod.CASH,
+      casher_username: userCurrent?.username
+    })
+  }
   return (
-    <Card className="bg-opacity-90 bg-white">
+    <Card className="bg-opacity-50 bg-white h-full">
       <CardHeader>
         <CardTitle>Danh sách Hóa Đơn</CardTitle>
       </CardHeader>
@@ -94,30 +89,28 @@ export function BillingList() {
           <TableHeader>
             <TableRow>
               <TableHead>STT</TableHead>
-              <TableHead>Mã Hóa Đơn</TableHead>
               <TableHead>Mã bệnh nhân</TableHead>
-              <TableHead>Tên bệnh nhân</TableHead>
+              <TableHead className="w-fit min-w-36">Tên bệnh nhân</TableHead>
               <TableHead>Ngày sinh</TableHead>
               <TableHead>Ngày khám</TableHead>
               <TableHead>Trạng thái thu</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {billList.map((bill, index) => (
+            {billList.map((invoice, index) => (
               <TableRow
-                key={bill.invoiceId}
-                className={clsx({ 'bg-bgActive': billActive === bill.invoiceId })}
-                onClick={() => setBillActive(bill.invoiceId)}
+                key={invoice.id}
+                className={`${clsx({ 'bg-bgActive': billActive?.id === invoice.id })} cursor-pointer`}
+                onClick={() => handleInvoiceClick(invoice)}
               >
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{bill.invoiceId}</TableCell>
-                <TableCell>{bill.patient.patientId}</TableCell>
-                <TableCell>{bill.patient.fullName}</TableCell>
-                <TableCell>{bill.patient.dob}</TableCell>
-                <TableCell>{bill.time}</TableCell>
+                <TableCell>{invoice.patient.id}</TableCell>
+                <TableCell>{invoice.patient.fullName}</TableCell>
+                <TableCell>{dayjs(invoice.patient.dob).format('DD/MM/YYYY')}</TableCell>
+                <TableCell>{dayjs(invoice.date).format('DD/MM/YYYY')}</TableCell>
                 <TableCell>
                   <div className="col-span-1 flex items-center justify-center">
-                    {bill.statusPayment ? (
+                    {invoice.status === InvoiceStatus.PAID ? (
                       <FaCircleCheck color="var(--success)" />
                     ) : (
                       <IoIosCloseCircle color="var(--error)" />
