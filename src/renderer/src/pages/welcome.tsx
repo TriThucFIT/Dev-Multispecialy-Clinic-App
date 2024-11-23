@@ -11,7 +11,7 @@ export const Welcome: FC = () => {
           <img
             src={LogoDMC}
             alt="logo"
-            className="w-44 h-44 md:w-52 md:h-52 border-black object-contain mt-3 ml-3"
+            className="size-44 md:size-52 border-black object-contain mt-3 ml-3"
           />
           <div className="w-full flex justify-center mt-20">
             <h1 className="text-3xl md:text-4xl lg:text-6xl text-center text-[#299ec4] font-bold font-roboto">

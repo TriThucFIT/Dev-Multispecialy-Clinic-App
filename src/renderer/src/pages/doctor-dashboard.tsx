@@ -137,8 +137,8 @@ export default function EnhancedDoctorScreen() {
                   <MdKeyboardDoubleArrowLeft />
                 </div>
               ) : (
-                <div className="absolute left-6 -top-16 flex items-center justify-center gap-2 bg-white w-[220px] rounded-lg py-2">
-                  <div>Danh sách bệnh nhân</div>
+                <div className="absolute left-6 -top-16 flex items-center justify-center gap-2 bg-white w-[240px] rounded-lg py-2">
+                  <div className='font-bold'>Danh sách bệnh nhân ({patientsList.length})</div>
                   <div className="flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-8 text-xl">
                     <MdKeyboardDoubleArrowRight />
                   </div>

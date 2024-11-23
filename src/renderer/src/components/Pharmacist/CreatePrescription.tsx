@@ -16,9 +16,9 @@ export const CreatePrescription = ({
   }
 
   return (
-    <Modal title="Tạo đơn thuốc mới" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+    <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
       <Form>
-        <Form.Item></Form.Item>
+        <Form.Item label=""></Form.Item>
       </Form>
       <div className="container mx-auto p-4">
         <h2 className="text-xl font-bold mb-4">Tạo Đơn Thuốc Mới</h2>

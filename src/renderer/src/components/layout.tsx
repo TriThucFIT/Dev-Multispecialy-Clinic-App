@@ -57,7 +57,7 @@ export const Layout: FC = () => {
         isActive: userContents.isActive !== undefined ? userContents.isActive : false
       })
     } else {
-      return <CashierDashboard />
+      return <Welcome />
     }
   }
   if (LoggedState.state === 'loading' || loginUser.state === 'loading') {
