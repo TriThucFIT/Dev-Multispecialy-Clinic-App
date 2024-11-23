@@ -1,59 +1,62 @@
-import { atom } from 'recoil'
-import { InvoiceFormQueue } from './type'
-import { InvoiceStatus } from '../enums'
+import { atom, selector } from 'recoil'
+import { InvoiceFormQueue, IPayer, PayInvoiceRequest } from './type'
+import { CasherService } from '@renderer/api/services/Casher/Casher.service'
+import { usePopup } from '@renderer/hooks/usePopup'
 
-const invoices: InvoiceFormQueue[] = [
-  {
-    id: 1,
-    total_amount: 0,
-    status: InvoiceStatus.PENDING,
-    date: new Date('2024-12-12T13:24:00'),
-    patient: {
-      id: 185,
-      fullName: 'Trần Thị Ngọc Yến Nhi ',
-      dob: '12/12/1999'
-    },
-    items: []
-  },
-  {
-    id: 2,
-    total_amount: 0,
-    status: InvoiceStatus.PENDING,
-    date: new Date('2024-12-12T13:24:00'),
-    patient: {
-      id: 2,
-      fullName: 'Võ Thị Hồng Nhung',
-      dob: '12/12/1999'
-    },
-    items: []
-  },
-  {
-    id: 3,
-    total_amount: 0,
-    status: InvoiceStatus.PENDING,
-    date: new Date('2024-12-12T13:24:00'),
-    patient: {
-      id: 3,
-      fullName: 'Nguyễn Văn C',
-      dob: '12/12/1999'
-    },
-    items: []
-  },
-  {
-    id: 4,
-    total_amount: 0,
-    status: InvoiceStatus.PAID,
-    date: new Date('2024-12-12T13:24:00'),
-    patient: {
-      id: 4,
-      fullName: 'Nguyễn Văn D',
-      dob: '12/12/1999'
-    },
-    items: []
-  }
-]
+const invoices: InvoiceFormQueue[] = []
+const caserService = new CasherService()
 
-export const billingListState = atom({
+export const billingListState = atom<InvoiceFormQueue[]>({
   key: 'billingListState',
   default: invoices
+})
+
+export const activeBillState = atom<InvoiceFormQueue | null>({
+  key: 'activeBillState',
+  default: null
+})
+
+export const invoiceToPayState = atom<Partial<PayInvoiceRequest> | null>({
+  key: 'invoiceToPayState',
+  default: null
+})
+
+export const payerState = atom<IPayer | null>({
+  key: 'payerState',
+  default: null
+})
+
+export const paymentMethodState = atom<string | null>({
+  key: 'paymentMethodState',
+  default: null
+})
+
+export const isPayingState = atom<boolean>({
+  key: 'isPayingState',
+  default: false
+})
+
+export const payingProcessState = selector({
+  key: 'payingProcessState',
+  get: async ({ get }) => {
+    try {
+      const isPaying = get(isPayingState)
+      const invoiceToPay = get(invoiceToPayState)
+      if (isPaying && invoiceToPay) {
+        const response = await caserService.payInvoice(invoiceToPay)
+        if (response && response.statusCode === 200) {
+          console.log('Paying process success', response)
+
+          usePopup('Thanh toán thành công', 'success')
+          return response
+        }
+        return null
+      }
+      return null
+    } catch (error: any) {
+      console.error('Error on paying process', error)
+      usePopup(error.errorMessage, 'error')
+      return null
+    }
+  }
 })

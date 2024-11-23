@@ -1,16 +1,17 @@
 import { FC, useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { useRecoilState, useRecoilValueLoadable } from 'recoil'
+import { useRecoilState, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import { RoleName } from '@renderer/types/User/user'
 import ReceptionistDashboard from '@renderer/pages/receptionist-dashboard'
 import EnhancedDoctorScreen from '@renderer/pages/doctor-dashboard'
 import CashierDashboard from '@renderer/pages/cashier-dashboard'
 import PharmacistDashboard from '@renderer/pages/pharmacist-dashboard'
 import { Welcome } from '@renderer/pages/welcome'
-import { LoggedStateSelector, ProfileSelector, UserState } from '@renderer/state'
+import { LoggedStateSelector, LoginRequestState, ProfileSelector, UserState } from '@renderer/state'
 
 export const Layout: FC = () => {
   const LoggedState = useRecoilValueLoadable(LoggedStateSelector)
+  const setLoginRequest = useSetRecoilState(LoginRequestState)
   const loginUser = useRecoilValueLoadable(ProfileSelector)
   const [userState, setUserState] = useRecoilState(UserState)
   useEffect(() => {
@@ -64,8 +65,9 @@ export const Layout: FC = () => {
         avatar: userContents.avatar ? userContents.avatar : '/placeholder.svg?height=40&width=40',
         isActive: userContents.isActive !== undefined ? userContents.isActive : false
       })
+      setLoginRequest(null)
     } else {
-      return <CashierDashboard />
+      return <Welcome />
     }
   }
   if (LoggedState.state === 'loading' || loginUser.state === 'loading') {

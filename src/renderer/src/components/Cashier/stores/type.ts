@@ -1,5 +1,7 @@
 import { Address } from '@renderer/components/Receptionits/Admission/stores'
 import { InvoiceStatus } from '../enums'
+import React from 'react'
+import { TableProps } from 'antd'
 
 export type PatientFromQueue = {
   id?: number
@@ -28,8 +30,51 @@ export type InvoiceFormQueue = {
 }
 
 export type InvoiceItem = {
-  item: string
+  id: number
+  key: React.Key
+  name: string
   status: InvoiceStatus
   quantity?: number
   price: number
+}
+
+export type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection']
+
+export interface IPayer {
+  fullName?: string
+  phone?: string
+}
+
+export interface ServiceType {
+  key: React.Key
+  id: number
+  serviceName: string
+  statusPayment: InvoiceStatus
+  price: number
+  unit?: number
+  quantity?: number
+  dvt?: string
+}
+
+export type PayInvoiceRequest = {
+  invoice_id: number
+  casher_username: string
+  items_to_pay: number[]
+  total_paid: number
+  payment_method: PaymentMethod
+  payment_date: Date
+  payment_person_name: string
+  payment_person_phone: string
+}
+export enum PaymentMethod {
+  CASH = 'cash',
+  BANK_TRANSFER = 'bank_transfer',
+  INSURANCE = 'insurance',
+  OTHER = 'other'
+}
+export const PaymentMethodMapper = {
+  [PaymentMethod.CASH]: 'Tiền mặt',
+  [PaymentMethod.BANK_TRANSFER]: 'Chuyển khoản',
+  [PaymentMethod.INSURANCE]: 'Bảo hiểm',
+  [PaymentMethod.OTHER]: 'Khác'
 }
