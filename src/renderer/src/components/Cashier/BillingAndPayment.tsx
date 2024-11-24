@@ -16,6 +16,7 @@ import {
   isPayingState,
   payerState,
   payingProcessState,
+  PaymentMethod,
   PaymentMethodMapper,
   ServiceType,
   TableRowSelection
@@ -110,8 +111,8 @@ export function BillingAndPayment() {
     if (payResult.state === 'hasValue' && payResult.contents?.statusCode === 200) {
       console.log('Success: ', payResult.contents)
       const billIndex = billList.findIndex((item) => item.id === billInfo?.id)
-      setBillList((oldList) =>
-        oldList.map((item, index) =>
+      setBillList((oldList) => {
+        const new_list = oldList.map((item, index) =>
           index === billIndex
             ? {
                 ...item,
@@ -124,7 +125,13 @@ export function BillingAndPayment() {
               }
             : item
         )
-      )
+        const unprocessedData = new_list.filter((item) => item.status !== InvoiceStatus.PAID)
+        ;(window.api as any).send('sync-unprocessed-data', {
+          messages: unprocessedData,
+          queue_name: 'casher_general'
+        })
+        return new_list
+      })
       setBillInfo(billList[billIndex + 1] || null)
       setIsPaying(false)
       setSelectedRowKeys([])
@@ -341,7 +348,9 @@ export function BillingAndPayment() {
               <Select
                 defaultValue="cash"
                 className="w-full"
-                onChange={handleChangeSelectUserPayment}
+                onChange={(value: string) =>
+                  setInvoiceToPay({ ...invoiceToPay, payment_method: value as PaymentMethod })
+                }
                 options={Object.entries(PaymentMethodMapper).map(([key, value]) => ({
                   label: value,
                   value: key
