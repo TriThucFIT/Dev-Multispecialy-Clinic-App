@@ -45,7 +45,9 @@ export const allergiesState = atom<Allergy[]>({
   key: 'allergiesState',
   default: [
     { id: 1, name: 'Penicillin', severity: 'Nặng' },
-    { id: 2, name: 'Đậu phộng', severity: 'Vừa' }
+    { id: 2, name: 'Đậu phộng', severity: 'Vừa' },
+    { id: 3, name: 'Sữa', severity: 'Nhẹ' },
+    { id: 4, name: 'Kiwi', severity: 'Nặng' }
   ]
 })
 
