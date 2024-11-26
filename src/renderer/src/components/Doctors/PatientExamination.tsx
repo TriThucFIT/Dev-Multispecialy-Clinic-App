@@ -26,6 +26,7 @@ import {
   prescriptionState,
   selectedLabTestsState
 } from '@renderer/states/doctor'
+import { TestSelectionTab } from './TestSelectionTab'
 
 type LabTest = {
   id: number
@@ -144,16 +145,19 @@ export function PatientExamination({
             {aiAssistEnabled && <AIAssistant />}
           </TabsContent>
           <TabsContent value="labTests">
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-4">
               {labTests?.map((test) => (
-                <div key={test.id} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id={`test-${test?.id}`}
-                    checked={selectedLabTests?.includes(test?.id)}
-                    onChange={() => handleLabTestSelect(test?.id)}
-                  />
-                  <label htmlFor={`test-${test.id}`}>{test.name}</label>
+                <div className='space-y-3'>
+                  <div key={test.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={`test-${test?.id}`}
+                      checked={selectedLabTests?.includes(test?.id)}
+                      onChange={() => handleLabTestSelect(test?.id)}
+                    />
+                    <label htmlFor={`test-${test.id}`}>{test.name}</label>
+                  </div>
+                  <TestSelectionTab test={test} />
                 </div>
               ))}
             </div>

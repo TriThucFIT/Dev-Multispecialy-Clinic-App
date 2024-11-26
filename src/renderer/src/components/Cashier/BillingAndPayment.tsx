@@ -59,7 +59,7 @@ const columns: TableColumnsType<ServiceType> = [
 ]
 
 const GridRowInfo = ({ data }) => (
-  <div className={`grid grid-cols-3`}>
+  <div className={`grid grid-cols-2 lg:grid-cols-3`}>
     {data.map((item: any, index: number) => (
       <div key={index} className="col-span-1">
         <span className="font-semibold mr-1">{item.label}:</span>
@@ -73,7 +73,7 @@ export function BillingAndPayment() {
   const [billInfo, setBillInfo] = useRecoilState(activeBillState)
   const [billList, setBillList] = useRecoilState(billingListState)
   const [payer, setPayer] = useRecoilState(payerState)
-  const [inputPayer, setInputPayer] = useState<IPayer>()
+  const [inputPayer, setInputPayer] = useState<IPayer>({ fullName: '', phone: '' })
   const [selectedUserPayment, setSelectedUserPayment] = useState<string>('paitent')
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
 
@@ -89,9 +89,9 @@ export function BillingAndPayment() {
         payment_person_phone: payer.phone
       })
     }
-    return () => {
-      setInputPayer(undefined)
-    }
+    // return () => {
+    //   setInputPayer(undefined)
+    // }
   }, [payer])
 
   useEffect(() => {
@@ -187,51 +187,108 @@ export function BillingAndPayment() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <GridRowInfo
-            data={[
-              { label: 'Mã Hóa Đơn', value: billInfo?.id || 'Chưa có thông tin' },
-              {
-                label: 'Ngày khám',
-                value: billInfo?.date
-                  ? dayjs(billInfo?.date).format('DD/MM/YYYY')
-                  : 'Chưa có thông tin'
-              },
-              {
-                label: 'Trạng Thái Thanh Toán',
-                value: billInfo
-                  ? billInfo?.status === InvoiceStatus.PAID
-                    ? 'Đã Thanh Toán'
-                    : 'Chưa Thanh Toán'
-                  : 'Chưa có thông tin'
-              }
-            ]}
-          />
-          <GridRowInfo
-            data={[
-              { label: 'Mã Bệnh Nhân', value: billInfo?.patient?.id || 'Chưa có thông tin' },
-              { label: 'Bệnh Nhân', value: billInfo?.patient?.fullName || 'Chưa có thông tin' },
-              { label: 'Ngày Sinh', value: billInfo?.patient.dob || 'Chưa có thông tin' }
-            ]}
-          />
-          <GridRowInfo
-            data={[
-              {
-                label: 'Địa Chỉ',
-                value: billInfo?.patient?.address
-                  ? Object.values(billInfo.patient.address).join(', ')
-                  : 'Chưa có thông tin'
-              },
-              { label: 'Số Điện Thoại', value: billInfo?.patient.phone || 'Chưa có thông tin' },
-              {
-                label: 'Giới Tính',
-                value: billInfo?.patient
-                  ? billInfo?.patient.gender
-                    ? 'Nam'
-                    : 'Nữ'
-                  : 'Chưa có thông tin'
-              }
-            ]}
-          />
+          <div className="space-y-4 hidden lg:block">
+            <GridRowInfo
+              data={[
+                { label: 'Mã Hóa Đơn', value: billInfo?.id || 'Chưa có thông tin' },
+                {
+                  label: 'Ngày khám',
+                  value: billInfo?.date
+                    ? dayjs(billInfo?.date).format('DD/MM/YYYY')
+                    : 'Chưa có thông tin'
+                },
+                {
+                  label: 'Trạng Thái Thanh Toán',
+                  value: billInfo
+                    ? billInfo?.status === InvoiceStatus.PAID
+                      ? 'Đã Thanh Toán'
+                      : 'Chưa Thanh Toán'
+                    : 'Chưa có thông tin'
+                }
+              ]}
+            />
+            <GridRowInfo
+              data={[
+                { label: 'Mã Bệnh Nhân', value: billInfo?.patient?.id || 'Chưa có thông tin' },
+                { label: 'Bệnh Nhân', value: billInfo?.patient?.fullName || 'Chưa có thông tin' },
+                { label: 'Ngày Sinh', value: billInfo?.patient.dob || 'Chưa có thông tin' }
+              ]}
+            />
+            <GridRowInfo
+              data={[
+                {
+                  label: 'Địa Chỉ',
+                  value: billInfo?.patient?.address
+                    ? Object.values(billInfo.patient.address).join(', ')
+                    : 'Chưa có thông tin'
+                },
+                { label: 'Số Điện Thoại', value: billInfo?.patient.phone || 'Chưa có thông tin' },
+                {
+                  label: 'Giới Tính',
+                  value: billInfo?.patient
+                    ? billInfo?.patient.gender
+                      ? 'Nam'
+                      : 'Nữ'
+                    : 'Chưa có thông tin'
+                }
+              ]}
+            />
+          </div>
+          <div className="space-y-4 block lg:hidden">
+            <GridRowInfo
+              data={[
+                { label: 'Mã Hóa Đơn', value: billInfo?.id || 'Chưa có thông tin' },
+                {
+                  label: 'Ngày khám',
+                  value: billInfo?.date
+                    ? dayjs(billInfo?.date).format('DD/MM/YYYY')
+                    : 'Chưa có thông tin'
+                }
+              ]}
+            />
+            <GridRowInfo
+              data={[
+                { label: 'Mã Bệnh Nhân', value: billInfo?.patient?.id || 'Chưa có thông tin' },
+                {
+                  label: 'Trạng Thái Thanh Toán',
+                  value: billInfo
+                    ? billInfo?.status === InvoiceStatus.PAID
+                      ? 'Đã Thanh Toán'
+                      : 'Chưa Thanh Toán'
+                    : 'Chưa có thông tin'
+                }
+              ]}
+            />
+            <GridRowInfo
+              data={[
+                { label: 'Bệnh Nhân', value: billInfo?.patient?.fullName || 'Chưa có thông tin' },
+                { label: 'Ngày Sinh', value: billInfo?.patient.dob || 'Chưa có thông tin' }
+              ]}
+            />
+            <GridRowInfo
+              data={[
+                { label: 'Số Điện Thoại', value: billInfo?.patient.phone || 'Chưa có thông tin' },
+                {
+                  label: 'Giới Tính',
+                  value: billInfo?.patient
+                    ? billInfo?.patient.gender
+                      ? 'Nam'
+                      : 'Nữ'
+                    : 'Chưa có thông tin'
+                }
+              ]}
+            />
+            <GridRowInfo
+              data={[
+                {
+                  label: 'Địa Chỉ',
+                  value: billInfo?.patient?.address
+                    ? Object.values(billInfo.patient.address).join(', ')
+                    : 'Chưa có thông tin'
+                }
+              ]}
+            />
+          </div>
           <div className="grid grid-cols-3 items-center gap-2">
             <div className="font-semibold mr-1">Người Thanh Toán:</div>
             <Select
@@ -272,7 +329,11 @@ export function BillingAndPayment() {
                           onKeyDown={(e) =>
                             e.key === 'Enter' &&
                             inputPayer &&
-                            setPayer((prev) => ({ ...prev, fullName: inputPayer.fullName }))
+                            setPayer((prev) => ({
+                              ...prev,
+                              fullName: inputPayer.fullName,
+                              phone: inputPayer.phone
+                            }))
                           }
                         />
                       )}
@@ -301,7 +362,11 @@ export function BillingAndPayment() {
                           onKeyDown={(e) =>
                             e.key === 'Enter' &&
                             inputPayer &&
-                            setPayer((prev) => ({ ...prev, phone: inputPayer.phone }))
+                            setPayer((prev) => ({
+                              ...prev,
+                              phone: inputPayer.phone,
+                              fullName: inputPayer.fullName
+                            }))
                           }
                         />
                       )}

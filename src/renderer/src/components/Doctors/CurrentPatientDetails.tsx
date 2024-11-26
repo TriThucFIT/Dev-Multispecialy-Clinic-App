@@ -62,8 +62,11 @@ export function CurrentPatientDetails({
   return (
     <Card className="bg-opacity-50 bg-white">
       <CardHeader>
-        <div className="grid grid-cols-4">
-          <CardTitle>Bệnh nhân hiện tại: {patient?.fullName}</CardTitle>
+        <CardTitle>
+          Bệnh nhân hiện tại:
+          <span className="ml-2 font-medium text-lg">{patient?.fullName}</span>
+        </CardTitle>
+        <div className="flex flex-col lg:grid lg:grid-cols-3">
           {/* <RowGrid label="Mã bệnh nhân:" value={patient?. || 'Chưa có bệnh nhân'} /> */}
           <RowGrid label="Tuổi:" value={patient?.age?.toString() || 'Chưa có bệnh nhân'} />
           <RowGrid
@@ -73,55 +76,57 @@ export function CurrentPatientDetails({
           <RowGrid label="Số điện thoại:" value={patient?.phone || 'Chưa có bệnh nhân'} />
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-4 gap-4">
-          <div className="col-span-1">
-            <Label className="font-semibold text-lg">Triệu chứng</Label>
-            <Textarea
-              disabled={patient === null}
-              value={patient?.symptoms || 'Chưa có bệnh nhân'}
-              readOnly
-              className="h-24"
-            />
-          </div>
-          <div className="col-span-1">
-            <Label className="font-semibold text-lg">Dị ứng</Label>
-            <div className="border rounded-md bg-white" onClick={() => setIsModalAllergies(true)}>
-              {/* {patient ? ( */}
-              <ul className="list-none flex flex-col gap-3 h-24 overflow-y-scroll p-5">
-                {allergies.length > 0 ? (
-                  allergies.map((allergy) => (
-                    <li key={allergy.id} className="flex justify-between">
-                      <div> {allergy.name}</div>
-                      <div
-                        className={clsx('rounded-full w-12 text-center', {
-                          'text-red-500 bg-red-100': allergy.severity === 'Nặng',
-                          'text-yellow-500 bg-yellow-100': allergy.severity === 'Vừa',
-                          'text-green-500 bg-green-100': allergy.severity === 'Nhẹ'
-                        })}
-                      >
-                        {allergy.severity}
-                      </div>
-                    </li>
-                  ))
-                ) : (
-                  <span className="italic text-gray-500">Không có dị ứng</span>
-                )}
-              </ul>
-              {/* ) : (
+      <CardContent className="space-y-2">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className='col-span-2 gap-4 flex flex-col lg:grid lg:grid-cols-2'>
+            <div className="col-span-1">
+              <Label className="font-semibold text-lg">Triệu chứng</Label>
+              <Textarea
+                disabled={patient === null}
+                value={patient?.symptoms || 'Chưa có bệnh nhân'}
+                readOnly
+                className="h-24"
+              />
+            </div>
+            <div className="col-span-1">
+              <Label className="font-semibold text-lg">Dị ứng</Label>
+              <div className="border rounded-md bg-white" onClick={() => setIsModalAllergies(true)}>
+                {/* {patient ? ( */}
+                <ul className="list-none flex flex-col gap-3 h-24 overflow-y-scroll p-5">
+                  {allergies.length > 0 ? (
+                    allergies.map((allergy) => (
+                      <li key={allergy.id} className="flex justify-between">
+                        <div> {allergy.name}</div>
+                        <div
+                          className={clsx('rounded-full w-12 text-center', {
+                            'text-red-500 bg-red-100': allergy.severity === 'Nặng',
+                            'text-yellow-500 bg-yellow-100': allergy.severity === 'Vừa',
+                            'text-green-500 bg-green-100': allergy.severity === 'Nhẹ'
+                          })}
+                        >
+                          {allergy.severity}
+                        </div>
+                      </li>
+                    ))
+                  ) : (
+                    <span className="italic text-gray-500">Không có dị ứng</span>
+                  )}
+                </ul>
+                {/* ) : (
                 <span className="italic text-gray-500">Chưa có bệnh nhân</span>
               )} */}
+              </div>
+              <ModalAllergies isModalOpen={isModalAllergies} setIsModalOpen={setIsModalAllergies} />
             </div>
-            <ModalAllergies isModalOpen={isModalAllergies} setIsModalOpen={setIsModalAllergies} />
           </div>
           <div className="col-span-2">
             <Label className="font-semibold text-lg">Chỉ số sức khỏe</Label>
             <div
-              className="border rounded-md p-5 h-24 overflow-y-hidden bg-white"
+              className="border rounded-md h-24 p-5 overflow-y-auto bg-white cursor-pointer"
               onClick={() => setIsModalHealthIndicator(true)}
             >
               {/* {patient ? ( */}
-              <div className="grid grid-cols-3 gap-1 ">
+              <div className="grid grid-cols-3 gap-1">
                 <RowHealthIndicator label="Chiều cao" value={vitalSigns.height} unit="m" />
                 <RowHealthIndicator label="Nhịp tim" value={vitalSigns.heartRate} unit="bpm" />
                 <RowHealthIndicator label="Huyết áp" value={vitalSigns.bloodPressure} unit="mmHg" />

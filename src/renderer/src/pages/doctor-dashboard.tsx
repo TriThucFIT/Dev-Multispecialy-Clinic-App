@@ -138,7 +138,7 @@ export default function EnhancedDoctorScreen() {
                 </div>
               ) : (
                 <div className="absolute left-6 -top-16 flex items-center justify-center gap-2 bg-white w-[240px] rounded-lg py-2">
-                  <div className='font-bold'>Danh sách bệnh nhân ({patientsList.length})</div>
+                  <div className="font-bold">Danh sách bệnh nhân ({patientsList.length})</div>
                   <div className="flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-8 text-xl">
                     <MdKeyboardDoubleArrowRight />
                   </div>
@@ -147,7 +147,7 @@ export default function EnhancedDoctorScreen() {
 
               {isScreenPatients && <PatientList />}
             </div>
-            <div className="w-full">
+            <div className="w-full space-y-4">
               <CurrentPatientDetails
                 patient={currentPatient}
                 allergies={allergies}
