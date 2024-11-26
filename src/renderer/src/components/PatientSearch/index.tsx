@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { CardContent, Card } from '@renderer/components/ui/card'
 import { useRecoilState } from 'recoil'
-import { patientByPhone } from '@renderer/states/doctor'
 import { useDebounce } from '@uidotdev/usehooks'
 import { PatientService } from '@renderer/api/services/Patient/patient.service'
 import { Avatar, AvatarFallback, AvatarImage } from '@renderer/components/ui/avatar'
 import { ScrollArea } from '@renderer/components/ui/scroll-area'
+import { patientByPhone } from '../Doctors/stores'
 
 export const PatientSearch = ({
   searchValue,

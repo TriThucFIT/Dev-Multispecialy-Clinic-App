@@ -138,7 +138,8 @@ export function BillingAndPayment() {
       setInvoiceToPay(null)
       setPayer(null)
     } else if (payResult.state === 'hasError') {
-      console.log('Error: ', payResult.contents)
+      setIsPaying(false)
+      console.log('payResult with Error: ', payResult.contents)
     } else {
       console.log('Loading')
     }

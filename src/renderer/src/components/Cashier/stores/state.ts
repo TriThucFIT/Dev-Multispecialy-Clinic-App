@@ -46,7 +46,6 @@ export const payingProcessState = selector({
         const response = await caserService.payInvoice(invoiceToPay)
         if (response && response.statusCode === 200) {
           console.log('Paying process success', response)
-
           usePopup('Thanh toán thành công', 'success')
           return response
         }

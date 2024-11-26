@@ -5,18 +5,19 @@ import { Badge } from '../ui/badge'
 import { Patient } from '@renderer/types/Patient/patient'
 import { useEffect, useState } from 'react'
 import { useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil'
-import {
-  currentPatientState,
-  emergencyPatientList,
-  isProcessingEmergencyState,
-  patientListState
-} from '@renderer/states/doctor'
+
 import { Users } from 'lucide-react'
 import { EmergencyInfo } from '@renderer/types/Doctor'
 import { AdmissionSattus } from '../Receptionits/Admission/enums'
 import { UserState } from '@renderer/state'
 import { DoctorService } from '@renderer/api/services/Doctor/doctor.service'
 import { usePopup } from '@renderer/hooks/usePopup'
+import {
+  currentPatientState,
+  emergencyPatientList,
+  isProcessingEmergencyState,
+  patientListState
+} from './stores'
 const renderPriorityBadge = (priority: number, age?: number) => {
   const color =
     priority < 1

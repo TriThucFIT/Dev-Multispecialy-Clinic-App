@@ -80,4 +80,17 @@ export class PatientService {
       return false
     }
   }
+
+  async getMedicalRecord(patientId: string): Promise<any> {
+    try {
+      const response = await AxiosInstance.get(`/medical-record?patientId=${patientId}`)
+      if (response.status === 200) {
+        return response.data
+      }
+      return null
+    } catch (error) {
+      console.error('Error on get medical record', error)
+      return null
+    }
+  }
 }

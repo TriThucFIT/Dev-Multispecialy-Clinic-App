@@ -7,12 +7,16 @@ import { PatientExamination } from '../components/Doctors/PatientExamination'
 import { Patient } from '@renderer/types/Patient/patient'
 import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil'
 import { createPatient, PatientQueue } from '@renderer/utils/PriorityQueueCustomize'
-import { Allergy, EmergencyInfo, LabTest, Medication, VitalSigns } from '@renderer/types/Doctor'
+import { Allergy, EmergencyInfo, Medication, VitalSigns } from '@renderer/types/Doctor'
+
+import { CardInfo } from '@renderer/components/CardInfo'
+import { UserState } from '@renderer/state'
+import { AdmissionSattus } from '@renderer/components/Receptionits/Admission/enums'
+import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft } from 'react-icons/md'
 import {
   aiAssistEnabledState,
   allergiesState,
   currentPatientState,
-  labTestsState,
   medicationsState,
   patientListState,
   vitalSignsState,
@@ -24,17 +28,12 @@ import {
   selectedLabTestsState,
   emergencyPatientList,
   isProcessingEmergencyState
-} from '@renderer/states/doctor'
-import { CardInfo } from '@renderer/components/CardInfo'
-import { UserState } from '@renderer/state'
-import { AdmissionSattus } from '@renderer/components/Receptionits/Admission/enums'
-import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft } from 'react-icons/md'
+} from '@renderer/components/Doctors/stores'
 
 export default function EnhancedDoctorScreen() {
   const [isScreenPatients, setIsScreenPatients] = useState<boolean>(true)
 
   const [currentPatient, setCurrentPatient] = useRecoilState<Patient | null>(currentPatientState)
-  const [labTests, _setLabTests] = useRecoilState<LabTest[]>(labTestsState)
   const [medications, _setMedications] = useRecoilState<Medication[]>(medicationsState)
   const [allergies, _setAllergies] = useRecoilState<Allergy[]>(allergiesState)
   const [vitalSigns, _setVitalSigns] = useRecoilState<VitalSigns>(vitalSignsState)
@@ -138,7 +137,7 @@ export default function EnhancedDoctorScreen() {
                 </div>
               ) : (
                 <div className="absolute left-6 -top-16 flex items-center justify-center gap-2 bg-white w-[240px] rounded-lg py-2">
-                  <div className='font-bold'>Danh sách bệnh nhân ({patientsList.length})</div>
+                  <div className="font-bold">Danh sách bệnh nhân ({patientsList.length})</div>
                   <div className="flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-8 text-xl">
                     <MdKeyboardDoubleArrowRight />
                   </div>
@@ -155,15 +154,10 @@ export default function EnhancedDoctorScreen() {
               />
               <PatientExamination
                 patient={currentPatient}
-                labTests={labTests}
                 medications={medications}
                 onSubmitExamination={handleSubmitExamination}
                 aiAssistEnabled={aiAssistEnabled}
               />
-              {/* <QuickActions
-                aiAssistEnabled={aiAssistEnabled}
-                onAIAssistToggle={setAiAssistEnabled}
-              /> */}
             </div>
           </div>
         </div>

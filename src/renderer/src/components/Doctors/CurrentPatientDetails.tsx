@@ -60,15 +60,22 @@ export function CurrentPatientDetails({
   const [isModalHealthIndicator, setIsModalHealthIndicator] = useState(false)
 
   return (
-    <Card className="bg-opacity-50 bg-white">
+    <Card className="bg-opacity-50 bg-white mb-5">
       <CardHeader>
         <div className="grid grid-cols-4">
           <CardTitle>Bệnh nhân hiện tại: {patient?.fullName}</CardTitle>
-          {/* <RowGrid label="Mã bệnh nhân:" value={patient?. || 'Chưa có bệnh nhân'} /> */}
           <RowGrid label="Tuổi:" value={patient?.age?.toString() || 'Chưa có bệnh nhân'} />
           <RowGrid
             label="Giới tính:"
-            value={typeof patient?.gender === 'string' ? patient.gender : 'Chưa có bệnh nhân'}
+            value={
+              patient?.gender !== undefined
+                ? typeof patient?.gender === 'string'
+                  ? patient.gender
+                  : patient?.gender
+                    ? 'Nam'
+                    : 'Nữ'
+                : 'Chưa có bệnh nhân'
+            }
           />
           <RowGrid label="Số điện thoại:" value={patient?.phone || 'Chưa có bệnh nhân'} />
         </div>
@@ -109,7 +116,6 @@ export function CurrentPatientDetails({
                 )}
               </ul>
               {/* ) : (
-                <span className="italic text-gray-500">Chưa có bệnh nhân</span>
               )} */}
             </div>
             <ModalAllergies isModalOpen={isModalAllergies} setIsModalOpen={setIsModalAllergies} />
@@ -120,7 +126,6 @@ export function CurrentPatientDetails({
               className="border rounded-md p-5 h-24 overflow-y-hidden bg-white"
               onClick={() => setIsModalHealthIndicator(true)}
             >
-              {/* {patient ? ( */}
               <div className="grid grid-cols-3 gap-1 ">
                 <RowHealthIndicator label="Chiều cao" value={vitalSigns.height} unit="m" />
                 <RowHealthIndicator label="Nhịp tim" value={vitalSigns.heartRate} unit="bpm" />
@@ -133,9 +138,6 @@ export function CurrentPatientDetails({
                   unit="%"
                 />
               </div>
-              {/* ) : (
-                <span className="italic text-gray-500">Chưa có bệnh nhân</span>
-              )} */}
             </div>
             <ModalHealthIndicator
               isModalOpen={isModalHealthIndicator}

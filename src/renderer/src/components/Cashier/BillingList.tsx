@@ -56,7 +56,8 @@ export function BillingList() {
       payment_person_phone: invoice.patient.phone,
       items_to_pay: invoice.items.map((item) => item.id),
       payment_method: PaymentMethod.CASH,
-      casher_username: userCurrent?.username
+      casher_username: userCurrent?.username,
+      patient: invoice.patient
     })
   }
   return (

@@ -16,10 +16,10 @@ import dayjs, { Dayjs } from 'dayjs'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { Suspense, useEffect, useState } from 'react'
 import { formatDate } from '@renderer/utils/formatDate'
-import { doctorSelector, specializationSelector } from '@renderer/states/doctor'
 import { Patient } from '@renderer/types/Patient/patient'
 import { PatientSearch } from '@renderer/components/PatientSearch'
 import { formValuesState, stepState } from '../../stores'
+import { doctorSelector, specializationSelector } from '@renderer/components/Doctors/stores'
 
 export const Step1 = ({ form }: { form: FormInstance }) => {
   const setStep = useSetRecoilState(stepState)

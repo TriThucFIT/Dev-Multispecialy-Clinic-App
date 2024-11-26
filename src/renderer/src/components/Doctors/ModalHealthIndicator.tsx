@@ -1,8 +1,7 @@
-import { vitalSignsState } from '@renderer/states/doctor'
 import { VitalSigns } from '@renderer/types/Doctor'
-import { Button, Form, Input, Modal, Select } from 'antd'
-import clsx from 'clsx'
+import { Button, Form, Input, Modal } from 'antd'
 import { useRecoilState } from 'recoil'
+import { vitalSignsState } from './stores'
 
 export const ModalHealthIndicator = ({
   isModalOpen,

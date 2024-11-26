@@ -7,7 +7,6 @@ import { Label } from '../ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { FileText, Stethoscope, TestTube, Pill, ClipboardList, CircleCheck } from 'lucide-react'
 import { AIAssistant } from './AIAssistant'
-import { Patient } from '@renderer/types/Patient/patient'
 import {
   Dialog,
   DialogClose,
@@ -17,64 +16,32 @@ import {
   DialogTitle,
   DialogTrigger
 } from '../ui/dialog'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import {
   additionalNotesState,
   diagnosisState,
   followUpDateState,
-  medicalHistoryState,
+  labTestsState,
   prescriptionState,
   selectedLabTestsState
-} from '@renderer/states/doctor'
-
-type LabTest = {
-  id: number
-  name: string
-  result?: string
-}
-
-type Medication = {
-  id: number
-  name: string
-  dosage: string
-  quantity?: number
-}
-
-type PatientExaminationProps = {
-  patient: Patient | null
-  labTests: LabTest[]
-  medications: Medication[]
-  onSubmitExamination: (data: ExaminationData) => void
-  aiAssistEnabled: boolean
-}
-
-type ExaminationData = {
-  diagnosis: string
-  selectedLabTests: number[]
-  prescription: Medication[]
-  followUpDate: string
-  additionalNotes: string
-}
+} from './stores'
+import { LabTestExamination } from './LabTest'
+import { LabTest } from '@renderer/types/Doctor'
+import { PatientExaminationProps } from './stores/type'
+import MedicalRecordView from './MedicalRecordView'
 
 export function PatientExamination({
   patient,
-  labTests,
   medications,
   onSubmitExamination,
   aiAssistEnabled
 }: PatientExaminationProps) {
-  const [medicalHistory, setMedicalHistory] = useRecoilState(medicalHistoryState)
   const [diagnosis, setDiagnosis] = useRecoilState(diagnosisState)
-  const [selectedLabTests, setSelectedLabTests] = useRecoilState(selectedLabTestsState)
   const [prescription, setPrescription] = useRecoilState(prescriptionState)
   const [followUpDate, setFollowUpDate] = useRecoilState(followUpDateState)
   const [additionalNotes, setAdditionalNotes] = useRecoilState(additionalNotesState)
-
-  const handleLabTestSelect = (testId: number) => {
-    setSelectedLabTests((prev) =>
-      prev.includes(testId) ? prev.filter((id) => id !== testId) : [...prev, testId]
-    )
-  }
+  const selectedLabTests = useRecoilValue(selectedLabTestsState)
+  const labTests = useRecoilValue<LabTest[]>(labTestsState)
 
   const handleAddMedication = (medicationId: number) => {
     const medicationToAdd = medications.find((med) => med.id === medicationId)
@@ -98,12 +65,12 @@ export function PatientExamination({
   }
 
   return (
-    <Card className="bg-opacity-50 bg-white">
+    <Card className="bg-opacity-50 bg-white max-h-[60vh] overflow-auto">
       <CardHeader>
         <CardTitle>Khám Bệnh</CardTitle>
       </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="diagnosis">
+      <CardContent className="overflow-auto ">
+        <Tabs defaultValue="history">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="history">
               <FileText className="mr-2 h-4 w-4" />
@@ -126,13 +93,8 @@ export function PatientExamination({
               Tóm tắt
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="history">
-            <Textarea
-              className="mt-4"
-              value={medicalHistory}
-              onChange={(e) => setMedicalHistory(e.target.value)}
-              placeholder="Nhập lịch sử y tế của bệnh nhân..."
-            />
+          <TabsContent value="history" className="h-[46vh] overflow-auto">
+            <MedicalRecordView />
           </TabsContent>
           <TabsContent value="diagnosis">
             <Textarea
@@ -144,19 +106,7 @@ export function PatientExamination({
             {aiAssistEnabled && <AIAssistant />}
           </TabsContent>
           <TabsContent value="labTests">
-            <div className="mt-4 space-y-2">
-              {labTests?.map((test) => (
-                <div key={test.id} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id={`test-${test?.id}`}
-                    checked={selectedLabTests?.includes(test?.id)}
-                    onChange={() => handleLabTestSelect(test?.id)}
-                  />
-                  <label htmlFor={`test-${test.id}`}>{test.name}</label>
-                </div>
-              ))}
-            </div>
+            <LabTestExamination />
           </TabsContent>
           <TabsContent value="prescription">
             <div className="mt-4 space-y-4">
@@ -219,7 +169,7 @@ export function PatientExamination({
                   </DialogHeader>
                   <div className="mt-4">
                     <p className="font-semibold">Lịch sử y tế:</p>
-                    <p>{medicalHistory}</p>
+                    {/* <p>{medicalHistory}</p> */}
                     <p className="font-semibold">Chẩn đoán:</p>
                     <p>{diagnosis}</p>
                     <p className="font-semibold">Xét nghiệm:</p>
