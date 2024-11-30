@@ -13,15 +13,15 @@ export const PrescriptionInfo = () => {
           <div className="grid grid-cols-3">
             <div className="col-span-1">
               <span className="font-semibold mr-1">Mã Đơn Thuốc:</span>
-              <span>1</span>
+              <span>MED01</span>
             </div>
             <div className="col-span-1">
               <span className="font-semibold mr-1">Thời gian Kê Đơn:</span>
-              <span>28-09-2024</span>
+              <span>13:27 12/12/2024</span>
             </div>
             <div className="col-span-1">
               <span className="font-semibold mr-1">Mã Bệnh Nhân:</span>
-              <span>1</span>
+              <span>PAT01</span>
             </div>
           </div>
           <div className="grid grid-cols-3">
@@ -45,9 +45,9 @@ export const PrescriptionInfo = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Mã Đơn Thuốc</TableHead>
-                <TableHead>Tên Thuốc</TableHead>
-                <TableHead>Liều lượng</TableHead>
+                <TableHead>STT</TableHead>
+                <TableHead>Tên Thuốc/Hàm Lượng Thuốc</TableHead>
+                <TableHead>DVT</TableHead>
                 <TableHead>Số lượng</TableHead>
                 <TableHead>Ghi chú của bác sĩ</TableHead>
               </TableRow>
@@ -56,14 +56,14 @@ export const PrescriptionInfo = () => {
               <TableRow>
                 <TableCell>1</TableCell>
                 <TableCell>Sổ mũi</TableCell>
-                <TableCell>2</TableCell>
+                <TableCell>Lọ</TableCell>
                 <TableCell>20</TableCell>
                 <TableCell>Không</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>2</TableCell>
                 <TableCell>Đau lưng</TableCell>
-                <TableCell>3</TableCell>
+                <TableCell>Viên</TableCell>
                 <TableCell>50</TableCell>
                 <TableCell>Không</TableCell>
               </TableRow>

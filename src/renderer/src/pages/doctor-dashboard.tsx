@@ -128,37 +128,35 @@ export default function EnhancedDoctorScreen() {
           Phòng Khám Đa Khoa DMC - Khoa Tim Mạch
         </h1>
         <CardInfo />
-        <div className="flex flex-col lg:flex-row">
-          <div className="flex gap-6 w-full p-4">
-            <div className="relative" onClick={() => setIsScreenPatients(!isScreenPatients)}>
-              {isScreenPatients ? (
-                <div className="absolute flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-10 text-xl -right-4 -top-2">
-                  <MdKeyboardDoubleArrowLeft />
+        <div className="flex flex-col lg:flex-row gap-6 w-full p-4">
+          <div className="relative" onClick={() => setIsScreenPatients(!isScreenPatients)}>
+            {isScreenPatients ? (
+              <div className="absolute flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-10 text-xl -right-4 -top-2">
+                <MdKeyboardDoubleArrowLeft />
+              </div>
+            ) : (
+              <div className="lg:absolute lg:left-6 lg:-top-16 flex items-center justify-center gap-2 bg-white w-[240px] rounded-lg py-2">
+                <div className="font-bold">Danh sách bệnh nhân ({patientsList.length})</div>
+                <div className="flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-8 text-xl">
+                  <MdKeyboardDoubleArrowRight />
                 </div>
-              ) : (
-                <div className="absolute left-6 -top-16 flex items-center justify-center gap-2 bg-white w-[240px] rounded-lg py-2">
-                  <div className="font-bold">Danh sách bệnh nhân ({patientsList.length})</div>
-                  <div className="flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-8 text-xl">
-                    <MdKeyboardDoubleArrowRight />
-                  </div>
-                </div>
-              )}
+              </div>
+            )}
 
-              {isScreenPatients && <PatientList />}
-            </div>
-            <div className="w-full space-y-4">
-              <CurrentPatientDetails
-                patient={currentPatient}
-                allergies={allergies}
-                vitalSigns={vitalSigns}
-              />
-              <PatientExamination
-                patient={currentPatient}
-                medications={medications}
-                onSubmitExamination={handleSubmitExamination}
-                aiAssistEnabled={aiAssistEnabled}
-              />
-            </div>
+            {isScreenPatients && <PatientList />}
+          </div>
+          <div className="w-full space-y-4">
+            <CurrentPatientDetails
+              patient={currentPatient}
+              allergies={allergies}
+              vitalSigns={vitalSigns}
+            />
+            <PatientExamination
+              patient={currentPatient}
+              medications={medications}
+              onSubmitExamination={handleSubmitExamination}
+              aiAssistEnabled={aiAssistEnabled}
+            />
           </div>
         </div>
       </div>

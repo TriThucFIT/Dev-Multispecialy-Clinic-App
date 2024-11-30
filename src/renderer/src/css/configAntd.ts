@@ -17,7 +17,10 @@ export const configAntd = {
     Radio: {
       buttonSolidCheckedBg: 'var(--blue-primary)',
       colorPrimary: 'var(--blue-primary)'
-    }
+    },
+    DatePicker: {
+      colorPrimary: "var(--blue-primary)",
+    },
   },
 
   token: {

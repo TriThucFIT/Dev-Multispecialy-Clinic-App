@@ -1,5 +1,5 @@
 import { ePrescriptionStatus } from '@renderer/types/Prescription'
-import { IoSyncCircle } from 'react-icons/io5'
+import { IoSyncCircle, IoCloseCircle, IoCheckmarkCircle } from 'react-icons/io5'
 
 export const PrescriptionStatus = ({ statusPayment }: { statusPayment: ePrescriptionStatus }) => {
   const statusTextClsx = 'col-span-2 text-blueSecondary font-semibold text-start cursor-pointer'
@@ -7,29 +7,33 @@ export const PrescriptionStatus = ({ statusPayment }: { statusPayment: ePrescrip
 
   const PrescriptionNew = () => (
     <>
-      <span className={iconClsx}>
-        <img
-          src="https://media.tenor.com/yjOrdcOkLPUAAAAi/green-dot.gif"
-          alt="cancel"
-          width="20"
-          height="20"
-        />
-      </span>
-      <span className={statusTextClsx}>Mới</span>
+      <div className={iconClsx}>
+        <IoCloseCircle color="var(--error)" size={18} />
+      </div>
+      {/* <span className={statusTextClsx}>Chưa xử lý</span> */}
     </>
   )
   const PrescriptionProcessing = () => (
     <>
-      <span className={iconClsx}>
+      <div className={iconClsx}>
         <IoSyncCircle color="var(--warning)" size={20} />
-      </span>
-      <span className={statusTextClsx}>Đang xử lý</span>
+      </div>
+      {/* <div className={statusTextClsx}>Đang xử lý</div> */}
+    </>
+  )
+  const PrescriptionDone = () => (
+    <>
+      <div className={iconClsx}>
+        <IoCheckmarkCircle color="var(--success)" size={20} />
+      </div>
+      {/* <div className={statusTextClsx}>Đã xử lý</div> */}
     </>
   )
   return (
-    <div className="grid grid-cols-3">
+    <div className="flex justify-center">
       {statusPayment === ePrescriptionStatus.new && <PrescriptionNew />}
       {statusPayment === ePrescriptionStatus.processing && <PrescriptionProcessing />}
+      {statusPayment === ePrescriptionStatus.done && <PrescriptionDone />}
     </div>
   )
 }

@@ -57,7 +57,7 @@ export const AppointmentPatient: FC<AppointmentPatientProps> = ({ onSelected }) 
   return (
     <div className="bg-white bg-opacity-65 shadow-2xl rounded-2xl p-3 h-[66vh]">
       <div>
-        <Form.Item label="Tìm theo ngày" name="date">
+        <Form.Item label="Tìm theo ngày" name="date_appointment">
           <DatePicker
             format={'YYYY-MM-DD'}
             defaultPickerValue={dayjs().startOf('day')}

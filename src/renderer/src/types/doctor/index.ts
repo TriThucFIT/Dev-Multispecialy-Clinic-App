@@ -24,6 +24,10 @@ export type Medication = {
   id: number
   name: string
   dosage: string
+  directions?: string
+  UOM?: string
+  quantity?: number
+  note?: string
 }
 
 export type Allergy = {

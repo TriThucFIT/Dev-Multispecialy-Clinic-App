@@ -85,7 +85,7 @@ export function CurrentPatientDetails({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="flex flex-col lg:grid lg:grid-cols-6 gap-4">
           <div className="col-span-1">
             <Label className="font-semibold text-lg">Triệu chứng</Label>
             <Textarea
@@ -95,7 +95,7 @@ export function CurrentPatientDetails({
               className="h-24"
             />
           </div>
-          <div className="col-span-1">
+          <div className="col-span-2">
             <Label className="font-semibold text-lg">Dị ứng</Label>
             <div className="border rounded-md bg-white" onClick={() => setIsModalAllergies(true)}>
               {/* {patient ? ( */}
@@ -124,30 +124,31 @@ export function CurrentPatientDetails({
             </div>
             <ModalAllergies isModalOpen={isModalAllergies} setIsModalOpen={setIsModalAllergies} />
           </div>
-        </div>
-        <div className="col-span-2">
-          <Label className="font-semibold text-lg">Chỉ số sức khỏe</Label>
-          <div
-            className="border rounded-md h-24 p-5 overflow-y-auto bg-white cursor-pointer"
-            onClick={() => setIsModalHealthIndicator(true)}
-          >
-            <div className="grid grid-cols-3 gap-1 ">
-              <RowHealthIndicator label="Chiều cao" value={vitalSigns.height} unit="m" />
-              <RowHealthIndicator label="Nhịp tim" value={vitalSigns.heartRate} unit="bpm" />
-              <RowHealthIndicator label="Huyết áp" value={vitalSigns.bloodPressure} unit="mmHg" />
-              <RowHealthIndicator label="Cân nặng" value={vitalSigns.weight} unit="kg" />
-              <RowHealthIndicator label="Nhiệt độ" value={vitalSigns.temperature} unit="°C" />
-              <RowHealthIndicator
-                label="Độ bão hòa O2"
-                value={vitalSigns.oxygenSaturation}
-                unit="%"
-              />
+
+          <div className="col-span-3">
+            <Label className="font-semibold text-lg">Chỉ số sức khỏe</Label>
+            <div
+              className="border rounded-md h-24 p-5 overflow-y-auto bg-white cursor-pointer"
+              onClick={() => setIsModalHealthIndicator(true)}
+            >
+              <div className="grid grid-cols-3 gap-1 ">
+                <RowHealthIndicator label="Chiều cao" value={vitalSigns.height} unit="m" />
+                <RowHealthIndicator label="Nhịp tim" value={vitalSigns.heartRate} unit="bpm" />
+                <RowHealthIndicator label="Huyết áp" value={vitalSigns.bloodPressure} unit="mmHg" />
+                <RowHealthIndicator label="Cân nặng" value={vitalSigns.weight} unit="kg" />
+                <RowHealthIndicator label="Nhiệt độ" value={vitalSigns.temperature} unit="°C" />
+                <RowHealthIndicator
+                  label="Độ bão hòa O2"
+                  value={vitalSigns.oxygenSaturation}
+                  unit="%"
+                />
+              </div>
             </div>
+            <ModalHealthIndicator
+              isModalOpen={isModalHealthIndicator}
+              setIsModalOpen={setIsModalHealthIndicator}
+            />
           </div>
-          <ModalHealthIndicator
-            isModalOpen={isModalHealthIndicator}
-            setIsModalOpen={setIsModalHealthIndicator}
-          />
         </div>
       </CardContent>
     </Card>

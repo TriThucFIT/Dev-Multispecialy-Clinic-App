@@ -67,7 +67,7 @@ export const Layout: FC = () => {
       })
       setLoginRequest(null)
     } else {
-      return <EnhancedDoctorScreen />
+      return <Welcome />
     }
   }
   if (LoggedState.state === 'loading' || loginUser.state === 'loading') {
