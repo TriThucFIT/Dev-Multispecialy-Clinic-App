@@ -1,4 +1,5 @@
 import { DoctorService } from '@renderer/api/services/Doctor/doctor.service'
+import { PatientService } from '@renderer/api/services/Patient/patient.service'
 import {
   Allergy,
   Doctor,
@@ -12,6 +13,7 @@ import { Patient } from '@renderer/types/Patient/patient'
 import { atom, selector } from 'recoil'
 
 const doctorService = new DoctorService()
+const patientService = new PatientService()
 
 export const currentPatientState = atom<Patient | null>({
   key: 'currentPatientState',
@@ -56,7 +58,7 @@ export const vitalSignsState = atom<VitalSigns>({
   default: {
     bloodPressure: '120/80',
     heartRate: 72,
-    temperature: 98.6,
+    temperature: 37.6,
     oxygenSaturation: 98,
     height: 1.7,
     weight: 65
@@ -165,4 +167,15 @@ export const isProcessingEmergencyState = atom<boolean>({
 export const emergencyPatientList = atom<EmergencyInfo[]>({
   key: 'emergencyPatientList',
   default: []
+})
+
+export const medicalRecordSelector = selector({
+  key: 'medicalRecordSelector',
+  get: async ({ get }) => {
+    const patient = get(currentPatientState)
+    if (patient) {
+      return await patientService.getMedicalRecord(patient.id as string)
+    }
+    return null
+  }
 })

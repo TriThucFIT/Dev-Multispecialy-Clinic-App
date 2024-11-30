@@ -1,7 +1,7 @@
 import { Address } from "@renderer/components/Receptionits/Admission/stores"
 
 export type Patient = {
-  id?: number
+  id?: number | string
   fullName?: string
   email?: string
   phone?: string

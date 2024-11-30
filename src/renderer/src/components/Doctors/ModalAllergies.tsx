@@ -1,8 +1,8 @@
-import { allergiesState } from '@renderer/states/doctor'
 import { Allergy } from '@renderer/types/Doctor'
 import { Button, Form, Input, Modal, Select } from 'antd'
 import clsx from 'clsx'
 import { useRecoilState } from 'recoil'
+import { allergiesState } from './stores'
 
 export const ModalAllergies = ({
   isModalOpen,

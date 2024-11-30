@@ -65,6 +65,7 @@ export type PayInvoiceRequest = {
   payment_date: Date
   payment_person_name: string
   payment_person_phone: string
+  patient: PatientSendToQueue
 }
 export enum PaymentMethod {
   CASH = 'cash',
@@ -77,4 +78,28 @@ export const PaymentMethodMapper = {
   [PaymentMethod.BANK_TRANSFER]: 'Chuyển khoản',
   [PaymentMethod.INSURANCE]: 'Bảo hiểm',
   [PaymentMethod.OTHER]: 'Khác'
+}
+export class PatientSendToQueue {
+  id?: number | string
+  fullName?: string
+  email?: string
+  phone?: string
+  dob?: string
+  age?: number
+  condition?: string
+  priority?: number
+  status?: string
+  arrivalOrder?: number
+  gender?: boolean
+  symptoms?: string
+  waitingTime?: number
+  address?: Address
+  admission?: AddmissionInQueue
+}
+
+class AddmissionInQueue {
+  id?: number
+  service?: string
+  doctor_id?: string
+  specialization?: string
 }

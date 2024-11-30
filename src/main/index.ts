@@ -4,8 +4,11 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { Client } from '@stomp/stompjs'
 import WebSocket from 'ws'
+import NodeCache from 'node-cache'
+import { log } from 'console'
 
 let mainWindow: BrowserWindow
+const cache = new NodeCache({ stdTTL: 60 * 60 * 24 })
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -16,7 +19,9 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      contextIsolation: true,
+      nodeIntegration: false
     },
     fullscreenable: false
   })
@@ -82,7 +87,9 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
           stompClient?.subscribe(
             `/queue/${queue_name}`,
             (message) => {
-              if (mainWindow) {
+              if (mainWindow && !mainWindow.isDestroyed()) {
+                console.log('subscribe-speciality', message.body)
+
                 mainWindow.webContents.send('received-patient', JSON.parse(message.body))
               }
             },
@@ -93,19 +100,20 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
 
         emergencySubscriptionId =
           stompClient?.subscribe('/topic/emergency', (message) => {
-            if (mainWindow) {
+            if (mainWindow && !mainWindow.isDestroyed()) {
               console.log('subscribe-emergency')
               mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
             }
           }).id ?? null
-      }else{
-        stompClient?.subscribe(
-          `/queue/${queue_name}`,
-          (message) => {
-            if (mainWindow) {
-              mainWindow.webContents.send('received-invoice', JSON.parse(message.body))
-            }
-          })
+      } else {
+        stompClient?.subscribe(`/queue/${queue_name}`, (message) => {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            console.log('subscribe-invoice', message.body)
+            console.log('subscribe-invoice JSON :', JSON.parse(message.body))
+
+            mainWindow.webContents.send('received-invoice', JSON.parse(message.body))
+          }
+        })
       }
     }
 
@@ -117,7 +125,7 @@ ipcMain.on('subscribe-emergency', (_, { queue_name, doctor_id }) => {
   if (stompClient && stompClient.active && !emergencySubscriptionId && !specialityId) {
     console.log('resubscribe-emergency')
     emergencySubscriptionId = stompClient.subscribe('/topic/emergency', (message) => {
-      if (mainWindow) {
+      if (mainWindow && !mainWindow.isDestroyed()) {
         console.log('resubscribe to emergency')
         mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
       }
@@ -129,7 +137,7 @@ ipcMain.on('subscribe-emergency', (_, { queue_name, doctor_id }) => {
       stompClient?.subscribe(
         `/queue/${queue_name}`,
         (message) => {
-          if (mainWindow) {
+          if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('received-patient', JSON.parse(message.body))
           }
         },
@@ -166,5 +174,48 @@ ipcMain.on('maximize-window', () => {
     } else {
       mainWindow.maximize()
     }
+  }
+})
+
+ipcMain.on(
+  'sync-unprocessed-data',
+  (_, { messages, queue_name }: { messages: Array<any>; queue_name: string }) => {
+    if (mainWindow && cache) {
+      log('sync-unprocessed-data', messages, queue_name)
+      cache.set(queue_name, messages)
+    }
+  }
+)
+
+app.on('before-quit', async (e) => {
+  e.preventDefault()
+  log('before-quit')
+  if (mainWindow && cache && stompClient && stompClient.active) {
+    const queues = cache.keys()
+    log('queues quit', queues)
+    for (const queue of queues) {
+      const messages: Array<string> = cache.get(queue) || []
+      if (messages) {
+        for (const message of messages) {
+          log('publishing', queue, message)
+          stompClient.publish({
+            destination: `/queue/${queue}`,
+            body: JSON.stringify(message)
+          })
+          log('published', queue, JSON.stringify(message))
+        }
+      }
+    }
+    await new Promise((resolve) => {
+      if (stompClient) {
+        stompClient.onDisconnect = resolve
+      }
+      stompClient?.deactivate()
+    })
+
+    log('deactivate')
+    app.exit()
+  } else {
+    app.exit()
   }
 })
