@@ -1,4 +1,9 @@
-import { Form, Modal } from 'antd'
+import { Medication } from '@renderer/types/Doctor'
+import { AutoComplete, DatePicker, Form, Input, Modal, Select } from 'antd'
+import { useRecoilState } from 'recoil'
+import { medicationsState } from '../Doctors/stores'
+import { useState } from 'react'
+import { Button } from '../ui/button'
 
 export const CreatePrescription = ({
   isModalOpen,
@@ -7,6 +12,21 @@ export const CreatePrescription = ({
   isModalOpen: boolean
   setIsModalOpen: (value: boolean) => void
 }) => {
+  const [medications, _setMedications] = useRecoilState<Medication[]>(medicationsState)
+  const [prescription, setPrescription] = useState<Medication[]>([])
+
+  const handleAddMedication = (medicationId: number) => {
+    const medicationToAdd = medications.find((med) => med.id === medicationId)
+    if (medicationToAdd) {
+      console.log('medicationToAdd', medicationToAdd)
+
+      setPrescription((prev) => [...prev, medicationToAdd])
+    }
+  }
+  const handleRemoveMedication = (medicationId: number) => {
+    setPrescription((prev) => prev.filter((med) => med.id !== medicationId))
+  }
+
   const handleOk = () => {
     setIsModalOpen(false)
   }
@@ -16,59 +36,84 @@ export const CreatePrescription = ({
   }
 
   return (
-    <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-      <Form>
-        <Form.Item label=""></Form.Item>
-      </Form>
+    <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width={1000} footer={false}>
       <div className="container mx-auto p-4">
         <h2 className="text-xl font-bold mb-4">Tạo Đơn Thuốc Mới</h2>
+        <Form>
+          <Form.Item label="Mã bệnh nhân/Số điện thoại">
+            <AutoComplete placeholder="Nhập mã bệnh nhân hoặc số điện thoại" />
+          </Form.Item>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <Form.Item label="Tên Bệnh Nhân">
+              <Input placeholder="Tên bệnh nhân" disabled />
+            </Form.Item>
+            <Form.Item label="Số điện thoại">
+              <Input placeholder="Số điện thoại" disabled />
+            </Form.Item>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <Form.Item label="Ngày sinh">
+              <DatePicker disabled className="w-full" placeholder="Ngày sinh" />
+            </Form.Item>
+            <Form.Item label="Địa chỉ">
+              <Input placeholder="Địa chỉ" disabled />
+            </Form.Item>
+          </div>
+        </Form>
 
-        {/* Thông tin bệnh nhân */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="font-semibold">Số điện thoại:</label>
-            <input type="text" className="border p-2 w-full" placeholder="Nhập mã bệnh nhân" />
+        <Select
+          options={
+            medications?.map((med) => ({
+              label: `${med?.name} - ${med?.dosage}`,
+              value: med?.id
+            })) || []
+          }
+          placeholder="Chọn thuốc"
+          onChange={(value) => handleAddMedication(Number(value))}
+          className="w-full"
+        />
+
+        <div className="space-y-2 mt-4">
+          <h4 className="font-semibold mb-2">Thuốc đã kê:</h4>
+          <div className="grid grid-cols-10 font-semibold pl-5">
+            <div className="col-span-2 text-center">Tên, hàm lượng thuốc</div>
+            <div className="col-span-1 text-center">ĐVT</div>
+            <div className="col-span-1 text-center">Cách dùng</div>
+            <div className="col-span-1 text-center">Số lượng</div>
+            <div className="col-span-4 text-center">Ghi chú</div>
           </div>
-          <div>
-            <label className="font-semibold">Tên Bệnh Nhân:</label>
-            <input type="text" className="border p-2 w-full" placeholder="Tên bệnh nhân" disabled />
-          </div>
+          <ul className="list-disc pl-5">
+            {prescription?.map((med) => (
+              <li key={med?.id} className="grid grid-cols-10 items-center py-2">
+                <span className="col-span-2">
+                  {med?.name} - {med?.dosage}
+                </span>
+                <span className="col-span-1 text-center">{med?.UOM}</span>
+                <span className="col-span-1 text-center">
+                  {med?.directions || 'Uống sau khi ăn, 2v/ngày'}
+                </span>
+                <div className="col-span-1 flex justify-center">
+                  <Input type="text" className="w-1/2" />
+                </div>
+                <div className="col-span-4 flex justify-center">
+                  <Input type="text" />
+                </div>
+                <div className="col-span-1 flex justify-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveMedication(med?.id)}
+                    className="w-1/2"
+                  >
+                    Xóa
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
-
-        {/* Danh sách thuốc */}
-        <div className="mb-4">
-          <h3 className="font-bold mb-2">Danh Sách Thuốc</h3>
-          <div className="grid grid-cols-6 gap-4">
-            <div className="col-span-2">
-              <label className="font-semibold">Tên Thuốc:</label>
-              <input type="text" className="border p-2 w-full" placeholder="Nhập tên thuốc" />
-            </div>
-            <div>
-              <label className="font-semibold">Liều Lượng:</label>
-              <input type="text" className="border p-2 w-full" placeholder="500mg" />
-            </div>
-            <div>
-              <label className="font-semibold">Số Lượng:</label>
-              <input type="text" className="border p-2 w-full" placeholder="10" />
-            </div>
-            <div>
-              <label className="font-semibold">Cách Dùng:</label>
-              <input type="text" className="border p-2 w-full" placeholder="2 lần/ngày" />
-            </div>
-            <div>
-              <label className="font-semibold">Thời Gian Dùng:</label>
-              <input type="text" className="border p-2 w-full" placeholder="7 ngày" />
-            </div>
-          </div>
-        </div>
-
-        {/* Nút thêm thuốc */}
-        <button className="bg-blue-500 text-white px-4 py-2 rounded mb-4">Thêm Thuốc</button>
-
-        {/* Nút lưu và hủy */}
-        <div className="flex justify-end gap-4">
-          <button className="bg-gray-500 text-white px-4 py-2 rounded">Hủy</button>
-          <button className="bg-green-500 text-white px-4 py-2 rounded">Lưu Đơn Thuốc</button>
+        <div className="w-full flex justify-end mt-4">
+          <button className="btn btn-primary">Tạo đơn thuốc</button>
         </div>
       </div>
     </Modal>

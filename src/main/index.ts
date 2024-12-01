@@ -69,9 +69,9 @@ let specialityId: string | null = null
 ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
   if (!stompClient) {
     stompClient = new Client({
-      brokerURL: 'ws://192.168.56.1:61614/stomp',
+      brokerURL: 'ws://localhost:61614/stomp',
       webSocketFactory: () => {
-        return new WebSocket('ws://192.168.56.1:61614/stomp', 'stomp')
+        return new WebSocket('ws://localhost:61614/stomp', 'stomp')
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,

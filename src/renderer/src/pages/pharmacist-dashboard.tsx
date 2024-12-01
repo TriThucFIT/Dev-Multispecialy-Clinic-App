@@ -1,17 +1,50 @@
 import { CardInfo } from '@renderer/components/CardInfo'
 import { PrescriptionList } from '@renderer/components/Pharmacist/PrescriptionList'
 import { PrescriptionInfo } from '@renderer/components/Pharmacist/PrescriptionInfo'
+import { useState } from 'react'
+import { MdKeyboardDoubleArrowLeft, MdKeyboardDoubleArrowRight } from 'react-icons/md'
 
 export default function PharmacistDashboard() {
+  const [isScreenPatients, setIsScreenPatients] = useState<boolean>(true)
+
   return (
-    <div className="h-screen w-screen bg-[url('../assets/bg-cashier.png')] bg-cover bg-center">
-      <h1 className="w-full text-3xl lg:text-5xl font-extrabold text-center my-5 text-[#299ec4]">
-        Phòng Khám Đa Khoa DMC - Dược Sĩ
-      </h1>
-      <CardInfo />
-      <div className="w-full p-4 grid lg:grid-cols-3 grid-cols-1  gap-4">
-        <PrescriptionList />
-        <PrescriptionInfo />
+    <div className="h-screen w-screen flex *:bg-gradient-to-b from-blue-100 to-white">
+      <div className="min-h-screen w-full overflow-auto">
+        <h1 className="w-full text-3xl lg:text-5xl font-extrabold text-center my-5 text-[#299ec4]">
+          Phòng Khám Đa Khoa DMC - Dược Sĩ
+        </h1>
+        <CardInfo />
+        <div className="w-full p-4 flex flex-col lg:flex-row gap-4 h-full">
+          <div className="relative">
+            {isScreenPatients ? (
+              <>
+                <div
+                  onClick={() => setIsScreenPatients(!isScreenPatients)}
+                  className="absolute flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-10 text-xl -right-4 -top-2"
+                >
+                  <MdKeyboardDoubleArrowLeft />
+                </div>
+                <PrescriptionList />
+              </>
+            ) : (
+              <div
+                className="lg:absolute lg:left-6 lg:-top-16 flex items-center justify-center gap-2 bg-white w-[240px] rounded-lg py-2"
+                onClick={() => setIsScreenPatients(!isScreenPatients)}
+              >
+                <div className="font-bold">
+                  Danh sách đơn thuốc
+                  {/* ({patientsList.length}) */}
+                </div>
+                <div className="flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-8 text-xl">
+                  <MdKeyboardDoubleArrowRight />
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="w-full">
+            <PrescriptionInfo />
+          </div>
+        </div>
       </div>
     </div>
   )

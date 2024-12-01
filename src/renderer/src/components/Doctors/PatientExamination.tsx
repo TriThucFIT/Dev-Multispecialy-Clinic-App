@@ -122,25 +122,48 @@ export function PatientExamination({
                   ))}
                 </SelectContent>
               </Select>
-              <div>
-                <h4 className="font-semibold mb-2">Thuốc đã kê:</h4>
-                <ul className="list-disc pl-5">
-                  {prescription?.map((med) => (
-                    <li key={med?.id} className="flex justify-between items-center">
-                      <span>
-                        {med?.name} - {med?.dosage}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveMedication(med?.id)}
-                      >
-                        Xóa
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {prescription.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold mb-2">Thuốc đã kê:</h4>
+                  <div className="grid grid-cols-10 font-semibold pl-5">
+                    <div className="col-span-2 text-center">Tên, hàm lượng thuốc</div>
+                    <div className="col-span-1 text-center">ĐVT</div>
+                    <div className="col-span-1 text-center">Cách dùng</div>
+                    <div className="col-span-1 text-center">Số lượng</div>
+                    <div className="col-span-4 text-center">Ghi chú</div>
+                  </div>
+                  <ul className="list-disc pl-5">
+                    {prescription?.map((med) => (
+                      <li key={med?.id} className="grid grid-cols-10 items-center py-2">
+                        <span className="col-span-2">
+                          {med?.name} - {med?.dosage}
+                        </span>
+                        <span className="col-span-1 text-center">{med?.UOM}</span>
+                        <span className="col-span-1 text-center">{med?.directions}</span>
+                        <div className="col-span-1 flex justify-center">
+                          <Input type="text" className="w-1/2" />
+                        </div>
+                        <div className="col-span-4 flex justify-center">
+                          <Input type="text" />
+                        </div>
+                        <div className="col-span-1 flex justify-center">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveMedication(med?.id)}
+                            className="w-1/3"
+                          >
+                            Xóa
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex justify-end pl-5">
+                    <Button type="button">Tạo đơn thuốc</Button>
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
           <TabsContent value="summary">

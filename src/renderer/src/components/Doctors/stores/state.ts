@@ -23,9 +23,29 @@ export const currentPatientState = atom<Patient | null>({
 export const medicationsState = atom<Medication[]>({
   key: 'medicationsState',
   default: [
-    { id: 1, name: 'Aspirin', dosage: '100mg' },
-    { id: 2, name: 'Amoxicillin', dosage: '500mg' },
-    { id: 3, name: 'Lisinopril', dosage: '10mg' }
+    {
+      id: 1,
+      name: 'Aspirin',
+      dosage: '100mg',
+      UOM: 'viên',
+      directions: 'Uống sau khi ăn, 2v/ngày'
+    },
+    {
+      id: 2,
+      name: 'Amoxicillin',
+      dosage: '500mg',
+      directions: 'Uống trước khi ăn, 1v/ngày',
+      UOM: 'viên',
+      quantity: 1,
+      note: 'Uống trước khi ăn'
+    },
+    {
+      id: 3,
+      name: 'Lisinopril',
+      dosage: '10mg',
+      UOM: 'viên',
+      directions: 'Uống sau khi ăn, 1v/ngày'
+    }
   ]
 })
 
@@ -179,3 +199,4 @@ export const medicalRecordSelector = selector({
     return null
   }
 })
+

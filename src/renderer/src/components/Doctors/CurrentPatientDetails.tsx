@@ -62,8 +62,12 @@ export function CurrentPatientDetails({
   return (
     <Card className="bg-opacity-50 bg-white mb-5">
       <CardHeader>
-        <div className="grid grid-cols-4">
-          <CardTitle>Bệnh nhân hiện tại: {patient?.fullName}</CardTitle>
+        <CardTitle>
+          Bệnh nhân hiện tại:
+          <span className="ml-2 font-medium text-lg">{patient?.fullName}</span>
+        </CardTitle>
+        <div className="flex flex-col lg:grid lg:grid-cols-3">
+          {/* <RowGrid label="Mã bệnh nhân:" value={patient?. || 'Chưa có bệnh nhân'} /> */}
           <RowGrid label="Tuổi:" value={patient?.age?.toString() || 'Chưa có bệnh nhân'} />
           <RowGrid
             label="Giới tính:"
@@ -81,7 +85,7 @@ export function CurrentPatientDetails({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="flex flex-col lg:grid lg:grid-cols-6 gap-4">
           <div className="col-span-1">
             <Label className="font-semibold text-lg">Triệu chứng</Label>
             <Textarea
@@ -91,7 +95,7 @@ export function CurrentPatientDetails({
               className="h-24"
             />
           </div>
-          <div className="col-span-1">
+          <div className="col-span-2">
             <Label className="font-semibold text-lg">Dị ứng</Label>
             <div className="border rounded-md bg-white" onClick={() => setIsModalAllergies(true)}>
               {/* {patient ? ( */}
@@ -120,10 +124,11 @@ export function CurrentPatientDetails({
             </div>
             <ModalAllergies isModalOpen={isModalAllergies} setIsModalOpen={setIsModalAllergies} />
           </div>
-          <div className="col-span-2">
+
+          <div className="col-span-3">
             <Label className="font-semibold text-lg">Chỉ số sức khỏe</Label>
             <div
-              className="border rounded-md p-5 h-24 overflow-y-hidden bg-white"
+              className="border rounded-md h-24 p-5 overflow-y-auto bg-white cursor-pointer"
               onClick={() => setIsModalHealthIndicator(true)}
             >
               <div className="grid grid-cols-3 gap-1 ">
