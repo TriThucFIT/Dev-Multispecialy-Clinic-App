@@ -8,6 +8,7 @@ import CashierDashboard from '@renderer/pages/cashier-dashboard'
 import PharmacistDashboard from '@renderer/pages/pharmacist-dashboard'
 import { Welcome } from '@renderer/pages/welcome'
 import { LoggedStateSelector, LoginRequestState, ProfileSelector, UserState } from '@renderer/state'
+import AdminDashboard from './Admin'
 
 export const Layout: FC = () => {
   const LoggedState = useRecoilValueLoadable(LoggedStateSelector)
@@ -44,6 +45,8 @@ export const Layout: FC = () => {
         return <CashierDashboard />
       case RoleName.Pharmacist:
         return <PharmacistDashboard />
+      case RoleName.Admin:
+        return <AdminDashboard />
       default:
         return <Welcome />
     }

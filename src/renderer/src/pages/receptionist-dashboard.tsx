@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 import { Tabs, TabsContent, TabsListCol, TabsTriggerCol } from '../components/ui/tabs'
 import { PatientLookup } from '../components/Receptionits/PatientLookup'
