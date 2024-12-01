@@ -107,6 +107,8 @@ export function BillingAndPayment() {
     }
   }, [selectedUserPayment])
 
+  console.log('payResult.state', payResult)
+
   useEffect(() => {
     if (payResult.state === 'hasValue' && payResult.contents?.statusCode === 200) {
       console.log('Success: ', payResult.contents)
@@ -141,14 +143,15 @@ export function BillingAndPayment() {
       setIsPaying(false)
       console.log('payResult with Error: ', payResult.contents)
     } else {
-      console.log('Loading')
+      if (payResult.state === 'hasValue') setIsPaying(false)
     }
   }, [payResult.state])
 
   const onSelectChange = (newSelectedRowKeys: React.Key[], records: ServiceType[]) => {
     setSelectedRowKeys(newSelectedRowKeys)
-    const totalPrice = newSelectedRowKeys.reduce((acc: number, cur) => {
-      const service = billInfo?.items.find((item) => item.key === cur)
+    const totalPrice = newSelectedRowKeys.reduce((acc: number, cur) => {     
+      
+      const service = billInfo?.items.find((item) => item.id === cur)
       return acc + (service?.price ?? 0)
     }, 0)
     setInvoiceToPay({
@@ -327,11 +330,11 @@ export function BillingAndPayment() {
             rowSelection={rowSelection}
             columns={columns}
             dataSource={billInfo?.items?.map((item) => ({
-              key: item.key,
+              key: item.id,
               id: item.id,
               statusPayment: item.status,
               serviceName: item.name,
-              price: item.price * (item.quantity || 1),
+              price: Number(item.price) * (item.quantity || 1),
               unit: item.price,
               quantity: item.quantity || 1
             }))}

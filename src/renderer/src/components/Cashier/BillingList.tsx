@@ -37,10 +37,22 @@ export function BillingList() {
   useEffect(() => {
     ;(window.api as any).onInvoice((message: any) => {
       console.log('received-invoice', JSON.parse(message))
-      setBillList((oldList) => [...oldList, JSON.parse(message)])
+      setBillList((oldList) => {
+        const invoice = JSON.parse(message) as InvoiceFormQueue
+        const index = oldList.findIndex((item) => item.id === invoice.id)
+
+        if (index !== -1) {
+          const updatedList = [...oldList]
+          updatedList[index] = invoice
+          return updatedList
+        }
+
+        return [...oldList, invoice]
+      })
     })
   }, [])
 
+  console.log('received-new-invoice', billList)
   useEffect(() => {
     if (billList.length > 0 && !billActive) {
       setBillActive(billList[0])

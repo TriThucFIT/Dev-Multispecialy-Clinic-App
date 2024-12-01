@@ -137,6 +137,24 @@ export default function MedicalRecordView() {
                                           </div>
                                         ))}
                                       </div>
+
+                                      {lab.testResult.images && (
+                                        <div className="space-y-4">
+                                          <h5 className="font-semibold">Hình ảnh kết quả</h5>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ">
+                                            {lab.testResult.images.map(
+                                              (image: any, idx: number) => (
+                                                <img
+                                                  key={idx}
+                                                  src={image}
+                                                  alt={`Hình ảnh ${idx + 1}`}
+                                                  className="w-48 h-48 object-cover rounded-lg shadow-lg"
+                                                />
+                                              )
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
                                       {lab.testResult.notes && (
                                         <div className="mt-4">
                                           <h5 className="font-semibold">Ghi chú</h5>
