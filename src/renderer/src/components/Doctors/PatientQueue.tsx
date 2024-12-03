@@ -16,8 +16,10 @@ import {
   currentPatientState,
   emergencyPatientList,
   isProcessingEmergencyState,
-  patientListState
+  patientListState,
+  patientWaitingList
 } from './stores'
+import clsx from 'clsx'
 const renderPriorityBadge = (priority: number, age?: number) => {
   const color =
     priority < 1
@@ -32,7 +34,10 @@ const formatTime = (totalSeconds: number) => {
   const seconds = totalSeconds % 60
   return `${minutes} m : ${seconds} s`
 }
-
+const tabs = [
+  { key: 'PatientList', label: 'Hàng đợi khám' },
+  { key: 'PatientWaiting', label: 'Chờ xét nghiệm' }
+]
 export function PatientList() {
   const [waitingTimes, setWaitingTimes] = useState<number[]>([])
   const patients = useRecoilValue<Patient[]>(patientListState)
@@ -41,6 +46,8 @@ export function PatientList() {
   const resetEmergencyList = useResetRecoilState(emergencyPatientList)
   const setIsProcessingEmergency = useSetRecoilState(isProcessingEmergencyState)
   const userCurent = useRecoilValue(UserState)
+  const [currentView, setCurrentView] = useState(tabs[0].key)
+  const patientWaiting = useRecoilValue(patientWaitingList)
 
   useEffect(() => {
     const calculateInitialWaitingTimes = () => {
@@ -94,6 +101,20 @@ export function PatientList() {
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px]">
+          <div className="flex gap-2 mt-4 py-2">
+            {tabs.map((tab) => (
+              <div
+                key={tab.key}
+                onClick={() => setCurrentView(tab.key)}
+                className={clsx('p-2 rounded-t-md border-b-2 cursor-pointer', {
+                  'border-primary-700 text-primary-600 font-semibold': currentView === tab.key,
+                  'border-gray-300': currentView !== tab.key
+                })}
+              >
+                {tab.label}
+              </div>
+            ))}
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -137,33 +158,65 @@ export function PatientList() {
               </TableBody>
             )}
             <TableBody>
-              {currentPatient && (
-                <TableRow key={currentPatient.id} className="bg-primary bg-opacity-15">
-                  <TableCell>{currentPatient.fullName}</TableCell>
-                  <TableCell>{currentPatient.age}</TableCell>
-                  <TableCell>
-                    {renderPriorityBadge(currentPatient?.priority ?? 0, currentPatient.age ?? 0)}
-                  </TableCell>
-                  <TableCell>Đang khám</TableCell>
-                </TableRow>
-              )}
-              {patients.map(
-                (patient, index) =>
-                  patient.id !== currentPatient?.id && (
-                    <TableRow key={patient.id}>
-                      <TableCell>{patient.fullName}</TableCell>
-                      <TableCell>{patient.age}</TableCell>
-                      <TableCell>
-                        {renderPriorityBadge(patient.priority ?? 0, patient.age ?? 0)}
-                      </TableCell>
-                      <TableCell>
-                        {currentPatient?.id === patient.id && emergencyPatients.length < 0
-                          ? 'Đang khám'
-                          : formatTime(waitingTimes[index])}
-                      </TableCell>
-                    </TableRow>
+              {
+                {
+                  PatientList: (
+                    <>
+                      {currentPatient && (
+                        <TableRow key={currentPatient.id} className="bg-primary bg-opacity-15">
+                          <TableCell>{currentPatient.fullName}</TableCell>
+                          <TableCell>{currentPatient.age}</TableCell>
+                          <TableCell>
+                            {renderPriorityBadge(
+                              currentPatient?.priority ?? 0,
+                              currentPatient.age ?? 0
+                            )}
+                          </TableCell>
+                          <TableCell>Đang khám</TableCell>
+                        </TableRow>
+                      )}
+                      {patients.map(
+                        (patient, index) =>
+                          patient.id !== currentPatient?.id && (
+                            <TableRow key={patient.id}>
+                              <TableCell>{patient.fullName}</TableCell>
+                              <TableCell>{patient.age}</TableCell>
+                              <TableCell>
+                                {renderPriorityBadge(patient.priority ?? 0, patient.age ?? 0)}
+                              </TableCell>
+                              <TableCell>
+                                {currentPatient?.id === patient.id && emergencyPatients.length < 0
+                                  ? 'Đang khám'
+                                  : formatTime(waitingTimes[index])}
+                              </TableCell>
+                            </TableRow>
+                          )
+                      )}
+                    </>
+                  ),
+                  PatientWaiting: (
+                    <>
+                      {patientWaiting.length > 0 && patientWaiting.map(
+                        (patient, index) =>
+                          patient?.id !== currentPatient?.id && (
+                            <TableRow key={patient.id}>
+                              <TableCell>{patient?.fullName}</TableCell>
+                              <TableCell>{patient?.age}</TableCell>
+                              <TableCell>
+                                {renderPriorityBadge(patient?.priority ?? 0, patient?.age ?? 0)}
+                              </TableCell>
+                              <TableCell>
+                                {currentPatient?.id === patient?.id && emergencyPatients.length < 0
+                                  ? 'Đang khám'
+                                  : formatTime(waitingTimes[index])}
+                              </TableCell>
+                            </TableRow>
+                          )
+                      )}
+                    </>
                   )
-              )}
+                }[currentView]
+              }
             </TableBody>
           </Table>
         </ScrollArea>

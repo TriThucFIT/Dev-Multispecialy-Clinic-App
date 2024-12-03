@@ -32,7 +32,7 @@ export const TestResult = ({ type, testData, isVisible, setIsVisible }: RenderTe
     <>
       <div className="flex justify-between">
         <div className={`${isVisible ? textSelectedClass : 'font-semibold'}`}>
-          {testData[0].name}
+          {testData.labTest.name}
         </div>
         {isVisible ? (
           <Button type="default" onClick={() => setIsVisible(false)}>
@@ -46,72 +46,89 @@ export const TestResult = ({ type, testData, isVisible, setIsVisible }: RenderTe
       </div>
       {isVisible && (
         <>
-          {testData.map((test) => (
-            <div key={test.id} className="space-y-3">
-              <div>
-                <span className="font-semibold">Kết quả: </span>
-                {test.testResults.result}
-              </div>
-              <div className="font-semibold">Chi tiết:</div>
-              <div className="grid grid-cols-3 gap-4">
-                {test.testResults.detail.map((detail) => (
-                  <div key={detail.name} className="col-span-1 border-2 rounded-lg p-2">
-                    <div>
-                      <span className="font-semibold">{detail.name}</span>
+          {/* {testData.map((test) => ( */}
+          <div className="space-y-3">
+            <div>
+              <span className="font-semibold">Kết quả: </span>
+              {testData.testResult?.result}
+            </div>
+            <div className="font-semibold">Chi tiết:</div>
+            <div className="grid grid-cols-3 gap-4">
+              {testData.testResult?.detail.map((detail) => (
+                <div key={detail.name} className="col-span-1 border-2 rounded-lg p-2">
+                  <div>
+                    <span className="font-semibold">{detail.name}</span>
 
-                      {type !== typeTest.BloodTest && <span>: {detail.status} </span>}
-                    </div>
-                    <div>
+                    {type !== typeTest.BloodTest && <span>: {detail.status} </span>}
+                  </div>
+                  <div>
+                    {/* {
                       {
-                        {
-                          [typeTest.BloodTest]: (
-                            <>
-                              <div className="grid grid-cols-2">
-                                <ValueResultRow
-                                  name="Giá trị"
-                                  value1={detail.value}
-                                  value2={detail.unit}
-                                  className={'col-span-1'}
-                                />
-                                <ValueResultRow
-                                  name="Phạm vi"
-                                  value1={detail.range}
-                                  value2={detail.unit}
-                                  className={'col-span-1'}
-                                />
-                              </div>
-                              <ValueResultRow name="Trạng thái" value1={detail.status} />
-                            </>
-                          ),
-                          [typeTest.MRI]: (
-                            <>
-                              <ValueResultRow name="Ghi chú" value1={detail.notes} />
-                              <ValueResultRow name="Khuyến nghị" value1={detail.recommendations} />
-                            </>
-                          )
-                        }[type]
-                      }
-                      <ValueResultRow name="Mô tả" value1={detail.description || detail.notes} />
+                        [typeTest.BloodTest]: (
+                          <>
+                            <div className="grid grid-cols-2">
+                              <ValueResultRow
+                                name="Giá trị"
+                                value1={detail.value}
+                                value2={detail.unit}
+                                className={'col-span-1'}
+                              />
+                              <ValueResultRow
+                                name="Phạm vi"
+                                value1={detail.range}
+                                value2={detail.unit}
+                                className={'col-span-1'}
+                              />
+                            </div>
+                            <ValueResultRow name="Trạng thái" value1={detail.status} />
+                          </>
+                        ),
+                        [typeTest.MRI]: (
+                          <>
+                            <ValueResultRow name="Ghi chú" value1={detail.notes} />
+                            <ValueResultRow name="Khuyến nghị" value1={detail.recommendations} />
+                          </>
+                        )
+                      }[type]
+                    } */}
+                    <div className="grid grid-cols-2">
+                      <ValueResultRow
+                        name="Giá trị"
+                        value1={detail.value}
+                        value2={detail.unit}
+                        className={'col-span-1'}
+                      />
+                      <ValueResultRow
+                        name="Phạm vi"
+                        value1={detail.range}
+                        value2={detail.unit}
+                        className={'col-span-1'}
+                      />
                     </div>
+                    <ValueResultRow name="Trạng thái" value1={detail.status} />
+                    <ValueResultRow name="Ghi chú" value1={detail.notes} />
+                    <ValueResultRow name="Khuyến nghị" value1={detail.recommendations} />
+                    <ValueResultRow name="Mô tả" value1={detail.description || detail.notes} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div>
+              <div className="font-semibold">Kết luận:</div>
+              {testData.testResult?.notes}
+            </div>
+            <div>
+              <div className="font-semibold">Hình ảnh kết quả:</div>
+              <div className="grid grid-cols-3">
+                {testData.testResult?.images.map((image, idx) => (
+                  <div key={idx} className="col-span-1">
+                    <img src={image} alt="lab-test" className="size-96 object-contain" />
                   </div>
                 ))}
               </div>
-              <div>
-                <div className="font-semibold">Kết luận:</div>
-                {test.testResults.notes}
-              </div>
-              <div>
-                <div className="font-semibold">Hình ảnh kết quả:</div>
-                <div className="grid grid-cols-3">
-                  {test.testResults.images.map((image, idx) => (
-                    <div key={idx} className="col-span-1">
-                      <img src={image} alt="lab-test" className="size-96 object-contain" />
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
-          ))}
+          </div>
+          {/* ))} */}
         </>
       )}
     </>

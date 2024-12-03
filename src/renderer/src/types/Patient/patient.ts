@@ -1,4 +1,4 @@
-import { Address } from "@renderer/components/Receptionits/Admission/stores"
+import { Address } from '@renderer/components/Receptionits/Admission/stores'
 
 export type Patient = {
   id?: number | string
@@ -15,6 +15,13 @@ export type Patient = {
   symptoms?: string
   waitingTime?: number
   address?: Address
+  currentRecord?: {
+    id: number
+    labRequests?: {
+      id: number
+      status: string
+    }[]
+  }
 }
 
 export type PatientCreationDTO = {

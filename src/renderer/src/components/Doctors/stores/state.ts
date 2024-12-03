@@ -11,9 +11,13 @@ import {
 } from '@renderer/types/Doctor'
 import { Patient } from '@renderer/types/Patient/patient'
 import { atom, selector } from 'recoil'
+import { LabRequestResponseDto, LabTestList } from './type'
+import { LabTestService } from '@renderer/api/services/Doctor/labtest.service'
+import { UserState } from '@renderer/state'
 
 const doctorService = new DoctorService()
 const patientService = new PatientService()
+const labTestService = new LabTestService()
 
 export const currentPatientState = atom<Patient | null>({
   key: 'currentPatientState',
@@ -90,6 +94,11 @@ export const patientListState = atom<Patient[]>({
   default: []
 })
 
+export const patientWaitingList = atom<Patient[]>({
+  key: 'patientWaitingList',
+  default: []
+})
+
 export const medicalHistoryState = atom<string>({
   key: 'medicalHistoryState',
   default: ''
@@ -98,11 +107,6 @@ export const medicalHistoryState = atom<string>({
 export const diagnosisState = atom<string>({
   key: 'diagnosisState',
   default: ''
-})
-
-export const selectedLabTestsState = atom<number[]>({
-  key: 'selectedLabTestsState',
-  default: []
 })
 
 export const prescriptionState = atom<Medication[]>({
@@ -200,3 +204,65 @@ export const medicalRecordSelector = selector({
   }
 })
 
+export const labtestListSelector = selector<LabTestList[]>({
+  key: 'labtestListSelector',
+  get: async () => {
+    return await labTestService.getLabTests()
+  }
+})
+
+export const selectedLabTestsState = atom<number[]>({
+  key: 'selectedLabTestsState',
+  default: []
+})
+
+export const createLabRequestState = atom<boolean>({
+  key: 'createLabRequestState',
+  default: false
+})
+
+export const createLabRequestSelector = selector({
+  key: 'createLabRequestSelector',
+  get: async ({ get }) => {
+    const isCreate = get(createLabRequestState)
+    if (!isCreate) {
+      return null
+    } else {
+      const selectedLabTests = get(selectedLabTestsState)
+      const patient = get(currentPatientState)
+      const medicalRecord = get(medicalRecordSelector)
+      const doctor = get(UserState)
+      if (
+        selectedLabTests.length > 0 &&
+        patient?.currentRecord &&
+        medicalRecord &&
+        doctor?.employeeId
+      ) {
+        const data = {
+          doctorId: doctor.employeeId,
+          labTestIds: selectedLabTests,
+          medicalRecordEntryId: patient.currentRecord.id
+        }
+        return await labTestService.createLabRequest(data)
+      }
+    }
+    return null
+  }
+})
+
+export const labRequestsSlector = selector<LabRequestResponseDto[]>({
+  key: 'labRequestsSlector',
+  get: async ({ get }) => {
+    const patient = get(currentPatientState)
+    console.log('Patient on lab request', patient?.currentRecord);
+    
+    if (patient?.currentRecord?.labRequests && patient.currentRecord.labRequests.length > 0) {
+      return Promise.all(
+        patient.currentRecord.labRequests.map((labRequest) =>
+          labTestService.getLabRequestById(labRequest.id)
+        )
+      )
+    }
+    return []
+  }
+})

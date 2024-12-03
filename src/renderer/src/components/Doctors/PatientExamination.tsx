@@ -55,13 +55,16 @@ export function PatientExamination({
   }
 
   const handleSubmit = () => {
-    onSubmitExamination({
-      diagnosis,
-      selectedLabTests,
-      prescription,
-      followUpDate,
-      additionalNotes
-    })
+    onSubmitExamination(
+      {
+        diagnosis,
+        selectedLabTests,
+        prescription,
+        followUpDate,
+        additionalNotes
+      },
+      'done'
+    )
   }
 
   return (
@@ -106,7 +109,7 @@ export function PatientExamination({
             {aiAssistEnabled && <AIAssistant />}
           </TabsContent>
           <TabsContent value="labTests">
-            <LabTestExamination />
+            <LabTestExamination  onSubmitExamination={onSubmitExamination}/>
           </TabsContent>
           <TabsContent value="prescription">
             <div className="mt-4 space-y-4">

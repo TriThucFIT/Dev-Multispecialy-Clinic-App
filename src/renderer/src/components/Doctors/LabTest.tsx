@@ -1,26 +1,28 @@
-import { LabTest } from '@renderer/types/Doctor'
-import { useRecoilState, useRecoilValue } from 'recoil'
-import { labTestsState, selectedLabTestsState } from './stores'
-import { useState } from 'react'
+import {
+  useRecoilRefresher_UNSTABLE,
+  useRecoilState,
+  useRecoilValue,
+  useRecoilValueLoadable,
+  useSetRecoilState
+} from 'recoil'
+import {
+  createLabRequestSelector,
+  createLabRequestState,
+  currentPatientState,
+  labRequestsSlector,
+  labtestListSelector,
+  selectedLabTestsState
+} from './stores'
+import { useEffect, useState } from 'react'
 import clsx from 'clsx'
 import { Select } from 'antd'
 import { TestResult } from './TestResult'
+import { usePopup } from '@renderer/hooks/usePopup'
+import { ExaminationData } from './stores/type'
 
 const tabs = [
   { key: 'viewSelectLabTests', label: 'Chỉ định xét nghiệm' },
   { key: 'viewResultLabTests', label: 'Kết quả xét nghiệm' }
-]
-
-const optionsXRay = [
-  { label: 'Chụp X-quang phổi', value: 1 },
-  { label: 'Chụp X-quang cột sống', value: 2 },
-  { label: 'Chụp X-quang chân', value: 3 }
-]
-
-const optionsMRI = [
-  { label: 'Chụp MRI não', value: 1 },
-  { label: 'Chụp MRI cột sống', value: 2 },
-  { label: 'Chụp MRI chân', value: 3 }
 ]
 
 const bloodTest = [
@@ -151,22 +153,52 @@ const typeTest = {
   MRI: 'MRI'
 }
 
-export const LabTestExamination = () => {
-  const [selectedLabTests, setSelectedLabTests] = useRecoilState(selectedLabTestsState)
-  const labTests = useRecoilValue<LabTest[]>(labTestsState)
+export const LabTestExamination = (onSubmitExamination: {
+  onSubmitExamination: (data: ExaminationData, type: string) => void
+}) => {
+  const setSelectedLabTests = useSetRecoilState(selectedLabTestsState)
+  const labRequests = useRecoilValueLoadable(labRequestsSlector)
+  const [categoryLabTests, setCategoryLabTests] = useState<number[]>([])
+  const labTests = useRecoilValueLoadable(labtestListSelector)
+  const refreshLabRequests = useRecoilRefresher_UNSTABLE(labRequestsSlector)
   const [currentView, setCurrentView] = useState(tabs[0].key)
-  const [isResult, setIsResult] = useState(true)
+  // const [isResult, _setIsResult] = useState(true)
   const [isViewTest, setIsViewTest] = useState({
     bloodTest: false,
     mriTest: false,
     xTest: false
   })
 
+  const setIsCreateLabRequest = useSetRecoilState(createLabRequestState)
+  const createLabRequestResult = useRecoilValueLoadable(createLabRequestSelector)
+
   const handleLabTestSelect = (testId: number) => {
-    setSelectedLabTests((prev) =>
+    setCategoryLabTests((prev) =>
       prev.includes(testId) ? prev.filter((id) => id !== testId) : [...prev, testId]
     )
   }
+
+  useEffect(() => {
+    if (createLabRequestResult.state === 'hasValue' && createLabRequestResult.contents) {
+      setIsCreateLabRequest(false)
+      usePopup('Đã tạo yêu cầu xét nghiệm thành công', 'success')
+      onSubmitExamination.onSubmitExamination({} as ExaminationData, 'labrequest')
+    } else if (createLabRequestResult.state === 'hasError') {
+      usePopup('Đã xảy ra lỗi khi tạo yêu cầu xét nghiệm', 'error')
+      setIsCreateLabRequest(false)
+    }
+
+    console.log('createLabRequestResult.state', createLabRequestResult)
+  }, [createLabRequestResult.state])
+
+  useEffect(() => {
+    if (currentView === 'viewResultLabTests') {
+      console.log('labRequests', labRequests)
+
+      refreshLabRequests()
+    }
+  }, [currentView])
+
   return (
     <div className="mt-4 space-y-4">
       <div className="flex gap-2 mt-4 py-2">
@@ -187,87 +219,76 @@ export const LabTestExamination = () => {
         {
           viewSelectLabTests: (
             <>
-              {labTests?.map((test) => (
-                <div key={test.id} className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id={`test-${test?.id}`}
-                      checked={selectedLabTests?.includes(test?.id)}
-                      onChange={() => handleLabTestSelect(test?.id)}
-                    />
-                    <label htmlFor={`test-${test.id}`}>{test.name}</label>
+              {labTests.state === 'loading' && (
+                <div className="loading loading-bars text-primary loading-lg" />
+              )}
+              {labTests.state === 'hasValue' &&
+                labTests.contents.map((test) => (
+                  <div key={test.id} className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={`test-${test?.id}`}
+                        checked={categoryLabTests?.includes(test?.id)}
+                        onChange={() => handleLabTestSelect(test?.id)}
+                      />
+                      <label htmlFor={`test-${test.id}`}>{test.name}</label>
+                    </div>
+                    <div>
+                      {categoryLabTests.includes(test.id) && test.labtests.length > 0 && (
+                        <div>
+                          <Select
+                            mode="multiple"
+                            allowClear
+                            placeholder={`Chọn loại ${test.name}`}
+                            options={test.labtests.map((labTest) => ({
+                              label: labTest.name,
+                              value: labTest.id
+                            }))}
+                            disabled={!categoryLabTests.includes(test.id)}
+                            className="w-full"
+                            onChange={(values) => {
+                              setSelectedLabTests((prev) => [
+                                ...prev.filter((id) => id !== test.id),
+                                ...values
+                              ])
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    {selectedLabTests.includes(test.id) && (
-                      <div>
-                        {{
-                          2: (
-                            <div className="space-y-2">
-                              <Select
-                                mode="multiple"
-                                allowClear
-                                placeholder="Chọn loại chụp X-quang"
-                                // onChange={handleChange}
-                                options={optionsXRay}
-                                className="w-full"
-                              />
-                            </div>
-                          ),
-                          3: (
-                            <div className="space-y-2">
-                              <Select
-                                mode="multiple"
-                                allowClear
-                                placeholder="Chọn loại chụp MRI"
-                                // onChange={handleChange}
-                                options={optionsMRI}
-                                className="w-full"
-                              />
-                            </div>
-                          )
-                        }[test.id] || null}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
 
               <button
-                onClick={() => console.log('selectedLabTests', selectedLabTests)}
+                onClick={() => setIsCreateLabRequest(true)}
                 className="w-full text-white btn btn-outline btn-primary rounded-xl"
               >
-                Xác nhận
+                {createLabRequestResult.state === 'loading' ? (
+                  <div className="loading loading-spinner text-white loading-sm" />
+                ) : (
+                  'Tạo yêu cầu xét nghiệm'
+                )}
               </button>
             </>
           ),
           viewResultLabTests: (
             <>
-              {isResult ? (
+              {labRequests.state === 'hasValue' && labRequests.contents?.length > 0 ? (
                 <div className="space-y-3">
-                  <TestResult
-                    type={typeTest.BloodTest}
-                    testData={bloodTest}
-                    isVisible={isViewTest.bloodTest}
-                    setIsVisible={(value) => setIsViewTest({ ...isViewTest, bloodTest: value })}
-                  />
-
-                  <TestResult
-                    type={typeTest.XRay}
-                    testData={xTest}
-                    isVisible={isViewTest.xTest}
-                    setIsVisible={(value) => setIsViewTest({ ...isViewTest, xTest: value })}
-                  />
-
-                  <TestResult
-                    type={typeTest.MRI}
-                    testData={mriTest}
-                    isVisible={isViewTest.mriTest}
-                    setIsVisible={(value) => setIsViewTest({ ...isViewTest, mriTest: value })}
-                  />
+                  {labRequests.contents.map((labRequest) => (
+                    <TestResult
+                      // type={typeTest.BloodTest}
+                      testData={labRequest}
+                      isVisible={isViewTest.bloodTest}
+                      setIsVisible={(value) => setIsViewTest({ ...isViewTest, bloodTest: value })}
+                    />
+                  ))}
                 </div>
+              ) : labRequests.state === 'loading' ? (
+                <div className="loading loading-bars text-primary loading-lg" />
               ) : (
-                <div>Hiện không có kết quả xét nghiệm</div>
+                <div>Không có kết quả xét nghiệm</div>
               )}
             </>
           )

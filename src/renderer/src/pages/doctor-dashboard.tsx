@@ -27,7 +27,8 @@ import {
   prescriptionState,
   selectedLabTestsState,
   emergencyPatientList,
-  isProcessingEmergencyState
+  isProcessingEmergencyState,
+  patientWaitingList
 } from '@renderer/components/Doctors/stores'
 
 export default function EnhancedDoctorScreen() {
@@ -40,6 +41,8 @@ export default function EnhancedDoctorScreen() {
   const [aiAssistEnabled, _setAiAssistEnabled] = useRecoilState<boolean>(aiAssistEnabledState)
   const [patientsList, setPatientsList] = useRecoilState<Patient[]>(patientListState)
   const pQueue = PatientQueue
+
+  const [patientWaiting, SetPatientWaiting] = useRecoilState(patientWaitingList)
 
   const setEmergencyList = useSetRecoilState<EmergencyInfo[]>(emergencyPatientList)
   const isProcessingEmergency = useRecoilValue(isProcessingEmergencyState)
@@ -62,8 +65,15 @@ export default function EnhancedDoctorScreen() {
 
   useEffect(() => {
     ;(window.api as any).onMessage((message: any) => {
-      pQueue.enqueue(createPatient(JSON.parse(message)))
+      console.log('received patient', JSON.parse(message))
+      const patient = createPatient(JSON.parse(message))
+      console.log("Patient on recive", patient);
+      
+      pQueue.enqueue(patient)
       setPatientsList(pQueue.toArray())
+      console.log('Patients list', patientsList);
+      
+      SetPatientWaiting((oldList) => oldList.filter((item) => item?.id !== patient?.id))
     })
     if (isProcessingEmergency) {
       console.log('unSubscribeEmergency')
@@ -115,7 +125,21 @@ export default function EnhancedDoctorScreen() {
     }
   }, [patientsList, currentPatient])
 
-  const handleSubmitExamination = (_examinationData: any) => {
+  const handleSubmitExamination = (_examinationData: any, type: string) => {
+    if (type === 'labrequest') {
+      console.log('Submit lab request')
+      console.log('Patient waiting list', currentPatient)
+
+      SetPatientWaiting((oldList) =>
+        oldList && currentPatient
+          ? [...oldList, currentPatient]
+          : currentPatient
+            ? [currentPatient]
+            : oldList
+      )
+
+      console.log('Patient waiting list', patientWaiting)
+    }
     clearAllExamination()
     const patient = pQueue.dequeue()
     setCurrentPatient(patient)
@@ -129,7 +153,8 @@ export default function EnhancedDoctorScreen() {
         </h1>
         <CardInfo />
         <div className="flex flex-col lg:flex-row gap-6 w-full p-4">
-          <div className="relative" onClick={() => setIsScreenPatients(!isScreenPatients)}>
+          <div className="relative">
+            {/* <div className="relative" onClick={() => setIsScreenPatients(!isScreenPatients)}> */}
             {isScreenPatients ? (
               <div className="absolute flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-10 text-xl -right-4 -top-2">
                 <MdKeyboardDoubleArrowLeft />

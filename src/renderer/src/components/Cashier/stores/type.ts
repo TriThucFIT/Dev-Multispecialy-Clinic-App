@@ -4,22 +4,22 @@ import React from 'react'
 import { TableProps } from 'antd'
 
 export type PatientFromQueue = {
-  id: number | string;
-  fullName: string;
-  email: string;
-  phone: string;
-  dob: string;
-  age: number;
-  condition: string;
-  priority: number;
-  status: string;
-  arrivalOrder: number;
-  gender: boolean;
-  symptoms: string;
-  waitingTime: number;
-  address: Address;
-  admission: Partial<AddmissionInQueue>;
-  invoiceId: number;
+  id: number | string
+  fullName: string
+  email: string
+  phone: string
+  dob: string
+  age: number
+  condition: string
+  priority: number
+  status: string
+  arrivalOrder: number
+  gender: boolean
+  symptoms: string
+  waitingTime: number
+  address: Address
+  admission: Partial<AddmissionInQueue>
+  invoiceId: number
 }
 
 export type InvoiceFormQueue = {
@@ -97,6 +97,8 @@ export class PatientSendToQueue {
   waitingTime?: number
   address?: Address
   admission?: AddmissionInQueue
+  invoiceId?: number
+  currentRecord?: number
 }
 
 class AddmissionInQueue {
