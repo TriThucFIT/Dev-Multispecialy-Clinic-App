@@ -21,8 +21,6 @@ export class LabTestService {
   async createLabRequest(data: LabRequestCreation): Promise<any> {
     try {
       const response = await AxiosInstance.post('/labTest/request', data)
-      console.log('Create lab request response', response)
-
       if (response.data?.data) {
         return response.data.data
       }

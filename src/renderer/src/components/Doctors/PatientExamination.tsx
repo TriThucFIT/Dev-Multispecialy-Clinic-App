@@ -4,7 +4,6 @@ import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { FileText, Stethoscope, TestTube, Pill, ClipboardList, CircleCheck } from 'lucide-react'
 import { AIAssistant } from './AIAssistant'
 import {
@@ -16,56 +15,48 @@ import {
   DialogTitle,
   DialogTrigger
 } from '../ui/dialog'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import {
   additionalNotesState,
   diagnosisState,
   followUpDateState,
-  labTestsState,
+  isCreatePrescriptionState,
   prescriptionState,
-  selectedLabTestsState
+  submitExaminationSelector,
+  treatmentPlanState
 } from './stores'
 import { LabTestExamination } from './LabTest'
-import { LabTest } from '@renderer/types/Doctor'
 import { PatientExaminationProps } from './stores/type'
 import MedicalRecordView from './MedicalRecordView'
+import { Medication } from './Medication'
+import { useEffect } from 'react'
 
 export function PatientExamination({
   patient,
-  medications,
   onSubmitExamination,
   aiAssistEnabled
 }: PatientExaminationProps) {
   const [diagnosis, setDiagnosis] = useRecoilState(diagnosisState)
-  const [prescription, setPrescription] = useRecoilState(prescriptionState)
+  const [treatmentPlan, setTreatmentPlan] = useRecoilState(treatmentPlanState)
+  const prescription = useRecoilValue(prescriptionState)
   const [followUpDate, setFollowUpDate] = useRecoilState(followUpDateState)
   const [additionalNotes, setAdditionalNotes] = useRecoilState(additionalNotesState)
-  const selectedLabTests = useRecoilValue(selectedLabTestsState)
-  const labTests = useRecoilValue<LabTest[]>(labTestsState)
 
-  const handleAddMedication = (medicationId: number) => {
-    const medicationToAdd = medications.find((med) => med.id === medicationId)
-    if (medicationToAdd) {
-      setPrescription((prev) => [...prev, medicationToAdd])
-    }
-  }
-
-  const handleRemoveMedication = (medicationId: number) => {
-    setPrescription((prev) => prev.filter((med) => med.id !== medicationId))
-  }
+  const setIsSubmit = useSetRecoilState(isCreatePrescriptionState)
+  const submitResult = useRecoilValueLoadable(submitExaminationSelector)
 
   const handleSubmit = () => {
-    onSubmitExamination(
-      {
-        diagnosis,
-        selectedLabTests,
-        prescription,
-        followUpDate,
-        additionalNotes
-      },
-      'done'
-    )
+    setIsSubmit(true)
   }
+  useEffect(() => {
+    if (submitResult.state === 'hasError' || !submitResult.contents) {
+      setIsSubmit(false)
+    }
+    if (submitResult.state === 'hasValue' && submitResult.contents) {
+      setIsSubmit(false)
+      onSubmitExamination('done')
+    }
+  }, [submitResult.state])
 
   return (
     <Card className="bg-opacity-50 bg-white max-h-[60vh] overflow-auto">
@@ -100,74 +91,28 @@ export function PatientExamination({
             <MedicalRecordView />
           </TabsContent>
           <TabsContent value="diagnosis">
-            <Textarea
-              className="mt-4"
-              placeholder="Nhập chẩn đoán..."
-              value={diagnosis}
-              onChange={(e) => setDiagnosis(e.target.value)}
-            />
-            {aiAssistEnabled && <AIAssistant />}
+            <div className="flex flex-col gap-3">
+              <Textarea
+                className="mt-4"
+                placeholder="Nhập chẩn đoán..."
+                value={diagnosis}
+                onChange={(e) => setDiagnosis(e.target.value)}
+              />
+              <Textarea
+                className="mt-4"
+                placeholder="Phác đồ điều trị..."
+                value={treatmentPlan}
+                onChange={(e) => setTreatmentPlan(e.target.value)}
+              />
+
+              {aiAssistEnabled && <AIAssistant />}
+            </div>
           </TabsContent>
           <TabsContent value="labTests">
-            <LabTestExamination  onSubmitExamination={onSubmitExamination}/>
+            <LabTestExamination onSubmitExamination={onSubmitExamination} />
           </TabsContent>
           <TabsContent value="prescription">
-            <div className="mt-4 space-y-4">
-              <Select onValueChange={(value) => handleAddMedication(Number(value))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn thuốc" />
-                </SelectTrigger>
-                <SelectContent>
-                  {medications?.map((med) => (
-                    <SelectItem key={med?.id} value={med?.id?.toString()}>
-                      {med?.name} - {med?.dosage}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {prescription.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="font-semibold mb-2">Thuốc đã kê:</h4>
-                  <div className="grid grid-cols-10 font-semibold pl-5">
-                    <div className="col-span-2 text-center">Tên, hàm lượng thuốc</div>
-                    <div className="col-span-1 text-center">ĐVT</div>
-                    <div className="col-span-1 text-center">Cách dùng</div>
-                    <div className="col-span-1 text-center">Số lượng</div>
-                    <div className="col-span-4 text-center">Ghi chú</div>
-                  </div>
-                  <ul className="list-disc pl-5">
-                    {prescription?.map((med) => (
-                      <li key={med?.id} className="grid grid-cols-10 items-center py-2">
-                        <span className="col-span-2">
-                          {med?.name} - {med?.dosage}
-                        </span>
-                        <span className="col-span-1 text-center">{med?.UOM}</span>
-                        <span className="col-span-1 text-center">{med?.directions}</span>
-                        <div className="col-span-1 flex justify-center">
-                          <Input type="text" className="w-1/2" />
-                        </div>
-                        <div className="col-span-4 flex justify-center">
-                          <Input type="text" />
-                        </div>
-                        <div className="col-span-1 flex justify-center">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveMedication(med?.id)}
-                            className="w-1/3"
-                          >
-                            Xóa
-                          </Button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="flex justify-end pl-5">
-                    <Button type="button">Tạo đơn thuốc</Button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <Medication />
           </TabsContent>
           <TabsContent value="summary">
             <div className="mt-4 space-y-4">
@@ -200,9 +145,9 @@ export function PatientExamination({
                     <p>{diagnosis}</p>
                     <p className="font-semibold">Xét nghiệm:</p>
                     <ul className="list-disc pl-5">
-                      {selectedLabTests.map((testId) => (
+                      {/* {selectedLabTests.map((testId) => (
                         <li key={testId}>{labTests.find((test) => test.id === testId)?.name}</li>
-                      ))}
+                      ))} */}
                     </ul>
                     <p className="font-semibold">Đơn thuốc:</p>
                     <ul className="list-disc pl-5">

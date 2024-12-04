@@ -45,7 +45,6 @@ export const phoneInputPatientState = atom<string>({
 export const appointmentSubmitSelector = selector({
   key: 'appointmentSubmitSelector',
   get: async ({ get }) => {
-    console.log('appointmentSubmitSelector')
     const submit = get(appointmentSubmitState)
     const apointment = get(createAppointmentState)
     if (submit && apointment) {

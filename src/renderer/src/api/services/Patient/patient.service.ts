@@ -1,5 +1,5 @@
 import AxiosInstance from '@renderer/api/config/axios.config'
-import { Patient } from '@renderer/types/Patient/patient'
+import { MedicalRecordResponseDto, Patient } from '@renderer/types/Patient/patient'
 import { detectQueryType } from '../utils'
 
 export class PatientService {
@@ -81,11 +81,11 @@ export class PatientService {
     }
   }
 
-  async getMedicalRecord(patientId: string): Promise<any> {
+  async getMedicalRecord(patientId: string): Promise<MedicalRecordResponseDto | null> {
     try {
       const response = await AxiosInstance.get(`/medical-record?patientId=${patientId}`)
       if (response.status === 200) {
-        return response.data
+        return response.data.data
       }
       return null
     } catch (error) {

@@ -12,7 +12,7 @@ export type Medication = {
 export type PatientExaminationProps = {
   patient: Patient | null
   medications: Medication[]
-  onSubmitExamination: (data: ExaminationData, type:string) => void
+  onSubmitExamination: (type: string) => void
   aiAssistEnabled: boolean
 }
 
@@ -67,4 +67,38 @@ export type LabRequestResponseDto = {
   requestDate: Date
   status: string
   testResult?: TestResultResponseDto
+}
+
+export type MedicationResponseDto = {
+  id: number
+  name: string
+  dosage: string
+  unitPrice: number
+  inStock: number
+  unitStock: string
+  image: string
+  description: string
+  usage: string
+  directions?: string
+  UOM?: string
+  quantity?: number
+  note?: string
+}
+
+export type PrescriptionDto = {
+  medicalRecordId: number
+  note: string
+  medications: PrescriptionMedicationDto[]
+}
+export type PrescriptionMedicationDto = {
+  medicationId: number
+  quantity: number
+  note: string
+}
+
+export type MedicalRecordEntryUpdate = {
+  medicalRecordEntryId: number
+  diagnosis: string
+  treatmentPlan: string
+  additionalNote: string
 }

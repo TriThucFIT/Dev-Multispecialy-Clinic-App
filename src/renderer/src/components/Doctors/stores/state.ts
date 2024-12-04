@@ -4,20 +4,22 @@ import {
   Allergy,
   Doctor,
   EmergencyInfo,
-  LabTest,
   Medication,
   Specialization,
   VitalSigns
 } from '@renderer/types/Doctor'
 import { Patient } from '@renderer/types/Patient/patient'
 import { atom, selector } from 'recoil'
-import { LabRequestResponseDto, LabTestList } from './type'
+import { LabRequestResponseDto, LabTestList, MedicationResponseDto } from './type'
 import { LabTestService } from '@renderer/api/services/Doctor/labtest.service'
 import { UserState } from '@renderer/state'
+import { AppointmentService } from '@renderer/api/services/Appointment/appointment.service'
+import { usePopup } from '@renderer/hooks/usePopup'
 
 const doctorService = new DoctorService()
 const patientService = new PatientService()
 const labTestService = new LabTestService()
+const appointmentService = new AppointmentService()
 
 export const currentPatientState = atom<Patient | null>({
   key: 'currentPatientState',
@@ -56,15 +58,6 @@ export const medicationsState = atom<Medication[]>({
 export const aiAssistEnabledState = atom<boolean>({
   key: 'aiAssistEnabledState',
   default: true
-})
-
-export const labTestsState = atom<LabTest[]>({
-  key: 'labTestsState',
-  default: [
-    { id: 1, name: 'Xét nghiệm máu' },
-    { id: 2, name: 'Chụp X-quang' },
-    { id: 3, name: 'Chụp MRI' }
-  ]
 })
 
 export const allergiesState = atom<Allergy[]>({
@@ -108,8 +101,12 @@ export const diagnosisState = atom<string>({
   key: 'diagnosisState',
   default: ''
 })
+export const treatmentPlanState = atom<string>({
+  key: 'treatmentPlanState',
+  default: ''
+})
 
-export const prescriptionState = atom<Medication[]>({
+export const prescriptionState = atom<MedicationResponseDto[]>({
   key: 'prescriptionState',
   default: []
 })
@@ -254,8 +251,8 @@ export const labRequestsSlector = selector<LabRequestResponseDto[]>({
   key: 'labRequestsSlector',
   get: async ({ get }) => {
     const patient = get(currentPatientState)
-    console.log('Patient on lab request', patient?.currentRecord);
-    
+    console.log('Patient on lab request', patient?.currentRecord)
+
     if (patient?.currentRecord?.labRequests && patient.currentRecord.labRequests.length > 0) {
       return Promise.all(
         patient.currentRecord.labRequests.map((labRequest) =>
@@ -264,5 +261,95 @@ export const labRequestsSlector = selector<LabRequestResponseDto[]>({
       )
     }
     return []
+  }
+})
+
+export const medicationsSelector = selector<MedicationResponseDto[]>({
+  key: 'medicationsSelector',
+  get: async () => {
+    return await doctorService.getMedicationList()
+  }
+})
+
+export const isCreatePrescriptionState = atom<boolean>({
+  key: 'isCreatePrescriptionState',
+  default: false
+})
+
+export const submitExaminationSelector = selector({
+  key: 'createPrescriptionSelector',
+  get: async ({ get }) => {
+    const isCreate = get(isCreatePrescriptionState)
+    if (!isCreate) {
+      return null
+    } else {
+      const patient = get(currentPatientState)
+      const doctor = get(UserState)
+      const diagnosis = get(diagnosisState)
+      const treatmentPlan = get(treatmentPlanState)
+      const prescription = get(prescriptionState)
+      const followUpDate = get(followUpDateState)
+      const additionalNote = get(additionalNotesState)
+      try {
+        if (
+          patient &&
+          patient.currentRecord?.id &&
+          doctor &&
+          diagnosis &&
+          prescription.length > 0
+        ) {
+          if (followUpDate) {
+            const appointment = await appointmentService.createAppointment({
+              service: 'InHour',
+              date: followUpDate,
+              time: '08:00',
+              doctor: doctor.fullName,
+              specialization: doctor.specialization?.specialization_id,
+              symptoms: diagnosis,
+              patient: {
+                fullName: patient.fullName,
+                email: patient.email,
+                phone: patient.phone,
+                address: patient.address,
+                dob: patient.dob ? new Date(patient.dob).toISOString().split('T')[0] : null,
+                gender: patient.gender
+              }
+            })
+            if (appointment) {
+              usePopup('Tạo lịch hẹn tái khám thành công', 'success')
+            }
+          }
+
+          const prescriptionCreated = await doctorService.createPrescription({
+            note: additionalNote,
+            medications: prescription.map((medication) => ({
+              quantity: medication.quantity ?? 0,
+              note: medication.note ?? '',
+              medicationId: medication.id
+            })),
+            medicalRecordId: patient.currentRecord?.id
+          })
+          if (prescriptionCreated) {
+            usePopup('Tạo đơn thuốc thành công', 'success')
+          }
+
+          const submitExamination = await doctorService.submitExamination({
+            diagnosis,
+            additionalNote,
+            medicalRecordEntryId: patient.currentRecord.id,
+            treatmentPlan
+          })
+          if (submitExamination) {
+            usePopup('Hoàn thành lượt khám', 'success')
+          }
+          return submitExamination
+        }
+        return null
+      } catch (error) {
+        console.log(error)
+        usePopup('Lỗi tạo yêu cầu, thử lại sau', 'error')
+        return null
+      }
+    }
   }
 })

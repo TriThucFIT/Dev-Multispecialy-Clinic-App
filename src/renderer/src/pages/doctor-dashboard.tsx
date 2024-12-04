@@ -32,7 +32,7 @@ import {
 } from '@renderer/components/Doctors/stores'
 
 export default function EnhancedDoctorScreen() {
-  const [isScreenPatients, setIsScreenPatients] = useState<boolean>(true)
+  const [isScreenPatients, _setIsScreenPatients] = useState<boolean>(true)
 
   const [currentPatient, setCurrentPatient] = useRecoilState<Patient | null>(currentPatientState)
   const [medications, _setMedications] = useRecoilState<Medication[]>(medicationsState)
@@ -42,7 +42,7 @@ export default function EnhancedDoctorScreen() {
   const [patientsList, setPatientsList] = useRecoilState<Patient[]>(patientListState)
   const pQueue = PatientQueue
 
-  const [patientWaiting, SetPatientWaiting] = useRecoilState(patientWaitingList)
+  const setPatientWaiting = useSetRecoilState(patientWaitingList)
 
   const setEmergencyList = useSetRecoilState<EmergencyInfo[]>(emergencyPatientList)
   const isProcessingEmergency = useRecoilValue(isProcessingEmergencyState)
@@ -65,18 +65,12 @@ export default function EnhancedDoctorScreen() {
 
   useEffect(() => {
     ;(window.api as any).onMessage((message: any) => {
-      console.log('received patient', JSON.parse(message))
       const patient = createPatient(JSON.parse(message))
-      console.log("Patient on recive", patient);
-      
       pQueue.enqueue(patient)
       setPatientsList(pQueue.toArray())
-      console.log('Patients list', patientsList);
-      
-      SetPatientWaiting((oldList) => oldList.filter((item) => item?.id !== patient?.id))
+      setPatientWaiting((oldList) => oldList.filter((item) => item?.id !== patient?.id))
     })
     if (isProcessingEmergency) {
-      console.log('unSubscribeEmergency')
       ;(window.api as any).unSubscribeEmergency()
     } else {
       if (userCurent?.specialization) {
@@ -125,20 +119,15 @@ export default function EnhancedDoctorScreen() {
     }
   }, [patientsList, currentPatient])
 
-  const handleSubmitExamination = (_examinationData: any, type: string) => {
+  const handleSubmitExamination = (type: string) => {
     if (type === 'labrequest') {
-      console.log('Submit lab request')
-      console.log('Patient waiting list', currentPatient)
-
-      SetPatientWaiting((oldList) =>
+      setPatientWaiting((oldList) =>
         oldList && currentPatient
           ? [...oldList, currentPatient]
           : currentPatient
             ? [currentPatient]
             : oldList
       )
-
-      console.log('Patient waiting list', patientWaiting)
     }
     clearAllExamination()
     const patient = pQueue.dequeue()
