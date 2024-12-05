@@ -9,7 +9,7 @@ import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { currentPatientState, medicalRecordSelector } from './stores'
 import { Table } from 'antd'
 
-const prescriptionTableColumns = [
+export const prescriptionTableColumns = [
   {
     title: 'Tên thuốc',
     dataIndex: 'name',

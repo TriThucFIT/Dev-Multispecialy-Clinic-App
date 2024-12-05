@@ -1,8 +1,11 @@
-import { ePrescriptionStatus } from '@renderer/types/Prescription'
 import { IoSyncCircle, IoCloseCircle, IoCheckmarkCircle } from 'react-icons/io5'
+import { PrescriptionStatus } from './store'
 
-export const PrescriptionStatus = ({ statusPayment }: { statusPayment: ePrescriptionStatus }) => {
-  const statusTextClsx = 'col-span-2 text-blueSecondary font-semibold text-start cursor-pointer'
+export const PrescriptionStatusRender = ({
+  statusPresciption
+}: {
+  statusPresciption: PrescriptionStatus
+}) => {
   const iconClsx = 'flex items-center justify-center'
 
   const PrescriptionNew = () => (
@@ -10,7 +13,6 @@ export const PrescriptionStatus = ({ statusPayment }: { statusPayment: ePrescrip
       <div className={iconClsx}>
         <IoCloseCircle color="var(--error)" size={18} />
       </div>
-      {/* <span className={statusTextClsx}>Chưa xử lý</span> */}
     </>
   )
   const PrescriptionProcessing = () => (
@@ -18,7 +20,6 @@ export const PrescriptionStatus = ({ statusPayment }: { statusPayment: ePrescrip
       <div className={iconClsx}>
         <IoSyncCircle color="var(--warning)" size={20} />
       </div>
-      {/* <div className={statusTextClsx}>Đang xử lý</div> */}
     </>
   )
   const PrescriptionDone = () => (
@@ -26,14 +27,13 @@ export const PrescriptionStatus = ({ statusPayment }: { statusPayment: ePrescrip
       <div className={iconClsx}>
         <IoCheckmarkCircle color="var(--success)" size={20} />
       </div>
-      {/* <div className={statusTextClsx}>Đã xử lý</div> */}
     </>
   )
   return (
     <div className="flex justify-center">
-      {statusPayment === ePrescriptionStatus.new && <PrescriptionNew />}
-      {statusPayment === ePrescriptionStatus.processing && <PrescriptionProcessing />}
-      {statusPayment === ePrescriptionStatus.done && <PrescriptionDone />}
+      {statusPresciption === PrescriptionStatus.PENDING && <PrescriptionNew />}
+      {statusPresciption === PrescriptionStatus.IN_PROGRESS && <PrescriptionProcessing />}
+      {statusPresciption === PrescriptionStatus.COMPLETED && <PrescriptionDone />}
     </div>
   )
 }

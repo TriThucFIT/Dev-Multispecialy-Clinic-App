@@ -28,7 +28,8 @@ import {
   selectedLabTestsState,
   emergencyPatientList,
   isProcessingEmergencyState,
-  patientWaitingList
+  patientWaitingList,
+  treatmentPlanState
 } from '@renderer/components/Doctors/stores'
 
 export default function EnhancedDoctorScreen() {
@@ -54,6 +55,7 @@ export default function EnhancedDoctorScreen() {
   const clearMedicalHistory = useResetRecoilState(medicalHistoryState)
   const clearPrescription = useResetRecoilState(prescriptionState)
   const clearSelectedLabTests = useResetRecoilState(selectedLabTestsState)
+  const clearTreatmentPlan = useResetRecoilState(treatmentPlanState)
   const clearAllExamination = () => {
     clearAdditionalNotes()
     clearDiagnosis()
@@ -61,6 +63,7 @@ export default function EnhancedDoctorScreen() {
     clearMedicalHistory()
     clearPrescription()
     clearSelectedLabTests()
+    clearTreatmentPlan()
   }
 
   useEffect(() => {

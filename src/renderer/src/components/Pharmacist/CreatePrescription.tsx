@@ -18,8 +18,6 @@ export const CreatePrescription = ({
   const handleAddMedication = (medicationId: number) => {
     const medicationToAdd = medications.find((med) => med.id === medicationId)
     if (medicationToAdd) {
-      console.log('medicationToAdd', medicationToAdd)
-
       setPrescription((prev) => [...prev, medicationToAdd])
     }
   }

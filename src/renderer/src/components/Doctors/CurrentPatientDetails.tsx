@@ -67,7 +67,6 @@ export function CurrentPatientDetails({
           <span className="ml-2 font-medium text-lg">{patient?.fullName}</span>
         </CardTitle>
         <div className="flex flex-col lg:grid lg:grid-cols-3">
-          {/* <RowGrid label="Mã bệnh nhân:" value={patient?. || 'Chưa có bệnh nhân'} /> */}
           <RowGrid label="Tuổi:" value={patient?.age?.toString() || 'Chưa có bệnh nhân'} />
           <RowGrid
             label="Giới tính:"

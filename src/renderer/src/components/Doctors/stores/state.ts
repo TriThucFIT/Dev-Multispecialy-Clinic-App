@@ -280,21 +280,31 @@ export const submitExaminationSelector = selector({
   key: 'createPrescriptionSelector',
   get: async ({ get }) => {
     const isCreate = get(isCreatePrescriptionState)
+
+    const patient = get(currentPatientState)
+    const doctor = get(UserState)
+    const diagnosis = get(diagnosisState)
+    const treatmentPlan = get(treatmentPlanState)
+    const prescription = get(prescriptionState)
+    const followUpDate = get(followUpDateState)
+    const additionalNote = get(additionalNotesState)
     if (!isCreate) {
       return null
     } else {
-      const patient = get(currentPatientState)
-      const doctor = get(UserState)
-      const diagnosis = get(diagnosisState)
-      const treatmentPlan = get(treatmentPlanState)
-      const prescription = get(prescriptionState)
-      const followUpDate = get(followUpDateState)
-      const additionalNote = get(additionalNotesState)
+      console.log('submitExaminationSelector')
+      console.log('patient', patient)
+      console.log('doctor', doctor)
+      console.log('diagnosis', diagnosis)
+      console.log('treatmentPlan', treatmentPlan)
+      console.log('prescription', prescription)
+      console.log('followUpDate', followUpDate)
+      console.log('additionalNote', additionalNote)
+
       try {
         if (
           patient &&
           patient.currentRecord?.id &&
-          doctor &&
+          doctor && doctor.employeeId &&
           diagnosis &&
           prescription.length > 0
         ) {
@@ -327,7 +337,8 @@ export const submitExaminationSelector = selector({
               note: medication.note ?? '',
               medicationId: medication.id
             })),
-            medicalRecordId: patient.currentRecord?.id
+            medicalRecordId: patient.currentRecord?.id,
+            doctorId: doctor.employeeId
           })
           if (prescriptionCreated) {
             usePopup('Tạo đơn thuốc thành công', 'success')

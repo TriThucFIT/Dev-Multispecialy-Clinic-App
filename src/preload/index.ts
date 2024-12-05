@@ -5,6 +5,7 @@ interface API {
   onMessage: (callback: (message: JSON) => void) => void
   onEmergency: (callback: (message: JSON) => void) => void
   onInvoice: (callback: (message: JSON) => void) => void
+  onPrescription: (callback: (message: JSON) => void) => void
   send: (channel: string, data: { queue_name: string; doctor_id: string }) => void
   maximizeWindow: () => void
   subscribeEmergency: (data: { queue_name: string; doctor_id: string }) => void
@@ -28,6 +29,12 @@ const api: API = {
    * Đăng ký callback để nhận thông tin hóa đơn.
    */
   onInvoice: (callback) => ipcRenderer.on('received-invoice', (_, message) => callback(message)),
+
+  /**
+   * Đăng ký callback để nhận thông tin đơn thuốc.
+   */
+  onPrescription: (callback) =>
+    ipcRenderer.on('received-prescription', (_, message) => callback(message)),
 
   /**
    * Gửi thông điệp qua kênh IPC đến main process.

@@ -2,66 +2,62 @@ import Search, { SearchProps } from 'antd/es/input/Search'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import clsx from 'clsx'
-import { useState } from 'react'
-import { PrescriptionStatus } from './PrescriptionStatus'
-import { ePrescriptionStatus } from '@renderer/types/Prescription'
+import { useEffect, useState } from 'react'
 import { FaFileCirclePlus } from 'react-icons/fa6'
 import { Button } from 'antd'
 import { CreatePrescription } from './CreatePrescription'
-
-const prescriptionList = [
-  {
-    id: 1,
-    name: 'Trần Minh Thuận',
-    patientId: 'PAT01',
-    time: '13:27 12/12/2024',
-    statusPayment: ePrescriptionStatus.new
-  },
-  {
-    id: 2,
-    name: 'Nguyễn Văn A',
-    patientId: 'PAT02',
-    time: '13:28 12/12/2024',
-    statusPayment: ePrescriptionStatus.new
-  },
-  {
-    id: 3,
-    name: 'Nguyễn Văn C',
-    patientId: 'PAT03',
-    time: '13:15 12/12/2024',
-    statusPayment: ePrescriptionStatus.done
-  },
-  {
-    id: 4,
-    name: 'Nguyễn Văn D',
-    patientId: 'PAT04',
-    time: '13:20 12/12/2024',
-    statusPayment: ePrescriptionStatus.processing
-  },
-  {
-    id: 5,
-    name: 'Nguyễn Văn E',
-    patientId: 'PAT05',
-    time: '13:25 12/12/2024',
-    statusPayment: ePrescriptionStatus.done
-  },
-  {
-    id: 6,
-    name: 'Nguyễn Văn F',
-    patientId: 'PAT06',
-    time: '13:30 12/12/2024',
-    statusPayment: ePrescriptionStatus.processing
-  },
-]
+import { createPrescription, PrescriptionQueue } from '@renderer/utils/PriorityQueueCustomize'
+import { useRecoilState, useRecoilValueLoadable } from 'recoil'
+import {
+  currentPrescriptionState,
+  prescriptionListState,
+  PrescriptionSendToQueue,
+  PrescriptionStatus,
+  updatePrescriptionStatus
+} from './store'
+import { PrescriptionStatusRender } from './PrescriptionStatus'
 
 export const PrescriptionList = () => {
-  const [prescriptionActive, setPrescriptionActive] = useState<number | null>(1)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const pQueue = PrescriptionQueue
+  const [prescriptionList, setPrescriptionList] =
+    useRecoilState<PrescriptionSendToQueue[]>(prescriptionListState)
+  const [currentPrescription, setCurrentPrescription] =
+    useRecoilState<PrescriptionSendToQueue | null>(currentPrescriptionState)
+
+  const updateresult = useRecoilValueLoadable(updatePrescriptionStatus)
+
   const onSearch: SearchProps['onSearch'] = (value, _e, info) => console.log(info?.source, value)
+
+  useEffect(() => {
+    ;(window.api as any).onPrescription((message: any) => {
+      const prescription = createPrescription(JSON.parse(message))
+      pQueue.enqueue(prescription)
+      setPrescriptionList(pQueue.toArray())
+    })
+  }, [])
+
+  useEffect(() => {
+    console.log('prescriptionList', prescriptionList);
+    
+    if (prescriptionList.length > 0 && !currentPrescription) {
+      const prescription = pQueue.dequeue()
+      setCurrentPrescription({ ...prescription, status: PrescriptionStatus.IN_PROGRESS })
+      setPrescriptionList(pQueue.toArray())
+    }
+  }, [prescriptionList, currentPrescription])
+
+  useEffect(() => {
+    console.log('updateresult', updateresult);
+    
+    if (updateresult.state === 'hasValue' && updateresult.contents) {
+      setCurrentPrescription(null)
+    }
+  }, [updateresult.state])
 
   return (
     <>
-      <Card className="bg-opacity-90 bg-white max-h-[800px]">
+      <Card className="bg-opacity-50 bg-white h-full">
         <CardHeader>
           <CardTitle>Danh sách Đơn Thuốc</CardTitle>
         </CardHeader>
@@ -81,23 +77,41 @@ export const PrescriptionList = () => {
                 <TableHead>Mã hóa đơn</TableHead>
                 <TableHead>Mã bệnh nhân</TableHead>
                 <TableHead>Tên bệnh nhân</TableHead>
-                <TableHead>Thời gian</TableHead>
+                {/* <TableHead>Thời gian</TableHead> */}
                 <TableHead>Trạng Thái</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {prescriptionList.map((prescription) => (
-                <TableRow
-                  key={prescription.id}
-                  className={clsx({ 'bg-bgActive': prescriptionActive === prescription.id })}
-                  onClick={() => setPrescriptionActive(prescription.id)}
-                >
-                  <TableCell>{prescription.id}</TableCell>
-                  <TableCell>{prescription.patientId}</TableCell>
-                  <TableCell>{prescription.name}</TableCell>
-                  <TableCell>{prescription.time}</TableCell>
+              {currentPrescription && (
+                <TableRow className="bg-bgActive" key={currentPrescription.medicalRecordEntryId}>
+                  <TableCell>{currentPrescription.medicalRecordEntryId}</TableCell>
+                  <TableCell>{currentPrescription.patient.id}</TableCell>
+                  <TableCell className="flex-wrap text-wrap">
+                    {currentPrescription.patient.name}
+                  </TableCell>
+                  {/* <TableCell>{currentPrescription.status}</TableCell> */}
                   <TableCell>
-                    <PrescriptionStatus statusPayment={prescription.statusPayment} />
+                    <PrescriptionStatusRender statusPresciption={currentPrescription.status} />
+                  </TableCell>
+                </TableRow>
+              )}
+              {prescriptionList.map((prescription, index) => (
+                <TableRow
+                  key={index}
+                  className={clsx({
+                    'bg-bgActive':
+                      currentPrescription?.medicalRecordEntryId ===
+                      prescription.medicalRecordEntryId
+                  })}
+                >
+                  <TableCell>{prescription.medicalRecordEntryId}</TableCell>
+                  <TableCell>{prescription?.patient?.id}</TableCell>
+                  <TableCell className="flex-wrap text-wrap">
+                    {prescription?.patient?.name}
+                  </TableCell>
+                  {/* <TableCell>{prescription.status}</TableCell> */}
+                  <TableCell>
+                    <PrescriptionStatusRender statusPresciption={prescription.status} />
                   </TableCell>
                 </TableRow>
               ))}

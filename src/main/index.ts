@@ -80,7 +80,6 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
 
     stompClient.onConnect = (frame) => {
       console.log('Connected: ' + frame)
-
       if (doctor_id) {
         const selector = `processor = 'general' OR processor = '${doctor_id}'`
         specialityId =
@@ -89,7 +88,6 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
             (message) => {
               if (mainWindow && !mainWindow.isDestroyed()) {
                 console.log('subscribe-speciality', message.body)
-
                 mainWindow.webContents.send('received-patient', JSON.parse(message.body))
               }
             },
@@ -106,12 +104,19 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
             }
           }).id ?? null
       } else {
+        console.log('Assigning to queue', queue_name)
+
         stompClient?.subscribe(`/queue/${queue_name}`, (message) => {
+          console.log('Received message', message.body)
+
           if (mainWindow && !mainWindow.isDestroyed()) {
             console.log('subscribe-invoice', message.body)
             console.log('subscribe-invoice JSON :', JSON.parse(message.body))
-
-            mainWindow.webContents.send('received-invoice', JSON.parse(message.body))
+            if (queue_name.includes('casher')) {
+              mainWindow.webContents.send('received-invoice', JSON.parse(message.body))
+            } else {
+              mainWindow.webContents.send('received-prescription', JSON.parse(message.body))
+            }
           }
         })
       }

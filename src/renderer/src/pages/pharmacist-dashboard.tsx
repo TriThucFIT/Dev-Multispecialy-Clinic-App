@@ -8,39 +8,33 @@ export default function PharmacistDashboard() {
   const [isScreenPatients, setIsScreenPatients] = useState<boolean>(true)
 
   return (
-    <div className="h-screen w-screen flex *:bg-gradient-to-b from-blue-100 to-white">
+    <div className="w-screen h-screen flex *:bg-gradient-to-b from-blue-100 to-white">
       <div className="min-h-screen w-full overflow-auto">
         <h1 className="w-full text-3xl lg:text-5xl font-extrabold text-center my-5 text-[#299ec4]">
-          Phòng Khám Đa Khoa DMC - Dược Sĩ
+          Phòng Khám Đa Khoa DMC - Quầy Thuốc
         </h1>
         <CardInfo />
-        <div className="w-full p-4 flex flex-col lg:flex-row gap-4 h-full">
+
+        <div className="flex flex-col lg:flex-row gap-6 w-full p-4">
           <div className="relative">
             {isScreenPatients ? (
-              <>
-                <div
-                  onClick={() => setIsScreenPatients(!isScreenPatients)}
-                  className="absolute flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-10 text-xl -right-4 -top-2"
-                >
-                  <MdKeyboardDoubleArrowLeft />
-                </div>
-                <PrescriptionList />
-              </>
+              <div className="absolute flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-10 text-xl -right-4 -top-2">
+                <MdKeyboardDoubleArrowLeft onClick={() => setIsScreenPatients(!isScreenPatients)} />
+              </div>
             ) : (
-              <div
-                className="lg:absolute lg:left-6 lg:-top-16 flex items-center justify-center gap-2 bg-white w-[240px] rounded-lg py-2"
-                onClick={() => setIsScreenPatients(!isScreenPatients)}
-              >
-                <div className="font-bold">
-                  Danh sách đơn thuốc
-                  {/* ({patientsList.length}) */}
-                </div>
+              <div className="lg:absolute lg:left-6 lg:-top-16 flex items-center justify-center gap-2 bg-white w-[220px] rounded-lg py-2">
+                <div>Danh sách Hóa Đơn</div>
                 <div className="flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-8 text-xl">
-                  <MdKeyboardDoubleArrowRight />
+                  <MdKeyboardDoubleArrowRight
+                    onClick={() => setIsScreenPatients(!isScreenPatients)}
+                  />
                 </div>
               </div>
             )}
+
+            {isScreenPatients && <PrescriptionList />}
           </div>
+
           <div className="w-full">
             <PrescriptionInfo />
           </div>

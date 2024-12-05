@@ -44,6 +44,14 @@ export const Layout: FC = () => {
         }
         return <CashierDashboard />
       case RoleName.Pharmacist:
+        if (userState) {
+          ;(window.api as any).send('start-listening', {
+            queue_name: 'pharmacist_general',
+            doctor_id: null
+          })
+        } else {
+          ;(window.api as any).send('stop-listening')
+        }
         return <PharmacistDashboard />
       case RoleName.Admin:
         return <AdminDashboard />

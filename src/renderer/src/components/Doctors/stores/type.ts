@@ -87,6 +87,7 @@ export type MedicationResponseDto = {
 
 export type PrescriptionDto = {
   medicalRecordId: number
+  doctorId: string;
   note: string
   medications: PrescriptionMedicationDto[]
 }
