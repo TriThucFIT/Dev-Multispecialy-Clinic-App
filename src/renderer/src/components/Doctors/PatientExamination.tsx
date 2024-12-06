@@ -139,21 +139,15 @@ export function PatientExamination({
                     <DialogTitle>Chẩn đoán của bệnh nhân {patient?.fullName}</DialogTitle>
                   </DialogHeader>
                   <div className="mt-4">
-                    <p className="font-semibold">Lịch sử y tế:</p>
-                    {/* <p>{medicalHistory}</p> */}
                     <p className="font-semibold">Chẩn đoán:</p>
                     <p>{diagnosis}</p>
-                    <p className="font-semibold">Xét nghiệm:</p>
-                    <ul className="list-disc pl-5">
-                      {/* {selectedLabTests.map((testId) => (
-                        <li key={testId}>{labTests.find((test) => test.id === testId)?.name}</li>
-                      ))} */}
-                    </ul>
+                    <p className="font-semibold">Phác đồ điều trị:</p>
+                    <p>{treatmentPlan}</p>
                     <p className="font-semibold">Đơn thuốc:</p>
                     <ul className="list-disc pl-5">
                       {prescription.map((med) => (
                         <li key={med.id}>
-                          {med.name} - {med.dosage}
+                          {med.name} - {med.dosage} - {med.quantity} {med.unitStock}
                         </li>
                       ))}
                     </ul>

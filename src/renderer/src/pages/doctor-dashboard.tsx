@@ -33,7 +33,7 @@ import {
 } from '@renderer/components/Doctors/stores'
 
 export default function EnhancedDoctorScreen() {
-  const [isScreenPatients, _setIsScreenPatients] = useState<boolean>(true)
+  const [isScreenPatients, setIsScreenPatients] = useState<boolean>(true)
 
   const [currentPatient, setCurrentPatient] = useRecoilState<Patient | null>(currentPatientState)
   const [medications, _setMedications] = useRecoilState<Medication[]>(medicationsState)
@@ -146,16 +146,17 @@ export default function EnhancedDoctorScreen() {
         <CardInfo />
         <div className="flex flex-col lg:flex-row gap-6 w-full p-4">
           <div className="relative">
-            {/* <div className="relative" onClick={() => setIsScreenPatients(!isScreenPatients)}> */}
             {isScreenPatients ? (
               <div className="absolute flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-10 text-xl -right-4 -top-2">
-                <MdKeyboardDoubleArrowLeft />
+                <MdKeyboardDoubleArrowLeft onClick={() => setIsScreenPatients(!isScreenPatients)} />
               </div>
             ) : (
               <div className="lg:absolute lg:left-6 lg:-top-16 flex items-center justify-center gap-2 bg-white w-[240px] rounded-lg py-2">
                 <div className="font-bold">Danh sách bệnh nhân ({patientsList.length})</div>
                 <div className="flex items-center justify-center bg-primary-400 hover:bg-primary-300 text-white rounded-full size-8 text-xl">
-                  <MdKeyboardDoubleArrowRight />
+                  <MdKeyboardDoubleArrowRight
+                    onClick={() => setIsScreenPatients(!isScreenPatients)}
+                  />
                 </div>
               </div>
             )}

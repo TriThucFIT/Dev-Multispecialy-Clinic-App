@@ -13,12 +13,12 @@ import {
 import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker'
 import TextArea from 'antd/es/input/TextArea'
 import dayjs, { Dayjs } from 'dayjs'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { Suspense, useEffect, useState } from 'react'
 import { formatDate } from '@renderer/utils/formatDate'
 import { Patient } from '@renderer/types/Patient/patient'
 import { PatientSearch } from '@renderer/components/PatientSearch'
-import { formValuesState, stepState } from '../../stores'
+import { formValuesState, iShowSearchCompnent, stepState } from '../../stores'
 import { doctorSelector, specializationSelector } from '@renderer/components/Doctors/stores'
 
 export const Step1 = ({ form }: { form: FormInstance }) => {
@@ -35,15 +35,12 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
   >([])
 
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [isShowSearch, setIsShowSearch] = useState(false)
+  const [isShowSearch, setIsShowSearch] = useRecoilState(iShowSearchCompnent)
 
   const gridClasses = 'grid grid-cols-2 gap-5'
   const disableHours: number[] = [0, 1, 2, 3, 4, 5, 6, 19, 20, 21, 22, 23]
 
   const formValues = useRecoilValue(formValuesState)
-  useEffect(() => {
-    console.log('formValues', formValues)
-  }, [formValues])
 
   useEffect(() => {
     const specializationsList = specializations.map((specialization) => ({
@@ -155,10 +152,14 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
                 required: true,
                 message: 'Vui lòng nhập số điện thoại'
               },
-              {
-                pattern: new RegExp(/(84|0[3|5|7|8|9])+([0-9]{8})\b/),
-                message: 'Số điện thoại không hợp lệ'
-              }
+              ...(phoneNumber.length == 10
+                ? [
+                    {
+                      pattern: new RegExp(/(84|0[3|5|7|8|9])+([0-9]{8})\b/),
+                      message: 'Số điện thoại không hợp lệ'
+                    }
+                  ]
+                : [])
             ]}
           >
             <Input
@@ -177,6 +178,9 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
               searchValue={phoneNumber}
               onClickPatient={selectPatient}
             />
+          )}
+          {phoneNumber.length > 5 && !isShowSearch && !selectPatient &&(
+            <div className="text-red-500 text-sm -mt-4 mb-2">Không tìm thấy bệnh nhân</div>
           )}
         </div>
       </div>

@@ -97,7 +97,6 @@ export function CurrentPatientDetails({
           <div className="col-span-2">
             <Label className="font-semibold text-lg">Dị ứng</Label>
             <div className="border rounded-md bg-white" onClick={() => setIsModalAllergies(true)}>
-              {/* {patient ? ( */}
               <ul className="list-none flex flex-col gap-3 h-24 overflow-y-scroll p-5">
                 {allergies.length > 0 ? (
                   allergies.map((allergy) => (
@@ -118,8 +117,6 @@ export function CurrentPatientDetails({
                   <span className="italic text-gray-500">Không có dị ứng</span>
                 )}
               </ul>
-              {/* ) : (
-              )} */}
             </div>
             <ModalAllergies isModalOpen={isModalAllergies} setIsModalOpen={setIsModalAllergies} />
           </div>

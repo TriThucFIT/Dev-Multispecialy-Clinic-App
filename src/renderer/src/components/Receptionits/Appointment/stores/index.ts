@@ -9,6 +9,10 @@ export const appointmentStep = atom({
   key: 'appointmentStep',
   default: 1
 })
+export const iShowSearchCompnent = atom<boolean>({
+  key: 'iShowSearchCompnent',
+  default: false
+})
 
 export const appointmentByPatient = atom<any>({
   key: 'appointmentByPatient',

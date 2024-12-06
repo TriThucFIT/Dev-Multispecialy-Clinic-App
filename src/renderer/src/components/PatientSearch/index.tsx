@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { CardContent, Card } from '@renderer/components/ui/card'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useSetRecoilState } from 'recoil'
 import { useDebounce } from '@uidotdev/usehooks'
 import { PatientService } from '@renderer/api/services/Patient/patient.service'
 import { Avatar, AvatarFallback, AvatarImage } from '@renderer/components/ui/avatar'
 import { ScrollArea } from '@renderer/components/ui/scroll-area'
 import { patientByPhone } from '../Doctors/stores'
+import { iShowSearchCompnent } from '../Receptionits/Appointment/stores'
 
 export const PatientSearch = ({
   searchValue,
@@ -19,6 +20,7 @@ export const PatientSearch = ({
   const patientService = new PatientService()
   const [patients, setPatients] = useRecoilState(patientByPhone)
   const [isSearching, setIsSearching] = useState(false)
+  const setIsShowSearch = useSetRecoilState(iShowSearchCompnent)
   const debouncedSearchTerm = useDebounce(searchValue, 500)
 
   useEffect(() => {
@@ -28,6 +30,11 @@ export const PatientSearch = ({
         patientService
           .getPatientsByInfo(debouncedSearchTerm, phoneOnly)
           .then((res) => {
+            if (!res || res.length === 0) {
+              setIsShowSearch(false)
+            } else {
+              setIsShowSearch(true)
+            }
             setPatients(res)
             setIsSearching(false)
           })
@@ -35,6 +42,7 @@ export const PatientSearch = ({
             console.error(err)
             setPatients(null)
             setIsSearching(false)
+            setIsShowSearch(false)
           })
       }
     } else {
