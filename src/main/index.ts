@@ -67,11 +67,13 @@ let emergencySubscriptionId: string | null = null
 let specialityId: string | null = null
 
 ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
+  console.log("ActiveMQ Connection", (import.meta.env as any).VITE_SOCKET_URL);
+  
   if (!stompClient) {
     stompClient = new Client({
-      brokerURL: 'ws://localhost:61614/stomp',
+      brokerURL: (import.meta.env as any).VITE_SOCKET_URL ?? 'ws://localhost:61614/stomp',
       webSocketFactory: () => {
-        return new WebSocket('ws://localhost:61614/stomp', 'stomp')
+        return new WebSocket((import.meta.env as any).VITE_SOCKET_URL ?? 'ws://localhost:61614/stomp', 'stomp')
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,

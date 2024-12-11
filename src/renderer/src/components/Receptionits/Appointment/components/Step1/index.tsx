@@ -179,7 +179,7 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
               onClickPatient={selectPatient}
             />
           )}
-          {phoneNumber.length > 5 && !isShowSearch && !selectPatient &&(
+          {phoneNumber.length > 5 && !isShowSearch && !selectPatient && (
             <div className="text-red-500 text-sm -mt-4 mb-2">Không tìm thấy bệnh nhân</div>
           )}
         </div>

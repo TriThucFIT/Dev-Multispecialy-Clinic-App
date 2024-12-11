@@ -98,7 +98,7 @@ export function CurrentPatientDetails({
             <Label className="font-semibold text-lg">Dị ứng</Label>
             <div className="border rounded-md bg-white" onClick={() => setIsModalAllergies(true)}>
               <ul className="list-none flex flex-col gap-3 h-24 overflow-y-scroll p-5">
-                {allergies.length > 0 ? (
+                {patient && allergies.length > 0 ? (
                   allergies.map((allergy) => (
                     <li key={allergy.id} className="flex justify-between">
                       <div> {allergy.name}</div>
@@ -114,7 +114,7 @@ export function CurrentPatientDetails({
                     </li>
                   ))
                 ) : (
-                  <span className="italic text-gray-500">Không có dị ứng</span>
+                  <span className=" text-center text-gray-500">Không có dị ứng</span>
                 )}
               </ul>
             </div>
@@ -127,18 +127,26 @@ export function CurrentPatientDetails({
               className="border rounded-md h-24 p-5 overflow-y-auto bg-white cursor-pointer"
               onClick={() => setIsModalHealthIndicator(true)}
             >
-              <div className="grid grid-cols-3 gap-1 ">
-                <RowHealthIndicator label="Chiều cao" value={vitalSigns.height} unit="m" />
-                <RowHealthIndicator label="Nhịp tim" value={vitalSigns.heartRate} unit="bpm" />
-                <RowHealthIndicator label="Huyết áp" value={vitalSigns.bloodPressure} unit="mmHg" />
-                <RowHealthIndicator label="Cân nặng" value={vitalSigns.weight} unit="kg" />
-                <RowHealthIndicator label="Nhiệt độ" value={vitalSigns.temperature} unit="°C" />
-                <RowHealthIndicator
-                  label="Độ bão hòa O2"
-                  value={vitalSigns.oxygenSaturation}
-                  unit="%"
-                />
-              </div>
+              {patient && vitalSigns ? (
+                <div className="grid grid-cols-3 gap-1 ">
+                  <RowHealthIndicator label="Chiều cao" value={vitalSigns.height} unit="m" />
+                  <RowHealthIndicator label="Nhịp tim" value={vitalSigns.heartRate} unit="bpm" />
+                  <RowHealthIndicator
+                    label="Huyết áp"
+                    value={vitalSigns.bloodPressure}
+                    unit="mmHg"
+                  />
+                  <RowHealthIndicator label="Cân nặng" value={vitalSigns.weight} unit="kg" />
+                  <RowHealthIndicator label="Nhiệt độ" value={vitalSigns.temperature} unit="°C" />
+                  <RowHealthIndicator
+                    label="Độ bão hòa O2"
+                    value={vitalSigns.oxygenSaturation}
+                    unit="%"
+                  />
+                </div>
+              ) : (
+                <span className="text-center text-gray-500">Chưa có chỉ số sức khỏe</span>
+              )}
             </div>
             <ModalHealthIndicator
               isModalOpen={isModalHealthIndicator}
