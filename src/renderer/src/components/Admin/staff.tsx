@@ -94,7 +94,7 @@ const initialStaff: StaffMemberData[] = [
 ]
 
 export function EmployeeDashboard() {
-  const [staff, setStaff] = useState<StaffMemberData[]>(initialStaff)
+  const [staff, _setStaff] = useState<StaffMemberData[]>(initialStaff)
   const [newStaff, setNewStaff] = useState<StaffMemberCreate>({
     username: '',
     password: '',

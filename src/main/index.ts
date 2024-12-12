@@ -200,26 +200,26 @@ app.on('before-quit', async (e) => {
   if (mainWindow && cache && stompClient && stompClient.active) {
     const queues = cache.keys()
     log('queues quit', queues)
-    for (const queue of queues) {
-      const messages: Array<string> = cache.get(queue) || []
-      if (messages) {
-        for (const message of messages) {
-          log('publishing', queue, message)
-          stompClient.publish({
-            destination: `/queue/${queue}`,
-            body: JSON.stringify(message)
-          })
-          log('published', queue, JSON.stringify(message))
-        }
-      }
-    }
-    await new Promise((resolve) => {
-      if (stompClient) {
-        stompClient.onDisconnect = resolve
-      }
-      stompClient?.deactivate()
-    })
-
+    // for (const queue of queues) {
+    //   const messages: Array<string> = cache.get(queue) || []
+    //   if (messages) {
+    //     for (const message of messages) {
+    //       log('publishing', queue, message)
+    //       stompClient.publish({
+    //         destination: `/queue/${queue}`,
+    //         body: JSON.stringify(message)
+    //       })
+    //       log('published', queue, JSON.stringify(message))
+    //     }
+    //   }
+    // }
+    // await new Promise((resolve) => {
+    //   if (stompClient) {
+    //     stompClient.onDisconnect = resolve
+    //   }
+    // })
+    
+    stompClient?.deactivate()
     log('deactivate')
     app.exit()
   } else {

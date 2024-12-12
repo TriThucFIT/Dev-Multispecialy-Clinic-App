@@ -12,10 +12,11 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: dev-multispecialy-clinic
+  icon : resources/logoDMC.ico
+  executableName: DMC Clinic
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
-  shortcutName: ${productName}
+  shortcutName: DMC Clinic
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
 mac:
