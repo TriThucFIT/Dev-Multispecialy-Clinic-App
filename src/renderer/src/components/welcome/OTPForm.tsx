@@ -1,101 +1,77 @@
-import OTP from 'antd/es/input/OTP'
-import { FC, useEffect, useState, useTransition } from 'react'
-import { getApp, getApps, initializeApp } from 'firebase/app'
-import {
-  ConfirmationResult,
-  getAuth,
-  RecaptchaVerifier,
-  signInWithPhoneNumber
-} from 'firebase/auth'
+import React, { useState } from 'react'
+import { Form, Input, message } from 'antd'
+import { AuthService } from '@renderer/api/services/Auth/Login.service'
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_API_KEY,
-  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_APP_ID
+interface ForgotPasswordFormProps {
+  onClose: () => void
 }
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
-const auth = getAuth(app)
 
-export const OTPForm: FC = () => {
-  console.log(firebaseConfig)
-  const [phone, setPhone] = useState('')
-  const [otp, setOtp] = useState('')
+const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onClose }) => {
+  const [form] = Form.useForm()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null)
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
-  const [_isPeding, startTransaction] = useTransition()
-
-  useEffect(() => {
-    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      size: 'invisible',
-      callback: (response) => {
-        console.log('Recaptcha resolved with response:', response)
+  const handleSubmit = async (values: { usernameOrEmail: string }) => {
+    setIsLoading(true)
+    try {
+      const result = await AuthService.forgotPassword(values.usernameOrEmail)
+      if (result) {
+        console.log('ForgotPasswordForm -> values', values)
+        onClose()
+        message.success('Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn.')
+        form.resetFields()
+      } else {
+        message.error('Không thể gửi hướng dẫn đặt lại mật khẩu. Vui lòng thử lại.')
       }
-    })
-    setRecaptchaVerifier(recaptchaVerifier)
-    return () => {
-      recaptchaVerifier.clear()
+    } catch (error: any) {
+      console.log('ForgotPasswordForm -> error', error)
+      if (error.response) {
+        message.error(error.response.data.message)
+      } else {
+        message.error('Không thể gửi hướng dẫn đặt lại mật khẩu. Vui lòng thử lại.')
+      }
+    } finally {
+      setIsLoading(false)
     }
-  }, [auth])
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    startTransaction(() => {
-      if (!recaptchaVerifier) {
-        return
-      }
-      if (!recaptchaVerifier) {
-        return
-      }
-      try {
-        const phone_formatted = phone[0] === '0' ? phone.replace('0', '+84') : phone
-        signInWithPhoneNumber(auth, phone_formatted, recaptchaVerifier).then((result) => {
-          setConfirmationResult(result)
-        })
-        console.log(confirmationResult)
-      } catch (error) {
-        console.error(error)
-      }
-    })
   }
 
   return (
-    <>
-      <div className="w-full flex justify-center mt-20">
-        <form
-          onSubmit={handleSubmit}
-          className="w-1/3 lg:h-[400px] bg-white bg-opacity-90 rounded-lg p-5"
+    <div className="w-full flex justify-center mt-20">
+      <Form
+        form={form}
+        name="forgotPassword"
+        onFinish={handleSubmit}
+        layout="vertical"
+        className="w-1/3 lg:h-[400px] bg-white bg-opacity-90 rounded-lg p-5"
+      >
+        <Form.Item
+          name="usernameOrEmail"
+          label="Tên đăng nhập hoặc Email"
+          className="text-lg font-semibold text-[#299ec4]"
+          rules={[
+            { required: true, message: 'Vui lòng nhập tên đăng nhập hoặc email!' },
+            { type: 'string', min: 3, message: 'Tên đăng nhập hoặc email phải có ít nhất 3 ký tự!' }
+          ]}
         >
-          {confirmationResult ? (
-            <div className="flex flex-col lg:mt-10 mt-5">
-              <label className="text-lg font-semibold text-[#299ec4]">OTP</label>
-              <OTP inputMode="numeric" length={6} onChange={(value) => setOtp(value)} value={otp} />
-            </div>
-          ) : (
-            <div className="flex flex-col">
-              <label className="text-lg font-semibold text-[#299ec4]">Nhập số điện thoại</label>
-              <input
-                onChange={(e) => setPhone(e.target.value)}
-                value={phone}
-                type="text"
-                required
-                className="border-2 border-[#299ec4] rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#299ec4] focus:border-transparent"
-              />
-            </div>
-          )}
-
+          <Input className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </Form.Item>
+        <Form.Item>
           <button
             type="submit"
-            className="w-full border border-[#299ec4] hover:text-white text-[#299ec4] font-semibold rounded-lg p-2 lg:mt-10 mt-5 hover:bg-[#299ec4] focus:outline-none focus:ring-2 focus:ring-[#299ec4] focus:border-transparent"
+            className="w-full border border-[#299ec4] hover:text-white text-[#299ec4] font-semibold rounded-lg p-2 lg:mt-10 mt-2 hover:bg-[#299ec4] focus:outline-none focus:ring-2 focus:ring-[#299ec4] focus:border-transparent"
           >
-            {!confirmationResult ? 'Gửi OTP' : 'Xác nhận'}
+            {isLoading ? <span className="loading loading-spinner" /> : 'Đặt lại mật khẩu'}
           </button>
-        </form>
-      </div>
-      <div id="recaptcha-container " />
-    </>
+        </Form.Item>
+        <Form.Item>
+          <div className="flex justify-end lg:mt-10 mt-2">
+            <button onClick={onClose} type="button" className="text-[#299ec4] italic">
+              Quay lại đăng nhập
+            </button>
+          </div>
+        </Form.Item>
+      </Form>
+    </div>
   )
 }
+
+export default ForgotPasswordForm

@@ -30,7 +30,6 @@ export const LoggedStateSelector = selector<LoginResponse | null>({
         ;(window.api as any).maximizeWindow()
         return response
       }
-      usePopup('Vui lòng nhập thông tin đăng nhập', 'error')
       return null
     } catch (error: any) {
       usePopup(`Đăng nhập thất bại : ${error.message}`, 'error')
@@ -57,6 +56,35 @@ export const ProfileSelector = selector<User | null>({
       )
       usePopup(`Xin chào ${response.fullName}`, 'success')
       return response
+    } catch (error: any) {
+      throw error
+    }
+  }
+})
+
+export const resetPasswordData = atom<{
+  username: string
+  old_password: string
+  new_password: string
+  in_progress: boolean
+}>({
+  key: 'resetPasswordData',
+  default: {
+    username: '',
+    old_password: '',
+    new_password: '',
+    in_progress: false
+  }
+})
+
+export const ResetPasswordSelector = selector<boolean>({
+  key: 'ResetPasswordSelector',
+  get: async ({ get }) => {
+    const { username, old_password, new_password } = get(resetPasswordData)
+    try {
+      if (username && old_password && new_password)
+        return await AuthService.resetPassword(username, old_password, new_password)
+      return false
     } catch (error: any) {
       throw error
     }

@@ -134,7 +134,7 @@ export default function EnhancedDoctorScreen() {
     }
     ;(window.api as any).syncUnprocessedData({
       message_id: currentPatient?.id,
-      queue_name: userCurent.specialization.specialization_id + '_specialization',
+      queue_name: userCurent?.specialization?.specialization_id + '_specialization',
       type: 'patients'
     })
     clearAllExamination()

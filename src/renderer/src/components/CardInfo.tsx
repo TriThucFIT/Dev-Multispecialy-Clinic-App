@@ -15,6 +15,7 @@ import { IoLogOutOutline, IoSettingsOutline } from 'react-icons/io5'
 import { FaRegCircleUser } from 'react-icons/fa6'
 import { useRecoilValue, useResetRecoilState } from 'recoil'
 import { LoginRequestState, TokenState, UserState } from '@renderer/state'
+import PasswordResetModal from './PasswordResetModal'
 
 export enum eUserType {
   doctor = 'doctor',
@@ -29,7 +30,7 @@ export function CardInfo() {
   const clearLogin = useResetRecoilState(LoginRequestState)
   const clearUser = useResetRecoilState(UserState)
   const clearToken = useResetRecoilState(TokenState)
-
+  const [isShowModal, setIsShowModal] = useState(false)
   const handleLogout = () => {
     localStorage.removeItem('user_login')
     localStorage.removeItem('access_token')
@@ -39,7 +40,7 @@ export function CardInfo() {
     ;(window.api as any).send('stop-listening')
     ;(window.api as any).onLogout()
     ;(window.api as any).maximizeWindow()
-    window.location.href = '/'
+    window.location.reload()
   }
 
   const getAvatarFallback = () => {
@@ -70,9 +71,9 @@ export function CardInfo() {
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsShowModal(true)}>
                 <FaRegCircleUser className="mr-2" />
-                Thông tin cá nhân
+                Đặt lại mật khẩu
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <IoSettingsOutline className="mr-2" />
@@ -99,6 +100,8 @@ export function CardInfo() {
           </div>
         </div>
       </Card>
+
+      <PasswordResetModal isVisible={isShowModal} onClose={() => setIsShowModal(false)} />
     </div>
   )
 }

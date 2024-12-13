@@ -5,7 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { Client } from '@stomp/stompjs'
 import WebSocket from 'ws'
 import NodeCache from 'node-cache'
-import { log } from 'console'
+import log from 'electron-log'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -78,11 +78,17 @@ interface cacheData {
 
 ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
   try {
+    log.info('start-listening', queue_name, doctor_id)
+    const WS_URL =
+      process.env.VITE_SOCKET_URL ??
+      (import.meta.env as any).VITE_SOCKET_URL ??
+      'ws://localhost:61614/stomp'
+    log.info('env.VITE_SOCKET_URL', WS_URL)
     if (!stompClient) {
       stompClient = new Client({
-        brokerURL: process.env.VITE_SOCKET_URL ?? 'ws://localhost:61614/stomp',
+        brokerURL: WS_URL,
         webSocketFactory: () => {
-          return new WebSocket(process.env.VITE_SOCKET_URL ?? 'ws://localhost:61614/stomp', 'stomp')
+          return new WebSocket(WS_URL, 'stomp')
         },
         reconnectDelay: 5000,
         heartbeatIncoming: 10000,
@@ -111,8 +117,8 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
                   patients.doctor_id = doctor_id
                   patients.data = []
                 }
-                console.log('Received patient', JSON.parse(message.body))
-                console.log('Patients', patients)
+                log.info('Received patient', JSON.parse(message.body))
+                log.info('Patients', patients)
                 patients.data.push(JSON.parse(message.body))
                 mainWindow.webContents.send('received-patient', JSON.parse(message.body))
                 cache.set('patients', patients)
@@ -125,7 +131,7 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
 
         queue_id = specialityId
 
-        console.log('Assigning to queue', queue_id)
+        log.info('Assigning to queue', queue_id)
 
         emergencySubscriptionId =
           stompClient?.subscribe('/topic/emergency', (message) => {
@@ -172,23 +178,23 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
       }
     }
   } catch (e) {
-    console.log('Error in start-listening', e)
+    log.error('Error in start-listening', e)
   }
 })
 
 ipcMain.on('subscribe-emergency', (_, { queue_name, doctor_id }) => {
-  console.log('subscribe-emergency', stompClient?.activate)
+  log.info('subscribe-emergency', stompClient?.activate)
   try {
     if (stompClient && stompClient.connected && !emergencySubscriptionId && !specialityId) {
-      console.log('resubscribe-emergency')
+      log.info('resubscribe-emergency')
       emergencySubscriptionId = stompClient.subscribe('/topic/emergency', (message) => {
         if (mainWindow && !mainWindow.isDestroyed()) {
-          console.log('resubscribe to emergency')
+          log.info('resubscribe to emergency')
           mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
         }
       }).id
 
-      console.log('subscribing to speciality')
+      log.info('subscribing to speciality')
       const selector = `processor = 'general' OR processor = '${doctor_id}'`
       specialityId =
         stompClient?.subscribe(
@@ -203,16 +209,16 @@ ipcMain.on('subscribe-emergency', (_, { queue_name, doctor_id }) => {
           }
         ).id ?? null
 
-      console.log('subscribed to speciality', specialityId)
+      log.info('subscribed to speciality', specialityId)
     }
   } catch (e) {
-    console.log('Error in subscribe-emergency', e)
+    log.error('Error in subscribe-emergency', e)
   }
 })
 
 ipcMain.on('stop-emergency', () => {
   if (stompClient && stompClient.active && emergencySubscriptionId && specialityId) {
-    console.log('stop-emergency')
+    log.info('stop-emergency')
     stompClient.unsubscribe(emergencySubscriptionId)
     stompClient.unsubscribe(specialityId)
     emergencySubscriptionId = null
@@ -222,7 +228,7 @@ ipcMain.on('stop-emergency', () => {
 
 ipcMain.on('stop-listening', () => {
   if (stompClient && stompClient.active) {
-    console.log('stop-listening')
+    log.info('stop-listening')
     stompClient.deactivate()
     stompClient = null
   }
@@ -245,48 +251,53 @@ ipcMain.on(
     _,
     { message_id, queue_name, type }: { message_id: number; queue_name: string; type: string }
   ) => {
-    if (mainWindow && cache) {
-      const data: cacheData | undefined = cache.get(type)
-      console.log('Syncing unprocessed data in cache :', data)
-      if (data && data.queue_name === queue_name) {
-        const mess_in_cache = data.data.find((m) => {
-          const mess = JSON.parse(m)
-          console.log('Message ID recive :', message_id)
-
-          console.log('Message in cache data', mess)
-          return type === 'prescriptions'
-            ? mess.medicalRecordEntryId === message_id
-            : mess.id === message_id
-        })
-        console.log('Message in cache', mess_in_cache)
-        if (mess_in_cache) {
-          console.log('Syncing unprocessed data in cache :', mess_in_cache)
-          data.data = data.data.filter((m) => {
+    try {
+      if (mainWindow && cache) {
+        const data: cacheData | undefined = cache.get(type)
+        log.info('Syncing unprocessed data in cache :', data)
+        if (data && data.queue_name === queue_name) {
+          const mess_in_cache = data.data.find((m) => {
             const mess = JSON.parse(m)
+            log.info('Message ID recive :', message_id)
+
+            log.info('Message in cache data', mess)
             return type === 'prescriptions'
-              ? mess.medicalRecordEntryId !== message_id
-              : mess.id !== message_id
+              ? mess.medicalRecordEntryId === message_id
+              : mess.id === message_id
           })
-          cache.set(type, data)
+          log.info('Message in cache', mess_in_cache)
+          if (mess_in_cache) {
+            log.info('Syncing unprocessed data in cache :', mess_in_cache)
+            data.data = data.data.filter((m) => {
+              const mess = JSON.parse(m)
+              return type === 'prescriptions'
+                ? mess.medicalRecordEntryId !== message_id
+                : mess.id !== message_id
+            })
+            cache.set(type, data)
+          }
+          log.info('Syncing unprocessed data in new cache :', cache.get(type))
         }
-        console.log('Syncing unprocessed data in new cache :', cache.get(type))
       }
+    } catch (e) {
+      console.log('Error in sync-unprocessed-data', e)
+
+      log.error('Error in sync-unprocessed-data', e)
     }
   }
 )
 
 ipcMain.on('onLogout', async () => {
   try {
-    console.log('Logout received', queue_id)
+    log.info('Logout received', queue_id)
     if (mainWindow && cache && stompClient && stompClient.active && queue_id) {
-      console.log('Logout and deactivate')
-
+      log.info('Logout and deactivate')
       await resendDataToQueue()
       stompClient.unsubscribe(queue_id)
       stompClient.deactivate()
     }
   } catch (e) {
-    console.log('Error in logout', e)
+    log.error('Error in logout', e)
     if (queue_id) {
       stompClient?.unsubscribe(queue_id)
     }
@@ -297,14 +308,12 @@ ipcMain.on('onLogout', async () => {
 app.on('before-quit', async (e) => {
   try {
     e.preventDefault()
-    log('before-quit')
+    log.info('before-quit')
     if (mainWindow && cache && stompClient && stompClient.active) {
       await resendDataToQueue()
-
       if (queue_id) {
         stompClient?.unsubscribe(queue_id)
       }
-
       if (specialityId) {
         stompClient.unsubscribe(specialityId)
       }
@@ -312,13 +321,13 @@ app.on('before-quit', async (e) => {
         stompClient.unsubscribe(emergencySubscriptionId)
       }
       stompClient?.deactivate()
-      log('deactivate')
+      log.info('deactivate')
       app.exit()
     } else {
       app.exit()
     }
   } catch (e) {
-    console.log('Error in before-quit', e)
+    log.info('Error in before-quit', e)
     app.exit()
   }
 })
@@ -327,24 +336,24 @@ const resendDataToQueue = async () => {
   try {
     if (mainWindow && cache && stompClient && stompClient.active) {
       const unprocesseds = cache.keys()
-      log('queues quit', unprocesseds)
+      log.info('queues quit', unprocesseds)
       for (const unprocessed of unprocesseds) {
         const data: cacheData | undefined = cache.get(unprocessed)
         if (data) {
           for (const message of data.data) {
-            log('publishing', unprocessed, message, data.queue_name)
+            log.info('publishing', unprocessed, message, data.queue_name)
             stompClient.publish({
               destination: `/queue/${data.queue_name}`,
               body: JSON.stringify(message),
               headers: { processor: 'general' }
             })
-            log('published', unprocessed, message, data.queue_name)
+            log.info('published', unprocessed, message, data.queue_name)
           }
         }
       }
       cache.flushAll()
     }
   } catch (e) {
-    console.log('Error in resendDataToQueue', e)
+    log.info('Error in resendDataToQueue', e)
   }
 }

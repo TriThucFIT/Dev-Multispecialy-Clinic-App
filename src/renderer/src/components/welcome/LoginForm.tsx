@@ -1,7 +1,7 @@
 import { LoginRequestState } from '@renderer/state'
 import { FC, useState } from 'react'
-import {  useSetRecoilState } from 'recoil'
-import { OTPForm } from './OTPForm'
+import { useSetRecoilState } from 'recoil'
+import ForgotPasswordForm from './OTPForm'
 
 export const LoginForm: FC = () => {
   const setLoginRequest = useSetRecoilState(LoginRequestState)
@@ -17,7 +17,7 @@ export const LoginForm: FC = () => {
   return (
     <>
       {isFogot ? (
-        <OTPForm />
+        <ForgotPasswordForm onClose={() => setIsFogot(false)} />
       ) : (
         <div className="w-full flex justify-center mt-20">
           <form
