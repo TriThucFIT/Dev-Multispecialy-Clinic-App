@@ -21,9 +21,14 @@ export const PrescriptionInfo = () => {
   useEffect(() => {
     if (updateresult.state === 'hasValue' && currentPrescription) {
       setIsUpdate(false)
-      updateresult.contents
-        ? usePopup('Đã hoàn thành đơn thuốc', 'success')
-        : usePopup('Đã có lỗi xảy ra', 'error')
+      if (updateresult.contents) {
+        usePopup('Đã hoàn thành đơn thuốc', 'success')
+        ;(window.api as any).syncUnprocessedData({
+          message_id: currentPrescription.medicalRecordEntryId,
+          queue_name: 'pharmacist_general',
+          type: 'prescriptions'
+        })
+      } else usePopup('Đã có lỗi xảy ra', 'error')
     } else if (updateresult.state === 'hasError') {
       setIsUpdate(false)
       usePopup('Đã có lỗi xảy ra', 'error')

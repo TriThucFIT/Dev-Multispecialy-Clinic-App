@@ -6,6 +6,9 @@ import { Client } from '@stomp/stompjs'
 import WebSocket from 'ws'
 import NodeCache from 'node-cache'
 import { log } from 'console'
+import * as dotenv from 'dotenv'
+
+dotenv.config()
 
 let mainWindow: BrowserWindow
 const cache = new NodeCache({ stdTTL: 60 * 60 * 24 })
@@ -65,23 +68,32 @@ app.on('window-all-closed', () => {
 let stompClient: Client | null = null
 let emergencySubscriptionId: string | null = null
 let specialityId: string | null = null
+let queue_id: string | null = null
+
+interface cacheData {
+  queue_name: string
+  doctor_id: string | null
+  data: Array<any>
+}
 
 ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
-  console.log("ActiveMQ Connection", (import.meta.env as any).VITE_SOCKET_URL);
-  
-  if (!stompClient) {
-    stompClient = new Client({
-      brokerURL: (import.meta.env as any).VITE_SOCKET_URL ?? 'ws://localhost:61614/stomp',
-      webSocketFactory: () => {
-        return new WebSocket((import.meta.env as any).VITE_SOCKET_URL ?? 'ws://localhost:61614/stomp', 'stomp')
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 10000,
-      heartbeatOutgoing: 10000
-    })
-
-    stompClient.onConnect = (frame) => {
-      console.log('Connected: ' + frame)
+  try {
+    if (!stompClient) {
+      stompClient = new Client({
+        brokerURL: process.env.VITE_SOCKET_URL ?? 'ws://localhost:61614/stomp',
+        webSocketFactory: () => {
+          return new WebSocket(process.env.VITE_SOCKET_URL ?? 'ws://localhost:61614/stomp', 'stomp')
+        },
+        reconnectDelay: 5000,
+        heartbeatIncoming: 10000,
+        heartbeatOutgoing: 10000
+      })
+      stompClient.activate()
+    }
+    if (!stompClient.active) {
+      stompClient.activate()
+    }
+    stompClient.onConnect = (_frame) => {
       if (doctor_id) {
         const selector = `processor = 'general' OR processor = '${doctor_id}'`
         specialityId =
@@ -89,8 +101,21 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
             `/queue/${queue_name}`,
             (message) => {
               if (mainWindow && !mainWindow.isDestroyed()) {
-                console.log('subscribe-speciality', message.body)
+                const patients: cacheData = (cache.get('patients') || {
+                  queue_name: queue_name,
+                  doctor_id: doctor_id,
+                  data: []
+                }) as cacheData
+                if (patients.queue_name !== queue_name || patients.doctor_id !== doctor_id) {
+                  patients.queue_name = queue_name
+                  patients.doctor_id = doctor_id
+                  patients.data = []
+                }
+                console.log('Received patient', JSON.parse(message.body))
+                console.log('Patients', patients)
+                patients.data.push(JSON.parse(message.body))
                 mainWindow.webContents.send('received-patient', JSON.parse(message.body))
+                cache.set('patients', patients)
               }
             },
             {
@@ -98,60 +123,90 @@ ipcMain.on('start-listening', (_, { queue_name, doctor_id }) => {
             }
           ).id ?? null
 
+        queue_id = specialityId
+
+        console.log('Assigning to queue', queue_id)
+
         emergencySubscriptionId =
           stompClient?.subscribe('/topic/emergency', (message) => {
             if (mainWindow && !mainWindow.isDestroyed()) {
-              console.log('subscribe-emergency')
               mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
             }
           }).id ?? null
       } else {
-        console.log('Assigning to queue', queue_name)
+        queue_id =
+          stompClient?.subscribe(`/queue/${queue_name}`, (message) => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              if (queue_name.includes('casher')) {
+                const invoices: cacheData = (cache.get('invoices') || {
+                  queue_name: queue_name,
+                  doctor_id: null,
+                  data: []
+                }) as cacheData
 
-        stompClient?.subscribe(`/queue/${queue_name}`, (message) => {
-          console.log('Received message', message.body)
-
-          if (mainWindow && !mainWindow.isDestroyed()) {
-            console.log('subscribe-invoice', message.body)
-            console.log('subscribe-invoice JSON :', JSON.parse(message.body))
-            if (queue_name.includes('casher')) {
-              mainWindow.webContents.send('received-invoice', JSON.parse(message.body))
-            } else {
-              mainWindow.webContents.send('received-prescription', JSON.parse(message.body))
+                if (invoices.queue_name !== queue_name) {
+                  invoices.queue_name = queue_name
+                  invoices.doctor_id = null
+                  invoices.data = []
+                }
+                invoices.data.push(JSON.parse(message.body))
+                mainWindow.webContents.send('received-invoice', JSON.parse(message.body))
+                cache.set('invoices', invoices)
+              } else {
+                const prescriptions: cacheData = (cache.get('prescriptions') || {
+                  queue_name: queue_name,
+                  doctor_id: null,
+                  data: []
+                }) as cacheData
+                if (prescriptions.queue_name !== queue_name) {
+                  prescriptions.queue_name = queue_name
+                  prescriptions.doctor_id = null
+                  prescriptions.data = []
+                }
+                prescriptions.data.push(JSON.parse(message.body))
+                mainWindow.webContents.send('received-prescription', JSON.parse(message.body))
+                cache.set('prescriptions', prescriptions)
+              }
             }
-          }
-        })
+          }).id ?? null
       }
     }
-
-    stompClient.activate()
+  } catch (e) {
+    console.log('Error in start-listening', e)
   }
 })
 
 ipcMain.on('subscribe-emergency', (_, { queue_name, doctor_id }) => {
-  if (stompClient && stompClient.active && !emergencySubscriptionId && !specialityId) {
-    console.log('resubscribe-emergency')
-    emergencySubscriptionId = stompClient.subscribe('/topic/emergency', (message) => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        console.log('resubscribe to emergency')
-        mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
-      }
-    }).id
-
-    const selector = `processor = 'general' OR processor = '${doctor_id}'`
-
-    specialityId =
-      stompClient?.subscribe(
-        `/queue/${queue_name}`,
-        (message) => {
-          if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('received-patient', JSON.parse(message.body))
-          }
-        },
-        {
-          selector
+  console.log('subscribe-emergency', stompClient?.activate)
+  try {
+    if (stompClient && stompClient.connected && !emergencySubscriptionId && !specialityId) {
+      console.log('resubscribe-emergency')
+      emergencySubscriptionId = stompClient.subscribe('/topic/emergency', (message) => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          console.log('resubscribe to emergency')
+          mainWindow.webContents.send('received-emergency', JSON.parse(message.body))
         }
-      ).id ?? null
+      }).id
+
+      console.log('subscribing to speciality')
+      const selector = `processor = 'general' OR processor = '${doctor_id}'`
+      specialityId =
+        stompClient?.subscribe(
+          `/queue/${queue_name}`,
+          (message) => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send('received-patient', JSON.parse(message.body))
+            }
+          },
+          {
+            selector
+          }
+        ).id ?? null
+
+      console.log('subscribed to speciality', specialityId)
+    }
+  } catch (e) {
+    console.log('Error in subscribe-emergency', e)
   }
 })
 
@@ -186,43 +241,110 @@ ipcMain.on('maximize-window', () => {
 
 ipcMain.on(
   'sync-unprocessed-data',
-  (_, { messages, queue_name }: { messages: Array<any>; queue_name: string }) => {
+  (
+    _,
+    { message_id, queue_name, type }: { message_id: number; queue_name: string; type: string }
+  ) => {
     if (mainWindow && cache) {
-      log('sync-unprocessed-data', messages, queue_name)
-      cache.set(queue_name, messages)
+      const data: cacheData | undefined = cache.get(type)
+      console.log('Syncing unprocessed data in cache :', data)
+      if (data && data.queue_name === queue_name) {
+        const mess_in_cache = data.data.find((m) => {
+          const mess = JSON.parse(m)
+          console.log('Message ID recive :', message_id)
+
+          console.log('Message in cache data', mess)
+          return type === 'prescriptions'
+            ? mess.medicalRecordEntryId === message_id
+            : mess.id === message_id
+        })
+        console.log('Message in cache', mess_in_cache)
+        if (mess_in_cache) {
+          console.log('Syncing unprocessed data in cache :', mess_in_cache)
+          data.data = data.data.filter((m) => {
+            const mess = JSON.parse(m)
+            return type === 'prescriptions'
+              ? mess.medicalRecordEntryId !== message_id
+              : mess.id !== message_id
+          })
+          cache.set(type, data)
+        }
+        console.log('Syncing unprocessed data in new cache :', cache.get(type))
+      }
     }
   }
 )
 
-app.on('before-quit', async (e) => {
-  e.preventDefault()
-  log('before-quit')
-  if (mainWindow && cache && stompClient && stompClient.active) {
-    const queues = cache.keys()
-    log('queues quit', queues)
-    // for (const queue of queues) {
-    //   const messages: Array<string> = cache.get(queue) || []
-    //   if (messages) {
-    //     for (const message of messages) {
-    //       log('publishing', queue, message)
-    //       stompClient.publish({
-    //         destination: `/queue/${queue}`,
-    //         body: JSON.stringify(message)
-    //       })
-    //       log('published', queue, JSON.stringify(message))
-    //     }
-    //   }
-    // }
-    // await new Promise((resolve) => {
-    //   if (stompClient) {
-    //     stompClient.onDisconnect = resolve
-    //   }
-    // })
-    
+ipcMain.on('onLogout', async () => {
+  try {
+    console.log('Logout received', queue_id)
+    if (mainWindow && cache && stompClient && stompClient.active && queue_id) {
+      console.log('Logout and deactivate')
+
+      await resendDataToQueue()
+      stompClient.unsubscribe(queue_id)
+      stompClient.deactivate()
+    }
+  } catch (e) {
+    console.log('Error in logout', e)
+    if (queue_id) {
+      stompClient?.unsubscribe(queue_id)
+    }
     stompClient?.deactivate()
-    log('deactivate')
-    app.exit()
-  } else {
+  }
+})
+
+app.on('before-quit', async (e) => {
+  try {
+    e.preventDefault()
+    log('before-quit')
+    if (mainWindow && cache && stompClient && stompClient.active) {
+      await resendDataToQueue()
+
+      if (queue_id) {
+        stompClient?.unsubscribe(queue_id)
+      }
+
+      if (specialityId) {
+        stompClient.unsubscribe(specialityId)
+      }
+      if (emergencySubscriptionId) {
+        stompClient.unsubscribe(emergencySubscriptionId)
+      }
+      stompClient?.deactivate()
+      log('deactivate')
+      app.exit()
+    } else {
+      app.exit()
+    }
+  } catch (e) {
+    console.log('Error in before-quit', e)
     app.exit()
   }
 })
+
+const resendDataToQueue = async () => {
+  try {
+    if (mainWindow && cache && stompClient && stompClient.active) {
+      const unprocesseds = cache.keys()
+      log('queues quit', unprocesseds)
+      for (const unprocessed of unprocesseds) {
+        const data: cacheData | undefined = cache.get(unprocessed)
+        if (data) {
+          for (const message of data.data) {
+            log('publishing', unprocessed, message, data.queue_name)
+            stompClient.publish({
+              destination: `/queue/${data.queue_name}`,
+              body: JSON.stringify(message),
+              headers: { processor: 'general' }
+            })
+            log('published', unprocessed, message, data.queue_name)
+          }
+        }
+      }
+      cache.flushAll()
+    }
+  } catch (e) {
+    console.log('Error in resendDataToQueue', e)
+  }
+}

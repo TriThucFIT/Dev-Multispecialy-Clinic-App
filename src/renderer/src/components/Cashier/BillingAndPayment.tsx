@@ -127,10 +127,10 @@ export function BillingAndPayment() {
               }
             : item
         )
-        const unprocessedData = new_list.filter((item) => item.status !== InvoiceStatus.PAID)
-        ;(window.api as any).send('sync-unprocessed-data', {
-          messages: unprocessedData,
-          queue_name: 'casher_general'
+        ;(window.api as any).syncUnprocessedData({
+          message_id: billInfo?.id,
+          queue_name: 'casher_general',
+          type: 'invoices'
         })
         return new_list
       })
@@ -149,11 +149,12 @@ export function BillingAndPayment() {
 
   const onSelectChange = (newSelectedRowKeys: React.Key[], records: ServiceType[]) => {
     setSelectedRowKeys(newSelectedRowKeys)
-    const totalPrice = newSelectedRowKeys.reduce((acc: number, cur) => {     
+    const totalPrice = Number(newSelectedRowKeys.reduce((acc: number, cur) => {     
       
       const service = billInfo?.items.find((item) => item.id === cur)
       return acc + (service?.price ?? 0)
-    }, 0)
+    }, 0) )
+
     setInvoiceToPay({
       ...invoiceToPay,
       items_to_pay: records.map((record) => record.id),

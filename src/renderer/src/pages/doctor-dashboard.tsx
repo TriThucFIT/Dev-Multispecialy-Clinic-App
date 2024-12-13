@@ -132,6 +132,11 @@ export default function EnhancedDoctorScreen() {
             : oldList
       )
     }
+    ;(window.api as any).syncUnprocessedData({
+      message_id: currentPatient?.id,
+      queue_name: userCurent.specialization.specialization_id + '_specialization',
+      type: 'patients'
+    })
     clearAllExamination()
     const patient = pQueue.dequeue()
     setCurrentPatient(patient)

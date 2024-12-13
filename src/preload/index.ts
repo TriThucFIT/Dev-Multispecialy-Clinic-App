@@ -10,7 +10,8 @@ interface API {
   maximizeWindow: () => void
   subscribeEmergency: (data: { queue_name: string; doctor_id: string }) => void
   unSubscribeEmergency: () => void
-  syncUnprocessedData: (data: { messages: Array<any>; queue_name: string }) => void
+  onLogout: () => void
+  syncUnprocessedData: (data: { message_id: number; queue_name: string, type : string }) => void
 }
 
 const api: API = {
@@ -72,12 +73,17 @@ const api: API = {
    * Đồng bộ dữ liệu chưa xử lý.
    */
   syncUnprocessedData: (data) => {
-    if (data && data.messages && data.queue_name) {
+    if (data && data.message_id && data.queue_name && data.type) {
       ipcRenderer.send('sync-unprocessed-data', data)
     } else {
       console.error('Invalid data for syncUnprocessedData')
     }
-  }
+  },
+
+  /**
+   * Đăng ký callback để logout.
+   */
+  onLogout: () => ipcRenderer.send('onLogout')
 }
 
 // Đảm bảo chỉ expose API nếu context isolation được bật
