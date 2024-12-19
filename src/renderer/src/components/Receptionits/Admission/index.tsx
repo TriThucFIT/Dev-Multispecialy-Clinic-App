@@ -10,7 +10,13 @@ import { PatientSearch } from '@renderer/components/PatientSearch'
 import { Patient } from '@renderer/types/Patient/patient'
 import { AppointmentSearch } from '@renderer/components/AppointmentSearch'
 import { usePopup } from '@renderer/hooks/usePopup'
-import { checkDate } from '@renderer/utils/formatDate'
+import {
+  checkAfterDate,
+  checkAfterTime,
+  checkBeforeDate,
+  checkCurentDate,
+  checkExpiredTime
+} from '@renderer/utils/formatDate'
 
 export const Adsmission: FC = () => {
   const [patientType, setPatientType] = useRecoilState(patientTypeState)
@@ -53,12 +59,21 @@ export const Adsmission: FC = () => {
         return
     }
 
-    console.log("Check Date",checkDate(appointment.date))
-
-    if (!checkDate(appointment.date)) {
-      usePopup('Lịch hẹn đã quá hạn, đã tự động hủy', 'error')
+    if (
+      checkBeforeDate(appointment.date) ||
+      (checkCurentDate(appointment.date) && checkExpiredTime(appointment.time))
+    ) {
+      usePopup('Lịch hẹn đã quá hạn', 'error')
       return
     }
+    if (
+      checkAfterDate(appointment.date) ||
+      (checkCurentDate(appointment.date) && checkAfterTime(appointment.time))
+    ) {
+      usePopup('Chưa đến thời gian check-in', 'error')
+      return
+    }
+
     setIsShowSearch(false)
     setPatientType('new')
     setSearchTerm('')

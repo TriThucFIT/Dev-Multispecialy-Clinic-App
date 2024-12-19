@@ -16,7 +16,13 @@ import { IoMdCheckboxOutline } from 'react-icons/io'
 import { MdOutlineCancel } from 'react-icons/md'
 import { AppointmentService } from '@renderer/api/services/Appointment/appointment.service'
 import { usePopup } from '@renderer/hooks/usePopup'
-import { checkDate } from '@renderer/utils/formatDate'
+import {
+  checkAfterDate,
+  checkAfterTime,
+  checkBeforeDate,
+  checkCurentDate,
+  checkExpiredTime
+} from '@renderer/utils/formatDate'
 
 interface AppointmentPatientProps {
   onSelected: (appointment: Appointment) => void
@@ -127,7 +133,8 @@ export const AppointmentPatient: FC<AppointmentPatientProps> = ({ onSelected }) 
                                 <span className="font-semibold">Trạng thái:</span>{' '}
                                 <span
                                   className={
-                                    appointment?.status === AppointmentStatus.CANCELLED
+                                    appointment?.status === AppointmentStatus.CANCELLED ||
+                                    checkBeforeDate(appointment.date)
                                       ? 'text-error'
                                       : appointment?.status === AppointmentStatus.COMPLETED ||
                                           appointment?.status === AppointmentStatus.CHECKED_IN
@@ -135,7 +142,7 @@ export const AppointmentPatient: FC<AppointmentPatientProps> = ({ onSelected }) 
                                         : 'text-primary'
                                   }
                                 >
-                                  {appointment?.status || 'Chưa xác định'}
+                                  {appointment?.status || 'Không có trạng thái'}
                                 </span>
                               </div>
                             </div>
@@ -154,14 +161,16 @@ export const AppointmentPatient: FC<AppointmentPatientProps> = ({ onSelected }) 
                               </div>
                             </div>
                           </div>
-                          {checkDate(appointment.date) ? (
+                          {checkCurentDate(appointment.date) && (
                             <div className="col-span-2 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full">
                               <div className="flex justify-center items-center w-full sm:w-full flex-grow">
                                 <button
                                   disabled={
                                     appointment.status === AppointmentStatus.COMPLETED ||
                                     appointment.status === AppointmentStatus.CHECKED_IN ||
-                                    appointment.status === AppointmentStatus.CANCELLED
+                                    appointment.status === AppointmentStatus.CANCELLED ||
+                                    checkAfterTime(appointment.time) ||
+                                    checkExpiredTime(appointment.time)
                                   }
                                   className={`btn ${
                                     appointment.status === AppointmentStatus.COMPLETED ||
@@ -173,12 +182,20 @@ export const AppointmentPatient: FC<AppointmentPatientProps> = ({ onSelected }) 
                                   } btn-outline rounded-xl w-full`}
                                   onClick={() => onSelected(appointment)}
                                 >
-                                  <IoMdCheckboxOutline size={18} />{' '}
-                                  <span className="hidden lg:flex">
-                                    {appointment.status === AppointmentStatus.COMPLETED
-                                      ? 'Hoàn thành'
-                                      : 'Check-in'}
-                                  </span>
+                                  {checkAfterTime(appointment.time) ? (
+                                    'Chưa đến giờ'
+                                  ) : checkExpiredTime(appointment.time) ? (
+                                    'Trễ hẹn quá 30 phút'
+                                  ) : (
+                                    <>
+                                      <IoMdCheckboxOutline size={18} />{' '}
+                                      <span className="hidden lg:flex">
+                                        {appointment.status === AppointmentStatus.COMPLETED
+                                          ? 'Hoàn thành'
+                                          : 'Check-in'}
+                                      </span>
+                                    </>
+                                  )}
                                 </button>
                               </div>
                               <div className="flex justify-center items-center w-full sm:w-full flex-grow">
@@ -200,11 +217,34 @@ export const AppointmentPatient: FC<AppointmentPatientProps> = ({ onSelected }) 
                                 </button>
                               </div>
                             </div>
-                          ) : (
+                          )}
+                          {checkBeforeDate(appointment.date) && (
                             <div className="flex-1">
                               <span className="text-muted-foreground italic w-full">
-                                Lịch hẹn đã quá hạn, đã tự động hủy
+                                Lịch hẹn đã quá hạn
                               </span>
+                            </div>
+                          )}
+                          {checkAfterDate(appointment.date) && (
+                            <div className="flex-1">
+                              <div className="flex justify-center items-center w-full sm:w-full flex-grow">
+                                <button
+                                  disabled={
+                                    appointment.status === AppointmentStatus.CANCELLED ||
+                                    appointment.status === AppointmentStatus.COMPLETED ||
+                                    appointment.status === AppointmentStatus.CHECKED_IN
+                                  }
+                                  onClick={() => handleCancel(appointment.id)}
+                                  className="btn btn-outline btn-error rounded-xl w-full"
+                                >
+                                  <MdOutlineCancel size={18} />
+                                  <span className="hidden lg:flex">
+                                    {appointment.status === AppointmentStatus.CANCELLED
+                                      ? 'Đã hủy'
+                                      : 'Hủy'}
+                                  </span>
+                                </button>
+                              </div>
                             </div>
                           )}
                         </div>

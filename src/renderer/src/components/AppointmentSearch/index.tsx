@@ -10,7 +10,7 @@ import {
   appointmentByPatientState,
   AppointmentStatus
 } from '../Receptionits/Admission/stores'
-import { checkDate } from '@renderer/utils/formatDate'
+import { checkBeforeDate } from '@renderer/utils/formatDate'
 
 export const AppointmentSearch = ({ searchValue, onSelected }) => {
   const appointmentService = new AppointmentService()
@@ -28,7 +28,9 @@ export const AppointmentSearch = ({ searchValue, onSelected }) => {
         .then((res) => {
           const appointments = res?.map((appointment) => ({
             ...appointment,
-            status: !checkDate(appointment.date) ? AppointmentStatus.CANCELLED : appointment.status
+            status: checkBeforeDate(appointment.date)
+              ? AppointmentStatus.CANCELLED
+              : appointment.status
           }))
           setAppointments(appointments || [])
           setIsSearching(false)
