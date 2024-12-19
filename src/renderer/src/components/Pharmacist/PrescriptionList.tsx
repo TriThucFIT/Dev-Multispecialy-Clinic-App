@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import clsx from 'clsx'
 import { useEffect, useState } from 'react'
-import { FaFileCirclePlus } from 'react-icons/fa6'
-import { Button } from 'antd'
+// import { FaFileCirclePlus } from 'react-icons/fa6'
+// import { Button } from 'antd'
 import { CreatePrescription } from './CreatePrescription'
 import { createPrescription, PrescriptionQueue } from '@renderer/utils/PriorityQueueCustomize'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
@@ -61,12 +61,12 @@ export const PrescriptionList = () => {
         <CardHeader>
           <CardTitle>Danh sách Đơn Thuốc</CardTitle>
         </CardHeader>
-        <div className="px-6 mb-2 flex justify-end">
+        {/* <div className="px-6 mb-2 flex justify-end">
           <Button type="primary" onClick={() => setIsModalOpen(true)}>
             <FaFileCirclePlus />
             Tạo đơn thuốc mới
           </Button>
-        </div>
+        </div> */}
         <div className="px-6 mb-2">
           <Search placeholder="Số điện thoại hoặc Tên" onSearch={onSearch} />
         </div>

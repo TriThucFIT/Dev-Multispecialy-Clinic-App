@@ -146,7 +146,7 @@ export default function EnhancedDoctorScreen() {
     <div className="w-screen h-screen flex *:bg-gradient-to-b from-blue-100 to-white">
       <div className="min-h-screen w-full overflow-auto">
         <h1 className="w-full text-3xl lg:text-5xl font-extrabold text-center my-5 text-[#299ec4]">
-          Phòng Khám Đa Khoa DMC - Khoa Tim Mạch
+          Phòng Khám Đa Khoa DMC - Khoa {userCurent?.specialization?.name}
         </h1>
         <CardInfo />
         <div className="flex flex-col lg:flex-row gap-6 w-full p-4">

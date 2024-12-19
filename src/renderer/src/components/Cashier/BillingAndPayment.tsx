@@ -1,7 +1,7 @@
 import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { IoPrintSharp } from 'react-icons/io5'
+// import { IoPrintSharp } from 'react-icons/io5'
 import { useEffect, useState } from 'react'
 import { Input, Select } from 'antd'
 import { Edit2 } from 'iconsax-react'
@@ -187,14 +187,14 @@ export function BillingAndPayment() {
       <CardHeader>
         <div className="flex justify-between">
           <CardTitle>Thanh Toán Hóa Đơn</CardTitle>
-          <Button variant="ghost" className="w-32">
+          {/* <Button variant="ghost" className="w-32">
             <div className="flex gap-2">
               <span>
                 <IoPrintSharp className="text-primary-600 text-lg" />
               </span>
               <span> In Hóa Đơn</span>
             </div>
-          </Button>
+          </Button> */}
         </div>
       </CardHeader>
       <CardContent>

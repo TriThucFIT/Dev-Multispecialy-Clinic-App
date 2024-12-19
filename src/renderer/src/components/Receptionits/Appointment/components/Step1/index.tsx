@@ -38,7 +38,12 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
   const [isShowSearch, setIsShowSearch] = useRecoilState(iShowSearchCompnent)
 
   const gridClasses = 'grid grid-cols-2 gap-5'
-  const disableHours: number[] = [0, 1, 2, 3, 4, 5, 6, 19, 20, 21, 22, 23]
+  // const [disableHours, setDisableHours] = useState<number[]>([0, 1, 2, 3, 4, 5, 6, 7, 21, 22, 23])
+
+  const [disableInHours, setDisableInHours] = useState([
+    0, 1, 2, 3, 4, 5, 6, 18, 19, 20, 21, 22, 23
+  ])
+  const disbaleOutHours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 21, 22, 23]
 
   const formValues = useRecoilValue(formValuesState)
 
@@ -64,7 +69,7 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
   const disabledDate: RangePickerProps['disabledDate'] = (current) => {
     const today = dayjs().endOf('day')
     const maxDate = dayjs().add(15, 'day').endOf('day')
-    return current < today || current > maxDate
+    return current < today.subtract(1, 'day') || current > maxDate
   }
 
   const handleSelectSpecialty = (value: string) => {
@@ -98,6 +103,18 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
   }
 
   const handleDateAppointment: DatePickerProps<Dayjs[]>['onChange'] = (_date, dateString) => {
+    const date = dayjs(formatDate(dateString as string))
+    if (date.isSame(dayjs(), 'day')) {
+      let currentHour = dayjs().hour() + 1
+      const currentMinute = dayjs().minute()
+      if (currentMinute > 45) {
+        currentHour++
+      }
+      const hoursToDisable = Array.from({ length: currentHour }, (_, i) => i)
+      setDisableInHours((prev) => [...new Set([...prev, ...hoursToDisable])])
+    } else {
+      setDisableInHours([0, 1, 2, 3, 4, 5, 6, 18, 19, 20, 21, 22, 23])
+    }
     setForm((prev) => ({
       ...prev,
       date: formatDate(dateString as string)
@@ -105,6 +122,11 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
   }
 
   const handleTimeAppointment: TimePickerProps['onChange'] = (_time, timeString) => {
+    if (!timeString) {
+      setForm((prev) => ({ ...prev, time: '' }))
+      return
+    }
+
     setForm((prev) => ({ ...prev, time: timeString as string }))
   }
 
@@ -127,22 +149,37 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
   return (
     <div className="bg-white bg-opacity-65 shadow-2xl rounded-2xl p-3">
       <div className={gridClasses}>
-        <Form.Item
-          label="Chọn loại dịch vụ khám"
-          name="serviceType"
-          initialValue={'InHour'}
-          required
-        >
-          <Radio.Group
-            buttonStyle="solid"
-            onChange={(e: RadioChangeEvent) =>
-              setForm((prev) => ({ ...prev, service: e.target.value }))
-            }
+        <div className="flex items-center justify-betweenF">
+          <Form.Item
+            label="Loại dịch vụ khám"
+            name="serviceType"
+            initialValue={formValues.service || 'InHour'}
           >
-            <Radio.Button value="InHour">Khám Thường</Radio.Button>
-            <Radio.Button value="OutHour">Khám Ngoài Giờ</Radio.Button>
-          </Radio.Group>
-        </Form.Item>
+            <Radio.Group
+              buttonStyle="solid"
+              defaultValue={formValues.service || 'InHour'}
+              onChange={(e: RadioChangeEvent) => {
+                setForm((prev) => ({ ...prev, service: e.target.value, time: null }))
+                form.setFieldsValue({ timeAppointment: null })
+              }}
+            >
+              <Radio.Button value="InHour">
+                <span>Khám thường</span>
+              </Radio.Button>
+              <Radio.Button value="OutHour">
+                <span>Khám Ngoài Giờ</span>
+              </Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+          <Button type="dashed" className="ml-5 mt-2">
+            {formValues.service
+              ? formValues.service === 'InHour'
+                ? '100.000đ'
+                : '150.000đ'
+              : '100.000đ'}
+          </Button>
+        </div>
+
         <div className="">
           <Form.Item
             label="Số điện thoại"
@@ -238,10 +275,13 @@ export const Step1 = ({ form }: { form: FormInstance }) => {
             format={'HH:mm'}
             minuteStep={15}
             disabledTime={() => ({
-              disabledHours: () => disableHours
+              disabledHours: () => {
+                return formValues.service === 'InHour' ? disableInHours : disbaleOutHours
+              }
             })}
             hideDisabledOptions
             className="w-full"
+            showNow={false}
             onChange={handleTimeAppointment}
           />
         </Form.Item>

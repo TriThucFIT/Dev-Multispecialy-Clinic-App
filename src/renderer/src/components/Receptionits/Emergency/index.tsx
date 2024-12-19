@@ -10,10 +10,11 @@ export default function Emergency() {
   const handleSubmit = () => {
     form.validateFields().then(async (values) => {
       try {
-        console.log("values:", values);
-        
         const admissionService = new AppointmentService()
-        const regis = await admissionService.registrationEmergency(values)
+        const regis = await admissionService.registrationEmergency({
+          ...values,
+          fullName: values.fullName || 'Bệnh nhân không rõ'
+        })
         if (regis && regis.data) {
           form.resetFields()
           usePopup('Đã tiếp nhận bệnh nhân cấp cứu', 'success')
@@ -40,36 +41,35 @@ export default function Emergency() {
           <span className="text-primary">DMC</span>
         </h1>
         <div className="grid grid-cols-2 gap-5">
-          <Form.Item
-            label="Họ và tên"
-            name="fullName"
-            rules={[
-              {
-                required: true,
-                message: 'Họ và tên không được để trống'
-              }
-            ]}
-          >
+          <Form.Item label="Họ và tên (nếu biết)" name="fullName">
             <Input
               placeholder="Nhập họ và tên"
               onChange={(e: any) => form.setFieldsValue({ fullName: e.target.value })}
             />
           </Form.Item>
           <Form.Item
-            label="Tuổi"
+            label="Tuổi (Ước lượng)"
             name="age"
             rules={[
               {
                 required: true,
-                message: 'Tuổi không được để trống'
+                message: 'Tuổi không được để trống, nên tạm đoán nếu không biết chính xác'
               },
               {
-                pattern: /^[0-9]*$/,
-                message: 'Tuổi phải là số'
+                pattern: /^[1-9][0-9]{0,2}$/,
+                message: 'Tuổi phải là một số dương, từ 1 đến 150'
+              },
+              {
+                validator: (_, value) => {
+                  if (value && parseInt(value) > 150) {
+                    return Promise.reject('Tuổi không được lớn hơn 150')
+                  }
+                  return Promise.resolve()
+                }
               }
             ]}
           >
-            <Input id="age" />
+            <Input id="age" type="number" min={1} max={150} />
           </Form.Item>
         </div>
         <div className="grid grid-cols-2 gap-5">

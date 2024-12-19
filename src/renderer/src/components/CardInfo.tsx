@@ -16,6 +16,7 @@ import { FaRegCircleUser } from 'react-icons/fa6'
 import { useRecoilValue, useResetRecoilState } from 'recoil'
 import { LoginRequestState, TokenState, UserState } from '@renderer/state'
 import PasswordResetModal from './PasswordResetModal'
+import DigitalClock from './Clock'
 
 export enum eUserType {
   doctor = 'doctor',
@@ -92,11 +93,11 @@ export function CardInfo() {
         <div className="px-3 py-1">
           <div className="flex items-center">
             <Clock className="mr-2 h-4 w-4 text-hospital" />
-            <span>Ca làm việc: 8:00 - 16:00</span>
+            <DigitalClock/>
           </div>
           <div className="flex items-center">
             <Calendar className="mr-2 h-4 w-4 text-hospital" />
-            <span>Ngày: {new Date().toLocaleDateString('vi-VN')}</span>
+            <span>{new Date().toLocaleDateString('vi-VN')}</span>
           </div>
         </div>
       </Card>

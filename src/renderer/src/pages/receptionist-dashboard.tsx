@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Tabs, TabsContent, TabsListCol, TabsTriggerCol } from '../components/ui/tabs'
-import { PatientLookup } from '../components/Receptionits/PatientLookup'
-import { QueueManagement } from '../components/Receptionits/QueueManagement'
+// import { PatientLookup } from '../components/Receptionits/PatientLookup'
+// import { QueueManagement } from '../components/Receptionits/QueueManagement'
 import { CardInfo } from '@renderer/components/CardInfo'
-import { BiPencil, BiCalendar, BiSearchAlt, BiListOl } from 'react-icons/bi'
+import { BiPencil, BiCalendar } from 'react-icons/bi'
 import { TbUrgent } from 'react-icons/tb'
 import Appointment from '@renderer/components/Receptionits/Appointment'
 import { Adsmission } from '@renderer/components/Receptionits/Admission'
@@ -38,8 +38,8 @@ export default function ReceptionistDashboard() {
                   <TabsTrigger value="registration" title="Đăng Ký" icon={<BiPencil />} />
                   <TabsTrigger value="appointments" title="Lịch Hẹn" icon={<BiCalendar />} />
                   <TabsTrigger value="emergency" title="Cấp Cứu" icon={<TbUrgent />} />
-                  <TabsTrigger value="lookup" title="Tra Cứu" icon={<BiSearchAlt />} />
-                  <TabsTrigger value="queue" title="Danh Sách Chờ" icon={<BiListOl />} />
+                  {/* <TabsTrigger value="lookup" title="Tra Cứu" icon={<BiSearchAlt />} />
+                  <TabsTrigger value="queue" title="Danh Sách Chờ" icon={<BiListOl />} /> */}
                 </TabsListCol>
                 <div className="col-span-6 overflow-hidden h-full max-h-[82vh]">
                   <TabsContent value="registration" className="h-full overflow-y-auto">
@@ -49,15 +49,14 @@ export default function ReceptionistDashboard() {
                     <Appointment />
                   </TabsContent>
                   <TabsContent value="emergency" className="h-full overflow-y-auto">
-                    {/* <EmergencyRegistration /> */}
                     <Emergency />
                   </TabsContent>
-                  <TabsContent value="lookup" className="h-full overflow-y-auto">
+                  {/* <TabsContent value="lookup" className="h-full overflow-y-auto">
                     <PatientLookup />
                   </TabsContent>
                   <TabsContent value="queue" className="h-full overflow-y-auto">
                     <QueueManagement />
-                  </TabsContent>
+                  </TabsContent> */}
                 </div>
               </div>
             </Tabs>

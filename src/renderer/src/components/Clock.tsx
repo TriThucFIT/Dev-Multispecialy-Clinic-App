@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const Clock = () => {
+const DigitalClock = () => {
   const [time, setTime] = useState(new Date())
 
   useEffect(() => {
@@ -16,11 +16,7 @@ const Clock = () => {
     return `${hours}:${minutes}:${seconds}`
   }
 
-  return (
-    <div className="btn btn-outline px-5 hover:bg-[#299ec4] hover:text-white hover:border-none">
-      {formatTime(time)}
-    </div>
-  )
+  return <div className="font-semibold text-primary">{formatTime(time)}</div>
 }
 
-export default Clock
+export default DigitalClock

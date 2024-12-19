@@ -5,7 +5,6 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { FileText, Stethoscope, TestTube, Pill, ClipboardList, CircleCheck } from 'lucide-react'
-import { AIAssistant } from './AIAssistant'
 import {
   Dialog,
   DialogClose,
@@ -34,7 +33,6 @@ import { useEffect } from 'react'
 export function PatientExamination({
   patient,
   onSubmitExamination,
-  aiAssistEnabled
 }: PatientExaminationProps) {
   const [diagnosis, setDiagnosis] = useRecoilState(diagnosisState)
   const [treatmentPlan, setTreatmentPlan] = useRecoilState(treatmentPlanState)
@@ -105,7 +103,7 @@ export function PatientExamination({
                 onChange={(e) => setTreatmentPlan(e.target.value)}
               />
 
-              {aiAssistEnabled && <AIAssistant />}
+              {/* {aiAssistEnabled && <AIAssistant />} */}
             </div>
           </TabsContent>
           <TabsContent value="labTests">

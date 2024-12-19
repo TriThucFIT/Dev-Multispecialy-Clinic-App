@@ -27,6 +27,8 @@ export class AppointmentService {
   }
   async getAppointmentByDate(date: string): Promise<Appointment[]> {
     try {
+      console.log('date', date);
+      
       const appointments = await AxiosInstance.get('/appointment', { params: { date } })
       if (appointments.status === 200) {
         return appointments.data

@@ -74,7 +74,7 @@ export const stepState = atom({
 interface FormValuesStep1 {
   service: 'InHour' | 'OutHour'
   date: string
-  time: string
+  time: string | null
   doctor: DoctorAppointment | null
   symptoms: string
   patient: PatientCreationDTO
